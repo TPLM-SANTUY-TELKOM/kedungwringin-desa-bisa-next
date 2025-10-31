@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -54,7 +54,7 @@ export default function SuratMasukPage() {
 
   const fetchSurat = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("surat")
         .select(
           `

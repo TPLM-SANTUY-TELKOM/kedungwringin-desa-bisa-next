@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/client";
 import { Users, FileText, UserCheck, Inbox } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { useRouter } from "next/navigation";
@@ -30,12 +30,12 @@ export default function DashboardPage() {
   const fetchStats = async () => {
     try {
       const [pendudukRes, suratRes] = await Promise.all([
-        supabase.from("penduduk").select("status", { count: "exact" }),
-        supabase.from("surat").select("*", { count: "exact" }),
+        db.from("penduduk").select("status", { count: "exact" }),
+        db.from("surat").select("*", { count: "exact" }),
       ]);
 
       const totalPenduduk = pendudukRes.count || 0;
-      const totalAktif = pendudukRes.data?.filter((p) => p.status === "Aktif").length || 0;
+      const totalAktif = pendudukRes.data?.filter((p: any) => p.status === "Aktif").length || 0;
       const totalSurat = suratRes.count || 0;
 
       setStats({

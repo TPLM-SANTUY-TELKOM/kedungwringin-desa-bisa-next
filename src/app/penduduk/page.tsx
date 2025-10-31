@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -57,7 +57,7 @@ export default function PendudukPage() {
 
   const fetchPenduduk = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("penduduk")
         .select("*")
         .order("nama", { ascending: true });
@@ -86,7 +86,7 @@ export default function PendudukPage() {
     if (!confirm("Apakah Anda yakin ingin menghapus data ini?")) return;
 
     try {
-      const { error } = await supabase.from("penduduk").delete().eq("id", id);
+      const { error } = await db.from("penduduk").delete().eq("id", id);
 
       if (error) throw error;
 

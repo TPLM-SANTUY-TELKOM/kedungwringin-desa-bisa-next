@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -76,7 +76,7 @@ export default function Home() {
 
     setSearchingNik(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .rpc("search_penduduk_by_nik", { p_nik: nik });
 
       if (error) throw error;
@@ -141,7 +141,7 @@ export default function Home() {
 
     try {
       // Submit surat using RPC function (works for public/unauthenticated users)
-      const { data: suratData, error: suratError } = await supabase
+      const { data: suratData, error: suratError } = await db
         .rpc("submit_public_surat", {
           p_jenis_surat: jenisSurat as any,
           p_penduduk_id: selectedPenduduk.id,
