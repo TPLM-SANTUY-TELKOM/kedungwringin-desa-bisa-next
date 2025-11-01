@@ -52,49 +52,49 @@ export default async function PreviewPage({ params, searchParams }: PreviewPageP
   switch (surat.slug) {
     case "formulir-pengantar-nikah":
       return (
-        <main className="min-h-screen bg-[#EBEFF3] px-6 pb-16 pt-10 sm:px-10 sm:pt-12">
+        <main className="min-h-screen bg-[#EBEFF3] px-6 pb-16 pt-10 print:min-h-0 print:bg-white print:px-0 print:pb-0 print:pt-0 sm:px-10 sm:pt-12">
           <PreviewN1 surat={surat} data={formData as FormN1Data} />
         </main>
       );
     case "formulir-permohonan-kehendak-perkawinan":
       return (
-        <main className="min-h-screen bg-[#EBEFF3] px-6 pb-16 pt-10 sm:px-10 sm:pt-12">
+        <main className="min-h-screen bg-[#EBEFF3] px-6 pb-16 pt-10 print:min-h-0 print:bg-white print:px-0 print:pb-0 print:pt-0 sm:px-10 sm:pt-12">
           <PreviewN2 surat={surat} data={formData as FormN2Data} />
         </main>
       );
     case "formulir-surat-persetujuan-mempelai":
       return (
-        <main className="min-h-screen bg-[#EBEFF3] px-6 pb-16 pt-10 sm:px-10 sm:pt-12">
+        <main className="min-h-screen bg-[#EBEFF3] px-6 pb-16 pt-10 print:min-h-0 print:bg-white print:px-0 print:pb-0 print:pt-0 sm:px-10 sm:pt-12">
           <PreviewN3 surat={surat} data={formData as FormN3Data} />
         </main>
       );
     case "formulir-surat-izin-orang-tua":
       return (
-        <main className="min-h-screen bg-[#EBEFF3] px-6 pb-16 pt-10 sm:px-10 sm:pt-12">
+        <main className="min-h-screen bg-[#EBEFF3] px-6 pb-16 pt-10 print:min-h-0 print:bg-white print:px-0 print:pb-0 print:pt-0 sm:px-10 sm:pt-12">
           <PreviewN4 surat={surat} data={formData as FormN4Data} />
         </main>
       );
     case "formulir-surat-keterangan-kematian":
       return (
-        <main className="min-h-screen bg-[#EBEFF3] px-6 pb-16 pt-10 sm:px-10 sm:pt-12">
+        <main className="min-h-screen bg-[#EBEFF3] px-6 pb-16 pt-10 print:min-h-0 print:bg-white print:px-0 print:pb-0 print:pt-0 sm:px-10 sm:pt-12">
           <PreviewN6 surat={surat} data={formData as FormN6Data} />
         </main>
       );
     case "surat-keterangan-wali-nikah":
       return (
-        <main className="min-h-screen bg-[#EBEFF3] px-6 pb-16 pt-10 sm:px-10 sm:pt-12">
+        <main className="min-h-screen bg-[#EBEFF3] px-6 pb-16 pt-10 print:min-h-0 print:bg-white print:px-0 print:pb-0 print:pt-0 sm:px-10 sm:pt-12">
           <PreviewWaliNikah surat={surat} data={formData as WaliNikahData} />
         </main>
       );
     case "surat-pernyataan-belum-menikah":
       return (
-        <main className="min-h-screen bg-[#EBEFF3] px-6 pb-16 pt-10 sm:px-10 sm:pt-12">
+        <main className="min-h-screen bg-[#EBEFF3] px-6 pb-16 pt-10 print:min-h-0 print:bg-white print:px-0 print:pb-0 print:pt-0 sm:px-10 sm:pt-12">
           <PreviewPernyataanBelumMenikah surat={surat} data={formData as PernyataanBelumMenikahData} />
         </main>
       );
     case "surat-pengantar-numpang-nikah":
       return (
-        <main className="min-h-screen bg-[#EBEFF3] px-6 pb-16 pt-10 sm:px-10 sm:pt-12">
+        <main className="min-h-screen bg-[#EBEFF3] px-6 pb-16 pt-10 print:min-h-0 print:bg-white print:px-0 print:pb-0 print:pt-0 sm:px-10 sm:pt-12">
           <PreviewPengantarNumpang surat={surat} data={formData as PengantarNumpangNikahData} />
         </main>
       );
