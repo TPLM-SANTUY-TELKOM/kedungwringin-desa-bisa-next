@@ -1,5 +1,4 @@
 import type { CSSProperties } from "react";
-import type { CSSProperties } from "react";
 import Image, { type StaticImageData } from "next/image";
 import Link from "next/link";
 import bgDecoration from "@/assets/bg_ajukan_surat.png";

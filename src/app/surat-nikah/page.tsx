@@ -1,54 +1,39 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
-
-type SuratNikahOption = {
-  code?: string;
-  title: string;
-  description: string;
-};
-
-const SURAT_NIKAH_OPTIONS: SuratNikahOption[] = [
-  {
-    code: "N1",
-    title: "Surat keterangan untuk nikah",
-    description: "Surat keterangan untuk menikah",
-  },
-  {
-    code: "N2",
-    title: "Surat keterangan asal usul",
-    description: "Keterangan asal usul mempelai",
-  },
-  {
-    code: "N3",
-    title: "Surat Pemberitahuan Kehendak Nikah",
-    description: "Pemberitahuan kehendak menikah",
-  },
-  {
-    code: "N5",
-    title: "Surat Izin Orang Tua",
-    description: "Untuk surat izin orang tua",
-  },
-  {
-    code: "N6",
-    title: "Surat Kematian Suami/Istri",
-    description: "Untuk menikah lagi setelah kematian pasangan",
-  },
-  {
-    title: "Surat keterangan wali",
-    description: "Perwalian dari keluarga (Ayah/Kakek/Saudara)",
-  },
-  {
-    title: "Surat pernyataan belum nikah",
-    description: "Untuk menikah lagi setelah kematian pasangan",
-  },
-];
+import logoDesa from "@/assets/ic_logo_banyumas.png";
+import { SURAT_NIKAH_OPTIONS } from "@/data/surat-nikah-options";
 
 export default function SuratNikahPage() {
   return (
-    <main className="min-h-screen bg-[#eef3fb] px-6 py-10 sm:py-16">
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
+    <main className="min-h-screen bg-[#EBEFF3] px-6 pb-16 pt-10 sm:px-10 sm:pt-12">
+      <header className="flex w-full items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="relative h-12 w-12 shrink-0 rounded-full bg-white shadow-[6px_6px_12px_rgba(200,205,215,0.35),_-6px_-6px_12px_rgba(255,255,255,0.9)]">
+            <Image
+              src={logoDesa}
+              alt="Logo Desa Kedungwringin"
+              fill
+              sizes="48px"
+              className="object-contain p-1"
+              priority
+            />
+          </div>
+          <span className="text-base font-semibold text-slate-900 sm:text-lg">
+            Desa Kedungwringin
+          </span>
+        </div>
+        <Link
+          href="/admin"
+          className="inline-flex items-center justify-center rounded-[18px] bg-[#ff6435] px-5 py-2.5 text-sm font-semibold text-white shadow-[8px_8px_18px_rgba(203,47,0,0.35),_-8px_-8px_18px_rgba(255,255,255,0.65)] transition-all duration-200 hover:shadow-[12px_12px_24px_rgba(203,47,0,0.35),_-8px_-8px_20px_rgba(255,255,255,0.8)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#ff6435]/20 focus-visible:ring-offset-4 focus-visible:ring-offset-[#EBEFF3] active:scale-[0.98]"
+        >
+          Admin Login
+        </Link>
+      </header>
+
+      <div className="mx-auto mt-14 flex w-full max-w-4xl flex-col gap-8">
         <div className="flex flex-col gap-6">
           <Link
             href="/"
@@ -71,21 +56,24 @@ export default function SuratNikahPage() {
 
         <div className="space-y-4">
           {SURAT_NIKAH_OPTIONS.map((option) => (
-            <Card
-              key={`${option.code ?? option.title}`}
-              className="rounded-3xl border border-slate-200 bg-white shadow-sm"
+            <Link
+              key={option.slug}
+              href={`/surat-nikah/${option.slug}`}
+              className="block transition-transform hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-[#EBEFF3]"
             >
-              <CardContent className="space-y-1 p-6 sm:p-8">
-                <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">
-                  {option.code
-                    ? `${option.code} - ${option.title}`
-                    : option.title}
-                </h2>
-                <p className="text-sm text-slate-600 sm:text-base">
-                  {option.description}
-                </p>
-              </CardContent>
-            </Card>
+              <Card className="rounded-3xl border border-white/40 bg-white/80 shadow-[5px_5px_16px_rgba(197,205,214,0.35)] backdrop-blur">
+                <CardContent className="space-y-1 p-6 sm:p-8">
+                  <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">
+                    {option.code
+                      ? `${option.code} - ${option.title}`
+                      : option.title}
+                  </h2>
+                  <p className="text-sm text-slate-600 sm:text-base">
+                    {option.description}
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       </div>

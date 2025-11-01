@@ -154,3 +154,37 @@ All colors MUST be HSL.
 .shadow-card {
   box-shadow: var(--shadow-card);
 }
+
+@page {
+  size: A4 portrait;
+  margin: 15mm 18mm;
+}
+
+@media print {
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  main {
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .print-wrapper {
+    box-shadow: none !important;
+    border: 0 !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
+  .print-sheet {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .print-hidden {
+    display: none !important;
+  }
+}
