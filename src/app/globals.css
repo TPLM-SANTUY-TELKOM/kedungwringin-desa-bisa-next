@@ -123,7 +123,7 @@ All colors MUST be HSL.
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-poppins);
   --font-mono: var(--font-geist-mono);
   --radius: var(--radius);
 }
@@ -153,4 +153,64 @@ All colors MUST be HSL.
 
 .shadow-card {
   box-shadow: var(--shadow-card);
+}
+
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+
+@media print {
+  :root {
+    color-scheme: light;
+  }
+
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    margin: 0 !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  main {
+    background: transparent !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .print-wrapper {
+    box-shadow: none !important;
+    border: 0 !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    background: transparent !important;
+    width: 100% !important;
+    max-width: 210mm !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  .print-sheet {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    width: 100% !important;
+    max-width: 210mm !important;
+    padding: 18mm 20mm 18mm 20mm !important;
+    box-sizing: border-box !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .print-sheet * {
+    break-inside: avoid;
+  }
+
+  .print-hidden {
+    display: none !important;
+  }
 }
