@@ -6,6 +6,7 @@ import logoDesa from "@/assets/ic_logo_banyumas.png";
 import iconSuratKeterangan from "@/assets/ic_surat_keterangan.png";
 import iconSuratNikah from "@/assets/ic_surat_nikah.png";
 import iconSuratPengantar from "@/assets/ic_surat_pengantar.png";
+import bg_hero from "@/assets/bg_hero.png";
 
 type SuratMenuItem = {
   title: string;
@@ -112,6 +113,36 @@ export default function Home() {
           Admin Login
         </Link>
       </header>
+
+      <section className="relative z-10 mx-auto flex w-full max-w-6xl flex-col-reverse items-center gap-8 px-6 pb-16 sm:px-10 md:flex-row md:gap-16 md:pt-3">
+        <div className="flex-1 text-center md:text-left">
+          <h1 className="text-2xl font-bold text-slate-900 sm:text-4xl lg:text-3xl lg:leading-tight">
+            Pelayanan Surat Digital untuk Segala Kebutuhan Surat di Desa
+            Kedungwringin
+          </h1>
+          <p className="mt-4 text-base text-slate-600 sm:text-lg">
+            Solusi mudah untuk administrasi surat-menyurat Anda. Cepat, praktis,
+            dan dapat diakses kapan saja.
+          </p>
+          <Link
+            href="#ajukan-surat"
+            className="mt-8 inline-flex items-center justify-center rounded-[18px] bg-[#ff6435] px-6 py-3 text-base font-semibold text-white shadow-[8px_8px_18px_rgba(203,47,0,0.35),_-8px_-8px_18px_rgba(255,255,255,0.65)] transition-all duration-200 hover:shadow-[12px_12px_24px_rgba(203,47,0,0.35),_-8px_-8px_20px_rgba(255,255,255,0.8)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#ff6435]/20 focus-visible:ring-offset-4 focus-visible:ring-offset-[#EBEFF3] active:scale-[0.98]"
+          >
+            Ajukan Surat Sekarang
+          </Link>
+        </div>
+
+        <div className="flex flex-1 justify-center md:justify-end">
+          <Image
+            src={bg_hero}
+            alt="Ilustrasi layanan surat digital"
+            width={600}
+            height={550}
+            className="h-auto w-full object-contain sm:max-w-sm md:max-w-none"
+            priority
+          />
+        </div>
+      </section>
 
       <section
         id="ajukan-surat"
