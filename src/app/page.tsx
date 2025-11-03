@@ -29,7 +29,7 @@ const SURAT_MENU: SuratMenuItem[] = [
   {
     title: "Surat Pengantar",
     icon: iconSuratPengantar,
-    disabled: true,
+    href: "/surat-pengantar",
   },
 ];
 
