@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import Image, { type StaticImageData } from "next/image";
 import Link from "next/link";
+import { Mail, Phone, Facebook, Instagram, Youtube } from "lucide-react";
 import bgDecoration from "@/assets/bg_ajukan_surat.png";
 import logoDesa from "@/assets/ic_logo_banyumas.png";
 import iconSuratKeterangan from "@/assets/ic_surat_keterangan.png";
@@ -164,6 +165,64 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="relative z-10 border-t border-white/60 bg-white/70 backdrop-blur">
+        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-10 px-6 py-12 sm:grid-cols-2 md:grid-cols-4 sm:px-10">
+          {/* Brand */}
+          <div className="flex items-start gap-3">
+            <div className="relative h-10 w-10 shrink-0 rounded-full bg-white shadow-[6px_6px_12px_rgba(200,205,215,0.35),-6px_-6px_12px_rgba(255,255,255,0.9)]">
+              <Image src={logoDesa} alt="Logo Desa Kedungwringin" fill sizes="40px" className="object-contain p-1" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-slate-900">Desa Kedungwringin</p>
+              <p className="mt-1 text-xs leading-5 text-slate-600">
+                Website layanan pengajuan surat resmi Desa Kedungwringin.
+              </p>
+            </div>
+          </div>
+
+          {/* Address */}
+          <div>
+            <p className="text-sm font-semibold text-slate-900">Alamat</p>
+            <p className="mt-2 text-xs leading-6 text-slate-600">
+              Jl. Pemuda No.19, Kedungwringin,<br />
+              Kecamatan Jatilawang
+            </p>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <p className="text-sm font-semibold text-slate-900">Kontak</p>
+            <div className="mt-2 flex items-center gap-2 text-xs text-slate-600">
+              <Mail className="h-3.5 w-3.5" />
+              <a href="mailto:kdwringinjtl@gmail.com" className="underline-offset-2 hover:underline">
+                kdwringinjtl@gmail.com
+              </a>
+            </div>
+            <div className="mt-2 flex items-center gap-2 text-xs text-slate-600">
+              <Phone className="h-3.5 w-3.5" />
+              <a href="tel:+62" className="hover:underline">+62</a>
+            </div>
+          </div>
+
+          {/* Social */}
+          <div>
+            <p className="text-sm font-semibold text-slate-900">Sosial Media</p>
+            <div className="mt-2 flex items-center gap-3 text-slate-600">
+              <a href="#" aria-label="Facebook" className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200">
+                <Facebook className="h-4 w-4" />
+              </a>
+              <a href="#" aria-label="Instagram" className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200">
+                <Instagram className="h-4 w-4" />
+              </a>
+              <a href="#" aria-label="YouTube" className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200">
+                <Youtube className="h-4 w-4" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }
