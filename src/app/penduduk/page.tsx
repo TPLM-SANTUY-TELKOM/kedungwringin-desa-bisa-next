@@ -5,6 +5,7 @@ import {
   FormEvent,
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import { db } from "@/lib/client";
@@ -16,6 +17,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Search, Pencil, Trash2 } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type StatusKawin = "Belum Kawin" | "Kawin" | "Cerai Hidup" | "Cerai Mati";
 type StatusPerkawinan = "Belum menikah" | "Menikah" | "Duda" | "Janda";
@@ -132,6 +140,23 @@ const STATUS_PENDUDUK_OPTIONS: PendudukData["status"][] = [
   "Meninggal",
 ];
 
+type RekapFilter =
+  | "all"
+  | "cerai-hidup-laki"
+  | "cerai-hidup-perempuan"
+  | "cerai-mati-laki"
+  | "cerai-mati-perempuan";
+
+const REKAP_FILTER_CONFIG: Record<
+  Exclude<RekapFilter, "all">,
+  { status: Extract<StatusKawin, "Cerai Hidup" | "Cerai Mati">; gender: PendudukData["jenis_kelamin"] }
+> = {
+  "cerai-hidup-laki": { status: "Cerai Hidup", gender: "Laki-laki" },
+  "cerai-hidup-perempuan": { status: "Cerai Hidup", gender: "Perempuan" },
+  "cerai-mati-laki": { status: "Cerai Mati", gender: "Laki-laki" },
+  "cerai-mati-perempuan": { status: "Cerai Mati", gender: "Perempuan" },
+};
+
 const defaultFormValues: PendudukFormValues = {
   nik: "",
   no_kk: "",
@@ -178,6 +203,7 @@ export default function PendudukPage() {
   const [pendudukList, setPendudukList] = useState<PendudukData[]>([]);
   const [filteredList, setFilteredList] = useState<PendudukData[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [rekapFilter, setRekapFilter] = useState<RekapFilter>("all");
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editData, setEditData] = useState<PendudukData | null>(null);
@@ -188,12 +214,69 @@ export default function PendudukPage() {
   const { toast } = useToast();
   const isAdmin = true; // Sementara hardcode sebagai admin
 
-  const filterPenduduk = (query: string, list: PendudukData[]) => {
+  const rekapCounts = useMemo(() => {
+    const counts = {
+      total: pendudukList.length,
+      ceraiHidup: {
+        "Laki-laki": 0,
+        Perempuan: 0,
+      } as Record<PendudukData["jenis_kelamin"], number>,
+      ceraiMati: {
+        "Laki-laki": 0,
+        Perempuan: 0,
+      } as Record<PendudukData["jenis_kelamin"], number>,
+    };
+
+    for (const penduduk of pendudukList) {
+      if (penduduk.status_kawin === "Cerai Hidup") {
+        counts.ceraiHidup[penduduk.jenis_kelamin] += 1;
+      } else if (penduduk.status_kawin === "Cerai Mati") {
+        counts.ceraiMati[penduduk.jenis_kelamin] += 1;
+      }
+    }
+
+    return counts;
+  }, [pendudukList]);
+
+  const getRekapLabel = (value: RekapFilter) => {
+    switch (value) {
+      case "cerai-hidup-laki":
+        return `Cerai Hidup · Laki-laki (${rekapCounts.ceraiHidup["Laki-laki"]})`;
+      case "cerai-hidup-perempuan":
+        return `Cerai Hidup · Perempuan (${rekapCounts.ceraiHidup.Perempuan})`;
+      case "cerai-mati-laki":
+        return `Cerai Mati · Laki-laki (${rekapCounts.ceraiMati["Laki-laki"]})`;
+      case "cerai-mati-perempuan":
+        return `Cerai Mati · Perempuan (${rekapCounts.ceraiMati.Perempuan})`;
+      default:
+        return `Semua (${rekapCounts.total})`;
+    }
+  };
+
+  const filterPenduduk = (
+    query: string,
+    list: PendudukData[],
+    rekap: RekapFilter
+  ) => {
     const trimmed = query.trim();
-    if (trimmed === "") return list;
     const lowered = trimmed.toLowerCase();
-    return list.filter(
-      (p) => p.nama.toLowerCase().includes(lowered) || p.nik.includes(trimmed)
+
+    const baseList =
+      trimmed === ""
+        ? list
+        : list.filter(
+            (p) =>
+              p.nama.toLowerCase().includes(lowered) ||
+              p.nik.includes(trimmed)
+          );
+
+    if (rekap === "all") return baseList;
+
+    const { status, gender } = REKAP_FILTER_CONFIG[rekap];
+
+    return baseList.filter(
+      (penduduk) =>
+        penduduk.status_kawin === status && penduduk.jenis_kelamin === gender
     );
   };
 
@@ -229,13 +312,13 @@ export default function PendudukPage() {
   }, [fetchPenduduk]);
 
   useEffect(() => {
-    setFilteredList(filterPenduduk(searchQuery, pendudukList));
-  }, [searchQuery, pendudukList]);
+    setFilteredList(filterPenduduk(searchQuery, pendudukList, rekapFilter));
+  }, [searchQuery, pendudukList, rekapFilter]);
 
   const handleSearch = () => {
     const trimmed = searchQuery.trim();
     setSearchQuery(trimmed);
-    setFilteredList(filterPenduduk(trimmed, pendudukList));
+    setFilteredList(filterPenduduk(trimmed, pendudukList, rekapFilter));
   };
 
   const openForm = (data?: PendudukData) => {
@@ -432,7 +515,35 @@ export default function PendudukPage() {
                 <Search className="absolute right-6 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-end gap-3">
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Rekap Cerai
+                </label>
+                <Select
+                  value={rekapFilter}
+                  onValueChange={(value) => setRekapFilter(value as RekapFilter)}
+                >
+                  <SelectTrigger className="h-14 w-[260px] rounded-full border-2 border-foreground/80 px-6 text-base">
+                    <SelectValue placeholder="Pilih rekap" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{getRekapLabel("all")}</SelectItem>
+                    <SelectItem value="cerai-hidup-laki">
+                      {getRekapLabel("cerai-hidup-laki")}
+                    </SelectItem>
+                    <SelectItem value="cerai-hidup-perempuan">
+                      {getRekapLabel("cerai-hidup-perempuan")}
+                    </SelectItem>
+                    <SelectItem value="cerai-mati-laki">
+                      {getRekapLabel("cerai-mati-laki")}
+                    </SelectItem>
+                    <SelectItem value="cerai-mati-perempuan">
+                      {getRekapLabel("cerai-mati-perempuan")}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <Button
                 onClick={() => openForm()}
                 className="h-14 rounded-full px-8 text-base font-semibold gap-2 border-0 text-white"
