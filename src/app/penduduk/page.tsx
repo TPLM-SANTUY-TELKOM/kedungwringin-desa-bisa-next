@@ -435,9 +435,15 @@ export default function PendudukPage() {
             <div className="flex items-center gap-3">
               <Button
                 onClick={() => openForm()}
-                className="h-14 rounded-full px-8 text-base font-semibold gap-2"
+                className="h-14 rounded-full px-8 text-base font-semibold gap-2 border-0 text-white"
+                style={{
+                  background:
+                    "radial-gradient(50% 50% at 50% 50%, #FC5132 0%, #FC5132 100%)",
+                  boxShadow:
+                    "2.42px 2.42px 4.83px 0px #BDC2C7BF, 4.83px 4.83px 7.25px 0px #BDC2C740, -2.42px -2.42px 4.83px 0px #FFFFFFBF, -4.83px -4.83px 7.25px 0px #FFFFFF40, inset 2.42px 2.42px 4.83px 0px #FFFFFFBF, inset 4.83px 4.83px 7.25px 0px #FFFFFF40, inset -2.42px -2.42px 4.83px 0px #FC5132BF, inset -4.83px -4.83px 7.25px 0px #FC513240",
+                }}
               >
-                <Plus className="h-5 w-5" />
+                <Plus className="h-5 w-5 text-white" />
                 Tambah
               </Button>
             </div>
