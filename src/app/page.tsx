@@ -20,7 +20,7 @@ const SURAT_MENU: SuratMenuItem[] = [
   {
     title: "Surat Keterangan",
     icon: iconSuratKeterangan,
-    disabled: true,
+    href: "/surat-keterangan",
   },
   {
     title: "Surat Nikah",

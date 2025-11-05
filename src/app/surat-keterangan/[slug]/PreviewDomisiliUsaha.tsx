@@ -1,0 +1,202 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { ArrowLeft, Printer } from "lucide-react";
+import Image from "next/image";
+
+import { Button } from "@/components/ui/button";
+import type { SuratKeteranganOption } from "@/data/surat-keterangan-options";
+import type { SuratKeteranganDomisiliUsahaData } from "@/app/surat-keterangan/types";
+import logoDesa from "@/assets/ic_logo_banyumas.png";
+
+type PreviewDomisiliUsahaProps = {
+  surat: SuratKeteranganOption;
+  data: SuratKeteranganDomisiliUsahaData;
+};
+
+function formatDateIndonesian(dateString: string): string {
+  if (!dateString) return "";
+  const months = [
+    "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+    "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+  ];
+  const date = new Date(dateString);
+  return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+}
+
+export function PreviewDomisiliUsaha({ surat, data }: PreviewDomisiliUsahaProps) {
+  const router = useRouter();
+
+  return (
+    <div className="mx-auto mt-12 flex w-full max-w-4xl flex-col gap-10 print:mt-0 print:px-0">
+      <div className="flex flex-wrap items-center justify-between gap-3 print-hidden">
+        <div className="flex items-center gap-3">
+          <Button variant="outline" onClick={() => router.push(`/surat-keterangan/${surat.slug}`)} className="rounded-full border-slate-300 px-6">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Kembali
+          </Button>
+          <Button onClick={() => window.print()} className="rounded-full bg-slate-900 px-6 text-white hover:bg-slate-800">
+            <Printer className="mr-2 h-4 w-4" />
+            Cetak
+          </Button>
+        </div>
+        <div className="text-right text-sm text-slate-500">
+          <p className="font-semibold text-slate-700">Preview - {surat.title}</p>
+          <p className="text-xs uppercase tracking-wide">Periksa kembali sebelum mencetak</p>
+        </div>
+      </div>
+
+      <div className="rounded-4xl border border-slate-300 bg-white p-6 shadow-[12px_12px_36px_rgba(197,205,214,0.35)] print-wrapper">
+        <div className="mx-auto max-w-[720px] px-10 py-8 font-['Times_New_Roman',serif] text-[15px] text-slate-900 print-sheet">
+          {/* Header */}
+          <div className="border-b-[3px] border-black pb-3 text-center">
+            <div className="flex items-center justify-center gap-4">
+              <div className="relative h-20 w-20">
+                <Image src={logoDesa} alt="Logo" fill className="object-contain" />
+              </div>
+              <div>
+                <p className="text-[16px] font-bold uppercase">Pemerintah Desa Kedungwringin</p>
+                <p className="text-[14px] font-bold uppercase">Kecamatan Patikraja Kabupaten Banyumas</p>
+                <p className="text-[18px] font-bold uppercase">Kepala Desa</p>
+                <p className="text-[12px]">Jl. Raya Kedungwringin No.1 Kedungwringin Kode Pos 53171</p>
+                <p className="text-[12px]">Telp. (0281) 6438935</p>
+                <p className="text-[11px] italic">e-mail : kedungwringinbalaldesaku@gmail.com</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Title */}
+          <div className="mt-6 text-center">
+            <p className="text-[16px] font-bold uppercase underline">Surat Keterangan Domisili Usaha</p>
+            <p className="text-[13px]">Nomor : {data.nomorSurat}</p>
+          </div>
+
+          {/* Content */}
+          <div className="mt-6 space-y-3 text-[14px] leading-relaxed">
+            <p className="text-justify">Yang bertanda tangan di bawah ini kami Kepala Desa Kedungwringin Kecamatan Patikraja Kabupaten Banyumas Provinsi Jawa Tengah, menerangkan bahwa :</p>
+          </div>
+
+          <table className="mt-4 w-full text-[14px] leading-relaxed">
+            <tbody className="[&>tr>td]:py-1 [&>tr>td]:align-top">
+              <tr>
+                <td className="w-[50px]">1.</td>
+                <td className="w-[200px]">Nama Lengkap</td>
+                <td className="pr-3">:</td>
+                <td className="font-semibold uppercase">{data.nama}</td>
+              </tr>
+              <tr>
+                <td>2.</td>
+                <td>Jenis Kelamin</td>
+                <td className="pr-3">:</td>
+                <td>{data.jenisKelamin}</td>
+              </tr>
+              <tr>
+                <td>3.</td>
+                <td>Tempat/Tanggal Lahir</td>
+                <td className="pr-3">:</td>
+                <td>{data.tempatLahir} / {formatDateIndonesian(data.tanggalLahir)}</td>
+              </tr>
+              <tr>
+                <td>4.</td>
+                <td>Kewarganegaraan</td>
+                <td className="pr-3">:</td>
+                <td>{data.kewarganegaraan}</td>
+              </tr>
+              <tr>
+                <td>5.</td>
+                <td>No. KTP/NIK</td>
+                <td className="pr-3">:</td>
+                <td>{data.nik}</td>
+              </tr>
+              <tr>
+                <td>6.</td>
+                <td>Pekerjaan</td>
+                <td className="pr-3">:</td>
+                <td>{data.pekerjaan}</td>
+              </tr>
+              <tr>
+                <td>7.</td>
+                <td>Alamat</td>
+                <td className="pr-3">:</td>
+                <td>{data.alamat}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div className="mt-6 space-y-3 text-[14px] leading-relaxed">
+            <p className="text-justify">Berdasarkan Surat Pernyataan tidak keberatan/ijin tetangga yang diketahui Ketua Rukun Tetangga 003 dan Ketua Rukun Warga 004 Nomor Tanggal, bahwa yang bersangkutan benar telah membuka Usaha sebagai berikut :</p>
+          </div>
+
+          <table className="mt-4 w-full text-[14px] leading-relaxed">
+            <tbody className="[&>tr>td]:py-1 [&>tr>td]:align-top">
+              <tr>
+                <td className="w-[200px] pl-6">Nama Perusahaan</td>
+                <td className="pr-3">:</td>
+                <td>{data.namaPerusahaan}</td>
+              </tr>
+              <tr>
+                <td className="pl-6">Nama Pemilik</td>
+                <td className="pr-3">:</td>
+                <td>{data.namaPemilik}</td>
+              </tr>
+              <tr>
+                <td className="pl-6">Alamat Perusahaan</td>
+                <td className="pr-3">:</td>
+                <td>{data.alamatPerusahaan}</td>
+              </tr>
+              <tr>
+                <td className="pl-6">Jenis Usaha</td>
+                <td className="pr-3">:</td>
+                <td>{data.jenisUsaha}</td>
+              </tr>
+              <tr>
+                <td className="pl-6">Status Perusahaan</td>
+                <td className="pr-3">:</td>
+                <td>{data.statusPerusahaan}</td>
+              </tr>
+              <tr>
+                <td className="pl-6">Jumlah Karyawan</td>
+                <td className="pr-3">:</td>
+                <td>{data.jumlahKaryawan}</td>
+              </tr>
+              <tr>
+                <td className="pl-6">Luas Tempat Usaha</td>
+                <td className="pr-3">:</td>
+                <td>{data.luasTempatUsaha}</td>
+              </tr>
+              <tr>
+                <td className="pl-6">Waktu Usaha</td>
+                <td className="pr-3">:</td>
+                <td>{data.waktuUsaha}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div className="mt-6 space-y-3 text-[14px] leading-relaxed">
+            <p className="text-justify">Demikian Surat Keterangan Domisili Usaha ini dibuat untuk keperluan <strong>{data.keperluan}</strong>.</p>
+            <p className="text-justify">Surat ini berlaku 3 (tiga) bulan setelah dikeluarkan, bukan merupakan surat ijin, dan tidak diperkenankan untuk melakukan usaha sebelum mendapat ijin resmi dari instansi terkait.</p>
+          </div>
+
+          {/* Footer with stamp */}
+          <div className="mt-8 flex justify-between">
+            <div className="w-[280px]">
+              <p className="text-[14px]">No. Reg : _______________</p>
+              <p className="text-[14px]">Tanggal : _______________</p>
+              <p className="text-[14px] mt-4">Mengetahui</p>
+              <p className="text-[14px]">Camat Patikraja</p>
+              <div className="my-12"></div>
+              <p className="text-[14px]">(</p>
+              <p className="text-[14px]">NIP.</p>
+            </div>
+            <div className="w-[280px] text-center">
+              <p className="text-[14px]">Kedungwringin, {formatDateIndonesian(data.tanggalSurat)}</p>
+              <p className="text-[14px]">KEPALA DESA</p>
+              <div className="my-16"></div>
+              <p className="text-[14px] font-bold uppercase">{data.kepalaDesa}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
