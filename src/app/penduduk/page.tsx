@@ -496,7 +496,7 @@ export default function PendudukPage() {
               Kelola data penduduk Desa Kedungwringin
             </p>
           </div>
-          <div className="flex flex-col gap-4 md:flex-row md:items-end">
+          <div className="flex flex-col gap-4 md:flex-row md:items-start">
             <div className="flex-1 space-y-2">
               <label
                 className="text-sm font-medium text-muted-foreground"
@@ -515,17 +515,17 @@ export default function PendudukPage() {
                 <Search className="absolute right-6 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
               </div>
             </div>
-            <div className="flex items-end gap-3">
+            <div className="flex items-start gap-3">
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium text-muted-foreground">
-                  Rekap Cerai
+                  Status Perkawinan
                 </label>
                 <Select
                   value={rekapFilter}
                   onValueChange={(value) => setRekapFilter(value as RekapFilter)}
                 >
                   <SelectTrigger className="h-14 w-[260px] rounded-full border-2 border-foreground/80 px-6 text-base">
-                    <SelectValue placeholder="Pilih rekap" />
+                    <SelectValue placeholder="Pilih status" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">{getRekapLabel("all")}</SelectItem>
@@ -546,7 +546,7 @@ export default function PendudukPage() {
               </div>
               <Button
                 onClick={() => openForm()}
-                className="h-14 rounded-full px-8 text-base font-semibold gap-2 border-0 text-white"
+                className="h-14 rounded-full px-8 text-base font-semibold gap-2 border-0 text-white md:self-end"
                 style={{
                   background:
                     "radial-gradient(50% 50% at 50% 50%, #FC5132 0%, #FC5132 100%)",
@@ -569,33 +569,74 @@ export default function PendudukPage() {
             </div>
           ) : (
             <div className="overflow-x-auto rounded-xl border border-border">
-              <table className="w-full text-sm">
+              <table className="min-w-[1500px] w-full text-sm">
                 <thead className="bg-muted/50 text-foreground">
                   <tr>
-                    <th className="p-4 text-left font-semibold">NIK</th>
-                    <th className="p-4 text-left font-semibold">Nama</th>
-                    <th className="p-4 text-left font-semibold">TTL</th>
-                    <th className="p-4 text-left font-semibold">JK</th>
-                    <th className="p-4 text-left font-semibold">Gol. Darah</th>
-                    <th className="p-4 text-left font-semibold">
-                      Alamat lengkap
+                    <th className="p-4 text-left font-semibold whitespace-nowrap">
+                      NIK
                     </th>
-                    <th className="p-4 text-left font-semibold">
+                    <th className="p-4 text-left font-semibold whitespace-nowrap">
+                      No. KK
+                    </th>
+                    <th className="p-4 text-left font-semibold whitespace-nowrap">
+                      Nama
+                    </th>
+                    <th className="p-4 text-left font-semibold whitespace-nowrap">
+                      TTL
+                    </th>
+                    <th className="p-4 text-left font-semibold whitespace-nowrap">
+                      JK
+                    </th>
+                    <th className="p-4 text-left font-semibold whitespace-nowrap">
+                      Gol. Darah
+                    </th>
+                    <th className="p-4 text-left font-semibold whitespace-nowrap">
+                      Agama
+                    </th>
+                    <th className="p-4 text-left font-semibold whitespace-nowrap">
+                      Pendidikan
+                    </th>
+                    <th className="p-4 text-left font-semibold whitespace-nowrap">
+                      Pekerjaan
+                    </th>
+                    <th className="p-4 text-left font-semibold whitespace-nowrap">
+                      Status Kawin
+                    </th>
+                    <th className="p-4 text-left font-semibold whitespace-nowrap">
                       Status Perkawinan
                     </th>
-                    <th className="p-4 text-left font-semibold">Agama</th>
-                    <th className="p-4 text-left font-semibold">Status</th>
-                    <th className="p-4 text-right font-semibold">Aksi</th>
+                    <th className="p-4 text-left font-semibold whitespace-nowrap">
+                      Alamat lengkap
+                    </th>
+                    <th className="p-4 text-left font-semibold whitespace-nowrap">
+                      No. Akta Lahir
+                    </th>
+                    <th className="p-4 text-left font-semibold whitespace-nowrap">
+                      Umur
+                    </th>
+                    <th className="p-4 text-left font-semibold whitespace-nowrap">
+                      Status
+                    </th>
+                    <th className="sticky right-0 z-20 bg-muted/50 p-4 text-center font-semibold border-l border-border">
+                      Aksi
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
                   {filteredList.map((penduduk) => (
-                    <tr key={penduduk.id} className="hover:bg-muted/30">
-                      <td className="p-4 font-mono text-xs uppercase tracking-wide">
+                    <tr key={penduduk.id} className="group hover:bg-muted/30">
+                      <td className="p-4 font-mono text-xs uppercase tracking-wide align-top">
                         {penduduk.nik}
                       </td>
-                      <td className="p-4 font-semibold">{penduduk.nama}</td>
-                      <td className="p-4">
+                      <td className="p-4 align-top">
+                        <span className="font-mono text-xs uppercase tracking-wide">
+                          {penduduk.no_kk || "-"}
+                        </span>
+                      </td>
+                      <td className="p-4 font-semibold align-top">
+                        {penduduk.nama}
+                      </td>
+                      <td className="p-4 align-top">
                         <div className="flex flex-col">
                           <span className="capitalize">
                             {penduduk.tempat_lahir}
@@ -605,25 +646,43 @@ export default function PendudukPage() {
                           </span>
                         </div>
                       </td>
-                      <td className="p-4">{penduduk.jenis_kelamin}</td>
-                      <td className="p-4 uppercase">
+                      <td className="p-4 align-top">
+                        {penduduk.jenis_kelamin}
+                      </td>
+                      <td className="p-4 uppercase align-top">
                         {penduduk.golongan_darah
                           ? penduduk.golongan_darah
                           : "-"}
                       </td>
-                      <td className="p-4">
+                      <td className="p-4 align-top">{penduduk.agama}</td>
+                      <td className="p-4 align-top">
+                        {penduduk.pendidikan || "-"}
+                      </td>
+                      <td className="p-4 align-top">
+                        {penduduk.pekerjaan || "-"}
+                      </td>
+                      <td className="p-4 align-top">
+                        {penduduk.status_kawin}
+                      </td>
+                      <td className="p-4 align-top">
+                        {resolveStatusPerkawinan(penduduk)}
+                      </td>
+                      <td className="p-4 align-top">
                         <div className="flex flex-col">
                           <span>{penduduk.alamat}</span>
                           <span className="text-xs text-muted-foreground">
-                            RT {penduduk.rt} / RW {penduduk.rw}
+                            Dusun {penduduk.dusun || "-"} · RT{" "}
+                            {penduduk.rt || "-"} / RW {penduduk.rw || "-"}
                           </span>
                         </div>
                       </td>
-                      <td className="p-4">
-                        {resolveStatusPerkawinan(penduduk)}
+                      <td className="p-4 align-top">
+                        {penduduk.no_akta_lahir || "-"}
                       </td>
-                      <td className="p-4">{penduduk.agama}</td>
-                      <td className="p-4">
+                      <td className="p-4 align-top">
+                        {penduduk.umur ?? "-"}
+                      </td>
+                      <td className="p-4 align-top">
                         <span
                           className={`inline-flex min-w-[6rem] justify-center rounded-full px-3 py-1 text-xs font-semibold ${
                             penduduk.status === "Aktif"
@@ -636,8 +695,8 @@ export default function PendudukPage() {
                           {penduduk.status}
                         </span>
                       </td>
-                      <td className="p-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
+                      <td className="sticky right-0 z-10 bg-background p-4 group-hover:bg-muted/30 border-l border-border">
+                        <div className="flex items-center justify-center gap-2">
                           <Button
                             variant="ghost"
                             size="sm"
