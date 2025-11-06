@@ -67,6 +67,16 @@ export function SuratFormN2({ surat }: { surat: SuratNikahOption }) {
 
   return (
     <div className="mx-auto mt-12 w-full max-w-4xl">
+      <div className="mb-4 flex justify-start">
+        <Button
+          type="button"
+          onClick={handleCancel}
+          variant="outline"
+          className="rounded-full border-slate-300 px-6"
+        >
+          Kembali
+        </Button>
+      </div>
       <Card className="rounded-[36px] border border-slate-200 bg-white shadow-[10px_10px_30px_rgba(186,194,204,0.35)]">
         <CardContent className="space-y-10 p-6 sm:p-10">
           <div className="flex flex-col gap-6">
