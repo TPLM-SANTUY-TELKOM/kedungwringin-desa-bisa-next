@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ChangeEvent } from "react";
+import { useCallback, useRef, useState, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import { AlertCircle } from "lucide-react";
 
 import type { SuratPengantarOption } from "@/data/surat-pengantar-options";
 import { createDefaultSuratPengantarKepolisian, REQUIRED_FIELDS_PENGANTAR_KEPOLISIAN, type SuratPengantarKepolisianData } from "@/app/surat-pengantar/types";
+import { usePendudukLookup, type PendudukLookupResult } from "@/app/surat-pengantar/usePendudukLookup";
 
 const INPUT_BASE =
   "h-12 rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
@@ -22,6 +23,31 @@ export function SuratFormKepolisian({ surat }: { surat: SuratPengantarOption }) 
   const router = useRouter();
   const [form, setForm] = useState<SuratPengantarKepolisianData>(() => createDefaultSuratPengantarKepolisian());
   const [error, setError] = useState<string | null>(null);
+  const lastSuccessfulNikRef = useRef<string | null>(null);
+
+  const applyPendudukData = useCallback(
+    (data: PendudukLookupResult) => {
+      lastSuccessfulNikRef.current = data.nik;
+      setForm((prev) => ({
+        ...prev,
+        nama: data.nama ?? prev.nama,
+        jenisKelamin: (data.jenis_kelamin as SuratPengantarKepolisianData["jenisKelamin"]) ?? prev.jenisKelamin,
+        tempatLahir: data.tempat_lahir ?? prev.tempatLahir,
+        tanggalLahir: data.tanggal_lahir ?? prev.tanggalLahir,
+        kewarganegaraan: prev.kewarganegaraan || "Indonesia",
+        agama: data.agama ?? prev.agama,
+        statusPerkawinan: data.status_perkawinan ?? prev.statusPerkawinan,
+        pekerjaan: data.pekerjaan ?? prev.pekerjaan,
+        alamat: data.alamat ?? prev.alamat,
+        rt: data.rt ?? prev.rt,
+        rw: data.rw ?? prev.rw,
+      }));
+      if (error) setError(null);
+    },
+    [error, setError, setForm],
+  );
+
+  const { lookupState, lookupByNik, resetLookupState } = usePendudukLookup(applyPendudukData);
 
   const handleInputChange =
     (field: keyof SuratPengantarKepolisianData) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -31,6 +57,29 @@ export function SuratFormKepolisian({ surat }: { surat: SuratPengantarOption }) 
       }));
       if (error) setError(null);
     };
+
+  const isLookupLoading = lookupState.status === "loading";
+
+  const handleNikChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value.replace(/\D/g, "");
+    setForm((prev) => ({
+      ...prev,
+      nik: value,
+    }));
+    if (error) setError(null);
+    if (lastSuccessfulNikRef.current && lastSuccessfulNikRef.current !== value) {
+      lastSuccessfulNikRef.current = null;
+    }
+    resetLookupState();
+  };
+
+  const handleNikLookup = () => {
+    const nik = form.nik.trim();
+    if (!nik || nik === lastSuccessfulNikRef.current) {
+      return;
+    }
+    void lookupByNik(nik);
+  };
 
   const handleSelectChange = (field: keyof SuratPengantarKepolisianData) => (value: string) => {
     setForm((prev) => ({
@@ -118,16 +167,46 @@ export function SuratFormKepolisian({ surat }: { surat: SuratPengantarOption }) 
 
             <div className="space-y-4">
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Data Pemohon</p>
+              <div className="space-y-1.5">
+                <Label className="text-sm font-semibold text-slate-700">NIK</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={form.nik}
+                    onChange={handleNikChange}
+                    placeholder="Nomor Induk Kependudukan"
+                    inputMode="numeric"
+                    maxLength={16}
+                    className={INPUT_BASE}
+                  />
+                  <Button
+                    type="button"
+                    onClick={handleNikLookup}
+                    disabled={isLookupLoading}
+                    className="rounded-xl bg-[#0f0f0f] px-6 text-white hover:bg-[#1f1f1f]"
+                  >
+                    {isLookupLoading ? "Mencari..." : "Cari"}
+                  </Button>
+                </div>
+                <p className="text-xs text-slate-500">Pastikan sesuai KTP elektronik.</p>
+                {lookupState.status !== "idle" && lookupState.message && (
+                  <p
+                    className={`text-xs ${
+                      lookupState.status === "error"
+                        ? "text-red-600"
+                        : lookupState.status === "success"
+                          ? "text-emerald-600"
+                          : "text-slate-500"
+                    }`}
+                  >
+                    {lookupState.message}
+                  </p>
+                )}
+              </div>
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">Nama Lengkap</Label>
                 <Input value={form.nama} onChange={handleInputChange("nama")} placeholder="Nama lengkap sesuai KTP" className={INPUT_BASE} />
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
-                <div className="space-y-1.5">
-                  <Label className="text-sm font-semibold text-slate-700">NIK</Label>
-                  <Input value={form.nik} onChange={handleInputChange("nik")} placeholder="Nomor Induk Kependudukan" className={INPUT_BASE} />
-                  <p className="text-xs text-slate-500">Pastikan sesuai KTP elektronik.</p>
-                </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Jenis Kelamin</Label>
                   <Select value={form.jenisKelamin} onValueChange={handleSelectChange("jenisKelamin")}>
@@ -143,6 +222,10 @@ export function SuratFormKepolisian({ surat }: { surat: SuratPengantarOption }) 
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Pekerjaan</Label>
                   <Input value={form.pekerjaan} onChange={handleInputChange("pekerjaan")} placeholder="Wiraswasta" className={INPUT_BASE} />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-slate-700">Status Perkawinan</Label>
+                  <Input value={form.statusPerkawinan} onChange={handleInputChange("statusPerkawinan")} placeholder="Kawin/Belum Kawin/Duda/Janda" className={INPUT_BASE} />
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
@@ -163,10 +246,6 @@ export function SuratFormKepolisian({ surat }: { surat: SuratPengantarOption }) 
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Warga Negara</Label>
                   <Input value={form.kewarganegaraan} onChange={handleInputChange("kewarganegaraan")} placeholder="Indonesia" className={INPUT_BASE} />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">Status Perkawinan</Label>
-                  <Input value={form.statusPerkawinan} onChange={handleInputChange("statusPerkawinan")} placeholder="Kawin/Belum Kawin/Duda/Janda" className={INPUT_BASE} />
                 </div>
               </div>
             </div>

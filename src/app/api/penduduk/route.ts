@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { db, query } from '@/lib/db';
 
 type JenisKelamin = 'Laki-laki' | 'Perempuan';
 type StatusKawin = 'Belum Kawin' | 'Kawin' | 'Cerai Hidup' | 'Cerai Mati';
@@ -177,9 +177,24 @@ const extractFilter = (
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    const nik = searchParams.get('nik');
     const requested = searchParams.get('columns');
     const columns = !requested || requested === '*' ? DEFAULT_COLUMNS : requested;
     const single = searchParams.get('single') === 'true';
+
+    if (nik) {
+      const result = await query(
+        `SELECT ${DEFAULT_COLUMNS} FROM penduduk WHERE nik = $1 LIMIT 1`,
+        [nik],
+      );
+      const row = result.rows[0] ?? null;
+
+      if (!row) {
+        return NextResponse.json(null, { status: 404 });
+      }
+
+      return NextResponse.json(enrichPendudukResponse(row));
+    }
 
     const result = await db.from('penduduk').select(columns, { single });
 
