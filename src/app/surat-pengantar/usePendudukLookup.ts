@@ -29,6 +29,18 @@ type LookupState = {
   message?: string;
 };
 
+const normalizeDateOnly = (value: string | null | undefined) => {
+  if (!value) return "";
+  const date = new Date(value);
+  if (!Number.isNaN(date.getTime())) {
+    return date.toISOString().slice(0, 10);
+  }
+  if (typeof value === "string" && value.length >= 10) {
+    return value.slice(0, 10);
+  }
+  return "";
+};
+
 export const usePendudukLookup = (
   onSuccess: (data: PendudukLookupResult) => void,
 ) => {
@@ -82,7 +94,10 @@ export const usePendudukLookup = (
           return;
         }
 
-        onSuccess(data);
+        onSuccess({
+          ...data,
+          tanggal_lahir: normalizeDateOnly(data.tanggal_lahir),
+        });
         setState({
           status: 'success',
           message: 'Data pemohon berhasil dimuat dari NIK.',

@@ -33,7 +33,7 @@ export function SuratFormUmum({ surat }: { surat: SuratPengantarOption }) {
         nama: data.nama ?? prev.nama,
         jenisKelamin: (data.jenis_kelamin as SuratPengantarUmumData["jenisKelamin"]) ?? prev.jenisKelamin,
         tempatLahir: data.tempat_lahir ?? prev.tempatLahir,
-        tanggalLahir: data.tanggal_lahir ?? prev.tanggalLahir,
+        tanggalLahir: data.tanggal_lahir || prev.tanggalLahir,
         kewarganegaraan: prev.kewarganegaraan || "Indonesia",
         agama: data.agama ?? prev.agama,
         pekerjaan: data.pekerjaan ?? prev.pekerjaan,
