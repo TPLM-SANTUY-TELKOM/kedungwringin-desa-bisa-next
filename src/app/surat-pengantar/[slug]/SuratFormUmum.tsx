@@ -8,11 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle } from "lucide-react";
 
 import type { SuratPengantarOption } from "@/data/surat-pengantar-options";
 import { createDefaultSuratPengantarUmum, REQUIRED_FIELDS_PENGANTAR_UMUM, type SuratPengantarUmumData } from "@/app/surat-pengantar/types";
 import { usePendudukLookup, type PendudukLookupResult } from "@/app/surat-pengantar/usePendudukLookup";
+import { useToast } from "@/hooks/use-toast";
 
 const INPUT_BASE =
   "h-12 rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
@@ -22,8 +22,8 @@ const TEXTAREA_BASE =
 export function SuratFormUmum({ surat }: { surat: SuratPengantarOption }) {
   const router = useRouter();
   const [form, setForm] = useState<SuratPengantarUmumData>(() => createDefaultSuratPengantarUmum());
-  const [error, setError] = useState<string | null>(null);
   const lastSuccessfulNikRef = useRef<string | null>(null);
+  const { toast } = useToast();
 
   const applyPendudukData = useCallback(
     (data: PendudukLookupResult) => {
@@ -43,9 +43,8 @@ export function SuratFormUmum({ surat }: { surat: SuratPengantarOption }) {
         rw: data.rw ?? prev.rw,
         nkk: data.no_kk ?? prev.nkk,
       }));
-      if (error) setError(null);
     },
-    [error, setError, setForm],
+    [],
   );
 
   const { lookupState, lookupByNik, resetLookupState } = usePendudukLookup(applyPendudukData);
@@ -56,7 +55,6 @@ export function SuratFormUmum({ surat }: { surat: SuratPengantarOption }) {
         ...prev,
         [field]: event.target.value,
       }));
-      if (error) setError(null);
     };
 
   const isLookupLoading = lookupState.status === "loading";
@@ -67,7 +65,6 @@ export function SuratFormUmum({ surat }: { surat: SuratPengantarOption }) {
       ...prev,
       nik: value,
     }));
-    if (error) setError(null);
     if (lastSuccessfulNikRef.current && lastSuccessfulNikRef.current !== value) {
       lastSuccessfulNikRef.current = null;
     }
@@ -87,7 +84,6 @@ export function SuratFormUmum({ surat }: { surat: SuratPengantarOption }) {
       ...prev,
       [field]: value,
     }));
-    if (error) setError(null);
   };
 
   const handleCancel = () => {
@@ -104,7 +100,11 @@ export function SuratFormUmum({ surat }: { surat: SuratPengantarOption }) {
     });
 
     if (missing.length > 0) {
-      setError("Lengkapi semua bidang wajib terlebih dahulu sebelum melakukan preview surat.");
+      toast({
+        variant: "destructive",
+        title: "Lengkapi data wajib",
+        description: "Lengkapi semua bidang wajib terlebih dahulu sebelum melakukan preview surat.",
+      });
       return;
     }
 
@@ -138,13 +138,6 @@ export function SuratFormUmum({ surat }: { surat: SuratPengantarOption }) {
                 <p className="text-sm font-medium uppercase tracking-wide text-slate-500">Untuk keperluan administrasi umum</p>
               </div>
             </div>
-
-            {error && (
-              <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                <AlertCircle className="mt-0.5 h-4 w-4" />
-                <p>{error}</p>
-              </div>
-            )}
           </div>
 
           <form className="space-y-10">
