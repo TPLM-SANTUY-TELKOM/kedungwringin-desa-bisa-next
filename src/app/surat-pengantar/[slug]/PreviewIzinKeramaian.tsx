@@ -57,21 +57,21 @@ export function PreviewIzinKeramaian({ surat, data }: PreviewIzinKeramaianProps)
         </div>
       </div>
 
-      <div className="rounded-[32px] border border-slate-300 bg-white p-6 shadow-[12px_12px_36px_rgba(197,205,214,0.35)] print-wrapper">
-        <div className="mx-auto max-w-[720px] border border-slate-400 px-10 py-8 font-['Times_New_Roman',serif] text-[15px] text-slate-900 print-sheet">
+      <div className="rounded-[32px] border border-slate-300 bg-white p-4 shadow-[12px_12px_36px_rgba(197,205,214,0.35)] print-wrapper">
+        <div className="mx-auto max-w-[720px] border border-slate-400 px-7 py-6 font-['Times_New_Roman',serif] text-[12px] leading-[1.4] text-slate-900 print:px-9 print:py-8 print:text-[12px] print-sheet">
           <SuratPengantarHeader />
           <div className="text-center leading-tight">
-            <p className="text-[18px] font-bold uppercase underline">Surat Pengantar Ijin Keramaian</p>
-            <p className="text-[14px] font-semibold">Nomor: {data.nomorSurat || "-"}</p>
+            <p className="text-[16px] font-bold uppercase underline">Surat Pengantar Ijin Keramaian</p>
+            <p className="text-[12px] font-semibold">Nomor: {data.nomorSurat || "-"}</p>
           </div>
 
-          <div className="mt-6 space-y-4 text-[15px] leading-relaxed">
+          <div className="mt-4 space-y-3 text-[12px] leading-[1.4]">
             <p>
               Yang bertanda tangan di bawah ini kami Kepala Desa {data.kelurahan} Kecamatan {data.kecamatan} Kabupaten {data.kabupaten} Provinsi Jawa Tengah, menerangkan bahwa :
             </p>
           </div>
 
-          <table className="mt-4 w-full text-[15px] leading-relaxed">
+          <table className="mt-3 w-full text-[12px] leading-[1.4]">
             <tbody className="[&>tr>td]:align-top">
               <tr>
                 <td className="w-[240px]">Nama Lengkap</td>
@@ -154,7 +154,7 @@ export function PreviewIzinKeramaian({ surat, data }: PreviewIzinKeramaianProps)
             </tbody>
           </table>
 
-          <div className="mt-6 space-y-4 text-[15px] leading-relaxed">
+          <div className="mt-4 space-y-3 text-[12px] leading-[1.4]">
             <p>
               Berdasarkan Surat Pernyataan dari Ketua Rukun Tetangga {data.suratPernyataanRT || "..."} Nomor {data.suratPernyataanRTNo || "..."} Tanggal {data.suratPernyataanRTTanggal ? formatDateIndonesian(data.suratPernyataanRTTanggal) : "..."}, maka dengan ini menerangkan atas permohonan yang bersangkutan dapat dilaksanakan dengan ketentuan sebagai berikut:
             </p>
@@ -169,12 +169,12 @@ export function PreviewIzinKeramaian({ surat, data }: PreviewIzinKeramaianProps)
                 Bilamana akan mempergunakan jalan umum, terlebih dahulu harus Ijin dari DLLAJ dan Kepolisian atau Instansi terkait.
               </li>
             </ol>
-            <p className="mt-4">
+            <p className="mt-3">
               Demikian Surat Keterangan Keramaian ini diberikan untuk dipergunakan sebagaimana mestinya.
             </p>
           </div>
 
-          <div className="mt-8 space-y-2 text-[15px] leading-relaxed">
+          <div className="mt-5 space-y-2 text-[12px] leading-[1.4]">
             <div className="flex w-full items-center gap-2">
               <span className="w-[80px]">No. Reg</span>
               <span>:</span>
@@ -195,7 +195,7 @@ export function PreviewIzinKeramaian({ surat, data }: PreviewIzinKeramaianProps)
             </div>
           </div>
 
-          <table className="mt-6 w-full table-fixed text-center text-[15px] leading-relaxed">
+          <table className="mt-5 w-full table-fixed text-center text-[12px] leading-[1.4]">
             <tbody>
               <tr className="[&>td]:align-bottom">
                 <td>
@@ -204,11 +204,11 @@ export function PreviewIzinKeramaian({ surat, data }: PreviewIzinKeramaianProps)
                 <td>
                   <p>Mengetahui</p>
                   {data.mengetahuiJabatan && (
-                    <p className="mt-1 text-sm font-semibold normal-case">{data.mengetahuiJabatan}</p>
+                    <p className="mt-1 text-[11px] font-semibold normal-case">{data.mengetahuiJabatan}</p>
                   )}
                 </td>
                 <td>
-                  <p className="text-sm">
+                  <p className="text-[11px]">
                     {(data.tempatSurat || "-")}, {formatDateIndonesian(data.tanggalSurat)}
                   </p>
                   <p className="mt-1 uppercase">Kepala Desa</p>
