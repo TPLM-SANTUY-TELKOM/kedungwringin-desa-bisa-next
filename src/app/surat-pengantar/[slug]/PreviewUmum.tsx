@@ -48,7 +48,7 @@ export function PreviewUmum({ surat, data }: PreviewUmumProps) {
       </div>
 
       <div className="rounded-[32px] border border-slate-300 bg-white p-4 shadow-[12px_12px_36px_rgba(197,205,214,0.35)] print-wrapper">
-        <div className="mx-auto max-w-[720px] border border-slate-400 px-7 py-6 font-['Times_New_Roman',serif] text-[12px] leading-[1.4] text-slate-900 print:px-9 print:py-8 print:text-[12px] print-sheet">
+        <div className="mx-auto max-w-[720px] border-0 px-7 py-6 font-['Times_New_Roman',serif] text-[12px] leading-[1.4] text-slate-900 print:px-9 print:py-8 print:text-[12px] print-sheet">
           <SuratPengantarHeader />
           <div className="text-center leading-tight">
             <p className="text-[16px] font-bold uppercase">Surat Pengantar</p>
