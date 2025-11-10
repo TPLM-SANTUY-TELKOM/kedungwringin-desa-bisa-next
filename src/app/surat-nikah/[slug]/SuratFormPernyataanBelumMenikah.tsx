@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, type ChangeEvent } from "react";
+import { useCallback, useState, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 
+import { NikLookupField } from "@/components/form/NikLookupField";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 import type { SuratNikahOption } from "@/data/surat-nikah-options";
 import { createDefaultPernyataanBelumMenikah, REQUIRED_FIELDS_PERNYATAAN, type PernyataanBelumMenikahData } from "@/app/surat-nikah/types";
+import { useNikAutofillField, type PendudukLookupResult } from "@/hooks/useNikAutofillField";
 
 const INPUT_BASE =
   "h-12 rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
@@ -22,6 +24,37 @@ export function SuratFormPernyataanBelumMenikah({ surat }: { surat: SuratNikahOp
   const router = useRouter();
   const [form, setForm] = useState<PernyataanBelumMenikahData>(() => createDefaultPernyataanBelumMenikah());
   const [error, setError] = useState<string | null>(null);
+
+  const applyPendudukData = useCallback(
+    (data: PendudukLookupResult) => {
+      setForm((prev) => ({
+        ...prev,
+        nik: data.nik ?? prev.nik,
+        nama: data.nama ?? prev.nama,
+        tempatLahir: data.tempat_lahir ?? prev.tempatLahir,
+        tanggalLahir: data.tanggal_lahir || prev.tanggalLahir,
+        pekerjaan: data.pekerjaan ?? prev.pekerjaan,
+        agama: data.agama ?? prev.agama,
+        alamat: data.alamat ?? prev.alamat,
+      }));
+    },
+    [setForm],
+  );
+
+  const {
+    lookupState: pendudukLookupState,
+    isLookupLoading: isPendudukLookupLoading,
+    handleNikChange: handleNikChange,
+    handleNikLookup: handleNikLookup,
+  } = useNikAutofillField({
+    nikValue: form.nik,
+    onNikValueChange: (value) =>
+      setForm((prev) => ({
+        ...prev,
+        nik: value,
+      })),
+    onApplyData: applyPendudukData,
+  });
 
   const handleInputChange =
     (field: keyof PernyataanBelumMenikahData) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -106,6 +139,15 @@ export function SuratFormPernyataanBelumMenikah({ surat }: { surat: SuratNikahOp
 
             <div className="space-y-4">
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Identitas Diri</p>
+              <NikLookupField
+                label="Nomor Induk Kependudukan"
+                value={form.nik}
+                onChange={handleNikChange}
+                onSearch={handleNikLookup}
+                lookupState={pendudukLookupState}
+                isLoading={isPendudukLookupLoading}
+                inputClassName={INPUT_BASE}
+              />
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Nama Lengkap</Label>
@@ -126,15 +168,9 @@ export function SuratFormPernyataanBelumMenikah({ surat }: { surat: SuratNikahOp
                   <Input type="date" value={form.tanggalLahir} onChange={handleInputChange("tanggalLahir")} className={INPUT_BASE} />
                 </div>
               </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">Nomor Induk Kependudukan</Label>
-                  <Input value={form.nik} onChange={handleInputChange("nik")} placeholder="16 digit NIK" className={INPUT_BASE} />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">Agama</Label>
-                  <Input value={form.agama} onChange={handleInputChange("agama")} placeholder="Islam" className={INPUT_BASE} />
-                </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-slate-700">Agama</Label>
+                <Input value={form.agama} onChange={handleInputChange("agama")} placeholder="Islam" className={INPUT_BASE} />
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">Alamat</Label>

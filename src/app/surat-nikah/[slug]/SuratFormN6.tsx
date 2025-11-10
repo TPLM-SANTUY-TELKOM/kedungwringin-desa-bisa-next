@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, type ChangeEvent } from "react";
+import { useCallback, useState, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 
+import { NikLookupField } from "@/components/form/NikLookupField";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 import type { SuratNikahOption } from "@/data/surat-nikah-options";
 import { createDefaultFormN6, REQUIRED_FIELDS_N6, type FormN6Data } from "@/app/surat-nikah/types";
+import { useNikAutofillField, type PendudukLookupResult } from "@/hooks/useNikAutofillField";
 
 const INPUT_BASE =
   "h-12 rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
@@ -22,6 +24,68 @@ export function SuratFormN6({ surat }: { surat: SuratNikahOption }) {
   const router = useRouter();
   const [form, setForm] = useState<FormN6Data>(() => createDefaultFormN6());
   const [error, setError] = useState<string | null>(null);
+
+  const applyAlmarhumData = useCallback(
+    (data: PendudukLookupResult) => {
+      setForm((prev) => ({
+        ...prev,
+        almarhumNik: data.nik ?? prev.almarhumNik,
+        almarhumNama: data.nama ?? prev.almarhumNama,
+        almarhumTempatLahir: data.tempat_lahir ?? prev.almarhumTempatLahir,
+        almarhumTanggalLahir: data.tanggal_lahir || prev.almarhumTanggalLahir,
+        almarhumAgama: data.agama ?? prev.almarhumAgama,
+        almarhumPekerjaan: data.pekerjaan ?? prev.almarhumPekerjaan,
+        almarhumAlamat: data.alamat ?? prev.almarhumAlamat,
+      }));
+    },
+    [setForm],
+  );
+
+  const applyPasanganData = useCallback(
+    (data: PendudukLookupResult) => {
+      setForm((prev) => ({
+        ...prev,
+        pasanganNik: data.nik ?? prev.pasanganNik,
+        pasanganNama: data.nama ?? prev.pasanganNama,
+        pasanganTempatLahir: data.tempat_lahir ?? prev.pasanganTempatLahir,
+        pasanganTanggalLahir: data.tanggal_lahir || prev.pasanganTanggalLahir,
+        pasanganAgama: data.agama ?? prev.pasanganAgama,
+        pasanganPekerjaan: data.pekerjaan ?? prev.pasanganPekerjaan,
+        pasanganAlamat: data.alamat ?? prev.pasanganAlamat,
+      }));
+    },
+    [setForm],
+  );
+
+  const {
+    lookupState: almarhumLookupState,
+    isLookupLoading: isAlmarhumLookupLoading,
+    handleNikChange: handleAlmarhumNikChange,
+    handleNikLookup: handleAlmarhumNikLookup,
+  } = useNikAutofillField({
+    nikValue: form.almarhumNik,
+    onNikValueChange: (value) =>
+      setForm((prev) => ({
+        ...prev,
+        almarhumNik: value,
+      })),
+    onApplyData: applyAlmarhumData,
+  });
+
+  const {
+    lookupState: pasanganLookupState,
+    isLookupLoading: isPasanganLookupLoading,
+    handleNikChange: handlePasanganNikChange,
+    handleNikLookup: handlePasanganNikLookup,
+  } = useNikAutofillField({
+    nikValue: form.pasanganNik,
+    onNikValueChange: (value) =>
+      setForm((prev) => ({
+        ...prev,
+        pasanganNik: value,
+      })),
+    onApplyData: applyPasanganData,
+  });
 
   const handleInputChange =
     (field: keyof FormN6Data) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -124,6 +188,15 @@ export function SuratFormN6({ surat }: { surat: SuratNikahOption }) {
 
             <div className="space-y-4">
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Data Suami/Istri Yang Wafat</p>
+              <NikLookupField
+                label="Nomor Induk Kependudukan"
+                value={form.almarhumNik}
+                onChange={handleAlmarhumNikChange}
+                onSearch={handleAlmarhumNikLookup}
+                lookupState={almarhumLookupState}
+                isLoading={isAlmarhumLookupLoading}
+                inputClassName={INPUT_BASE}
+              />
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Nama lengkap dan alias</Label>
@@ -134,15 +207,9 @@ export function SuratFormN6({ surat }: { surat: SuratNikahOption }) {
                   <Input value={form.almarhumAlias} onChange={handleInputChange("almarhumAlias")} placeholder="Alias" className={INPUT_BASE} />
                 </div>
               </div>
-              <div className="grid gap-4 sm:grid-cols-3">
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">Bin/Binti</Label>
-                  <Input value={form.almarhumBin} onChange={handleInputChange("almarhumBin")} placeholder="Nama orang tua" className={INPUT_BASE} />
-                </div>
-                <div className="space-y-2 sm:col-span-2">
-                  <Label className="text-sm font-semibold text-slate-700">Nomor Induk Kependudukan</Label>
-                  <Input value={form.almarhumNik} onChange={handleInputChange("almarhumNik")} placeholder="16 digit NIK" className={INPUT_BASE} />
-                </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-slate-700">Bin/Binti</Label>
+                <Input value={form.almarhumBin} onChange={handleInputChange("almarhumBin")} placeholder="Nama orang tua" className={INPUT_BASE} />
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
@@ -186,6 +253,15 @@ export function SuratFormN6({ surat }: { surat: SuratNikahOption }) {
 
             <div className="space-y-4">
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Data Pasangan Yang Hidup</p>
+              <NikLookupField
+                label="Nomor Induk Kependudukan"
+                value={form.pasanganNik}
+                onChange={handlePasanganNikChange}
+                onSearch={handlePasanganNikLookup}
+                lookupState={pasanganLookupState}
+                isLoading={isPasanganLookupLoading}
+                inputClassName={INPUT_BASE}
+              />
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Nama lengkap dan alias</Label>
@@ -196,15 +272,9 @@ export function SuratFormN6({ surat }: { surat: SuratNikahOption }) {
                   <Input value={form.pasanganAlias} onChange={handleInputChange("pasanganAlias")} placeholder="Alias" className={INPUT_BASE} />
                 </div>
               </div>
-              <div className="grid gap-4 sm:grid-cols-3">
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">Bin/Binti</Label>
-                  <Input value={form.pasanganBin} onChange={handleInputChange("pasanganBin")} placeholder="Nama orang tua" className={INPUT_BASE} />
-                </div>
-                <div className="space-y-2 sm:col-span-2">
-                  <Label className="text-sm font-semibold text-slate-700">Nomor Induk Kependudukan</Label>
-                  <Input value={form.pasanganNik} onChange={handleInputChange("pasanganNik")} placeholder="16 digit NIK" className={INPUT_BASE} />
-                </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-slate-700">Bin/Binti</Label>
+                <Input value={form.pasanganBin} onChange={handleInputChange("pasanganBin")} placeholder="Nama orang tua" className={INPUT_BASE} />
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="space-y-2">

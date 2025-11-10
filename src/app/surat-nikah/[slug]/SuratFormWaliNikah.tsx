@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, type ChangeEvent } from "react";
+import { useCallback, useState, type ChangeEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 
+import { NikLookupField } from "@/components/form/NikLookupField";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 import type { SuratNikahOption } from "@/data/surat-nikah-options";
 import { createDefaultWaliNikahData, REQUIRED_FIELDS_WALI_NIKAH, type WaliNikahData } from "@/app/surat-nikah/types";
+import { useNikAutofillField, type PendudukLookupResult } from "@/hooks/useNikAutofillField";
 
 const INPUT_BASE =
   "h-12 rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
@@ -22,6 +24,87 @@ export function SuratFormWaliNikah({ surat }: { surat: SuratNikahOption }) {
   const router = useRouter();
   const [form, setForm] = useState<WaliNikahData>(() => createDefaultWaliNikahData());
   const [error, setError] = useState<string | null>(null);
+  const [waliNik, setWaliNik] = useState("");
+  const [mempelaiNik, setMempelaiNik] = useState("");
+  const [pasanganNik, setPasanganNik] = useState("");
+
+  const applyWaliData = useCallback(
+    (data: PendudukLookupResult) => {
+      setForm((prev) => ({
+        ...prev,
+        waliNama: data.nama ?? prev.waliNama,
+        waliTempatLahir: data.tempat_lahir ?? prev.waliTempatLahir,
+        waliTanggalLahir: data.tanggal_lahir || prev.waliTanggalLahir,
+        waliAgama: data.agama ?? prev.waliAgama,
+        waliPekerjaan: data.pekerjaan ?? prev.waliPekerjaan,
+        waliAlamat: data.alamat ?? prev.waliAlamat,
+      }));
+    },
+    [setForm],
+  );
+
+  const applyMempelaiData = useCallback(
+    (data: PendudukLookupResult) => {
+      setForm((prev) => ({
+        ...prev,
+        mempelaiNama: data.nama ?? prev.mempelaiNama,
+        mempelaiTempatLahir: data.tempat_lahir ?? prev.mempelaiTempatLahir,
+        mempelaiTanggalLahir: data.tanggal_lahir || prev.mempelaiTanggalLahir,
+        mempelaiAgama: data.agama ?? prev.mempelaiAgama,
+        mempelaiPekerjaan: data.pekerjaan ?? prev.mempelaiPekerjaan,
+        mempelaiAlamat: data.alamat ?? prev.mempelaiAlamat,
+      }));
+    },
+    [setForm],
+  );
+
+  const applyPasanganData = useCallback(
+    (data: PendudukLookupResult) => {
+      setForm((prev) => ({
+        ...prev,
+        pasanganNama: data.nama ?? prev.pasanganNama,
+        pasanganTempatLahir: data.tempat_lahir ?? prev.pasanganTempatLahir,
+        pasanganTanggalLahir: data.tanggal_lahir || prev.pasanganTanggalLahir,
+        pasanganAgama: data.agama ?? prev.pasanganAgama,
+        pasanganPekerjaan: data.pekerjaan ?? prev.pasanganPekerjaan,
+        pasanganAlamat: data.alamat ?? prev.pasanganAlamat,
+      }));
+    },
+    [setForm],
+  );
+
+  const {
+    lookupState: waliLookupState,
+    isLookupLoading: isWaliLookupLoading,
+    handleNikChange: handleWaliNikChange,
+    handleNikLookup: handleWaliNikLookup,
+  } = useNikAutofillField({
+    nikValue: waliNik,
+    onNikValueChange: setWaliNik,
+    onApplyData: applyWaliData,
+  });
+
+  const {
+    lookupState: mempelaiLookupState,
+    isLookupLoading: isMempelaiLookupLoading,
+    handleNikChange: handleMempelaiNikChange,
+    handleNikLookup: handleMempelaiNikLookup,
+  } = useNikAutofillField({
+    nikValue: mempelaiNik,
+    onNikValueChange: setMempelaiNik,
+    onApplyData: applyMempelaiData,
+  });
+
+  const {
+    lookupState: pasanganLookupState,
+    isLookupLoading: isPasanganLookupLoading,
+    handleNikChange: handlePasanganNikChange,
+    handleNikLookup: handlePasanganNikLookup,
+  } = useNikAutofillField({
+    nikValue: pasanganNik,
+    onNikValueChange: setPasanganNik,
+    onApplyData: applyPasanganData,
+  });
 
   const handleInputChange =
     (field: keyof WaliNikahData) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -54,22 +137,36 @@ export function SuratFormWaliNikah({ surat }: { surat: SuratNikahOption }) {
     router.push(`/surat-nikah/${surat.slug}/preview?data=${payload}`);
   };
 
-  const renderIdentityFields = (prefix: string, mappings: Array<{ key: keyof WaliNikahData; label: string; placeholder?: string }>) => (
+  const renderIdentityFields = (
+    prefix: string,
+    mappings: Array<{ key: keyof WaliNikahData; label: string; placeholder?: string }>,
+    options?: {
+      before?: ReactNode;
+      customFields?: Partial<Record<keyof WaliNikahData, ReactNode>>;
+    },
+  ) => (
     <div className="space-y-4">
       <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">{prefix}</p>
+      {options?.before}
       <div className="grid gap-4">
-        {mappings.map(({ key, label, placeholder }) => (
-          <div key={key as string} className="space-y-2">
-            <Label className="text-sm font-semibold text-slate-700">{label}</Label>
-            {key.toLowerCase().includes("alamat") ? (
-              <Textarea value={form[key] ?? ""} onChange={handleInputChange(key)} className={TEXTAREA_BASE} placeholder={placeholder} rows={3} />
-            ) : key.toLowerCase().includes("tanggal") ? (
-              <Input type="date" value={form[key] ?? ""} onChange={handleInputChange(key)} className={INPUT_BASE} />
-            ) : (
-              <Input value={form[key] ?? ""} onChange={handleInputChange(key)} placeholder={placeholder} className={INPUT_BASE} />
-            )}
-          </div>
-        ))}
+        {mappings.map(({ key, label, placeholder }) => {
+          const customField = options?.customFields?.[key];
+          if (customField) {
+            return <div key={key as string}>{customField}</div>;
+          }
+          return (
+            <div key={key as string} className="space-y-2">
+              <Label className="text-sm font-semibold text-slate-700">{label}</Label>
+              {key.toLowerCase().includes("alamat") ? (
+                <Textarea value={form[key] ?? ""} onChange={handleInputChange(key)} className={TEXTAREA_BASE} placeholder={placeholder} rows={3} />
+              ) : key.toLowerCase().includes("tanggal") ? (
+                <Input type="date" value={form[key] ?? ""} onChange={handleInputChange(key)} className={INPUT_BASE} />
+              ) : (
+                <Input value={form[key] ?? ""} onChange={handleInputChange(key)} placeholder={placeholder} className={INPUT_BASE} />
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -128,38 +225,86 @@ export function SuratFormWaliNikah({ surat }: { surat: SuratNikahOption }) {
               </div>
             </div>
 
-            {renderIdentityFields("Data Wali Nikah", [
-              { key: "waliNama", label: "Nama lengkap", placeholder: "Nama wali" },
-              { key: "waliBin", label: "Bin", placeholder: "Nama ayah wali" },
-              { key: "waliTempatLahir", label: "Tempat lahir", placeholder: "Kabupaten" },
-              { key: "waliTanggalLahir", label: "Tanggal lahir" },
-              { key: "waliKewarganegaraan", label: "Kewarganegaraan", placeholder: "Indonesia" },
-              { key: "waliAgama", label: "Agama", placeholder: "Islam" },
-              { key: "waliPekerjaan", label: "Pekerjaan", placeholder: "Pekerjaan" },
-              { key: "waliAlamat", label: "Alamat", placeholder: "Alamat lengkap" },
-            ])}
+            {renderIdentityFields(
+              "Data Wali Nikah",
+              [
+                { key: "waliNama", label: "Nama lengkap", placeholder: "Nama wali" },
+                { key: "waliBin", label: "Bin", placeholder: "Nama ayah wali" },
+                { key: "waliTempatLahir", label: "Tempat lahir", placeholder: "Kabupaten" },
+                { key: "waliTanggalLahir", label: "Tanggal lahir" },
+                { key: "waliKewarganegaraan", label: "Kewarganegaraan", placeholder: "Indonesia" },
+                { key: "waliAgama", label: "Agama", placeholder: "Islam" },
+                { key: "waliPekerjaan", label: "Pekerjaan", placeholder: "Pekerjaan" },
+                { key: "waliAlamat", label: "Alamat", placeholder: "Alamat lengkap" },
+              ],
+              {
+                before: (
+                  <NikLookupField
+                    label="NIK Wali"
+                    value={waliNik}
+                    onChange={handleWaliNikChange}
+                    onSearch={handleWaliNikLookup}
+                    lookupState={waliLookupState}
+                    isLoading={isWaliLookupLoading}
+                    inputClassName={INPUT_BASE}
+                  />
+                ),
+              },
+            )}
 
-            {renderIdentityFields("Data Calon Mempelai Perempuan", [
-              { key: "mempelaiNama", label: "Nama lengkap", placeholder: "Nama calon mempelai" },
-              { key: "mempelaiBinti", label: "Binti", placeholder: "Nama ayah" },
-              { key: "mempelaiTempatLahir", label: "Tempat lahir", placeholder: "Kabupaten" },
-              { key: "mempelaiTanggalLahir", label: "Tanggal lahir" },
-              { key: "mempelaiKewarganegaraan", label: "Kewarganegaraan", placeholder: "Indonesia" },
-              { key: "mempelaiAgama", label: "Agama", placeholder: "Islam" },
-              { key: "mempelaiPekerjaan", label: "Pekerjaan", placeholder: "Pekerjaan" },
-              { key: "mempelaiAlamat", label: "Alamat", placeholder: "Alamat lengkap" },
-            ])}
+            {renderIdentityFields(
+              "Data Calon Mempelai Perempuan",
+              [
+                { key: "mempelaiNama", label: "Nama lengkap", placeholder: "Nama calon mempelai" },
+                { key: "mempelaiBinti", label: "Binti", placeholder: "Nama ayah" },
+                { key: "mempelaiTempatLahir", label: "Tempat lahir", placeholder: "Kabupaten" },
+                { key: "mempelaiTanggalLahir", label: "Tanggal lahir" },
+                { key: "mempelaiKewarganegaraan", label: "Kewarganegaraan", placeholder: "Indonesia" },
+                { key: "mempelaiAgama", label: "Agama", placeholder: "Islam" },
+                { key: "mempelaiPekerjaan", label: "Pekerjaan", placeholder: "Pekerjaan" },
+                { key: "mempelaiAlamat", label: "Alamat", placeholder: "Alamat lengkap" },
+              ],
+              {
+                before: (
+                  <NikLookupField
+                    label="NIK Calon Istri"
+                    value={mempelaiNik}
+                    onChange={handleMempelaiNikChange}
+                    onSearch={handleMempelaiNikLookup}
+                    lookupState={mempelaiLookupState}
+                    isLoading={isMempelaiLookupLoading}
+                    inputClassName={INPUT_BASE}
+                  />
+                ),
+              },
+            )}
 
-            {renderIdentityFields("Data Calon Suami", [
-              { key: "pasanganNama", label: "Nama lengkap", placeholder: "Nama calon suami" },
-              { key: "pasanganBin", label: "Bin", placeholder: "Nama ayah" },
-              { key: "pasanganTempatLahir", label: "Tempat lahir", placeholder: "Kabupaten" },
-              { key: "pasanganTanggalLahir", label: "Tanggal lahir" },
-              { key: "pasanganKewarganegaraan", label: "Kewarganegaraan", placeholder: "Indonesia" },
-              { key: "pasanganAgama", label: "Agama", placeholder: "Islam" },
-              { key: "pasanganPekerjaan", label: "Pekerjaan", placeholder: "Pekerjaan" },
-              { key: "pasanganAlamat", label: "Alamat", placeholder: "Alamat lengkap" },
-            ])}
+            {renderIdentityFields(
+              "Data Calon Suami",
+              [
+                { key: "pasanganNama", label: "Nama lengkap", placeholder: "Nama calon suami" },
+                { key: "pasanganBin", label: "Bin", placeholder: "Nama ayah" },
+                { key: "pasanganTempatLahir", label: "Tempat lahir", placeholder: "Kabupaten" },
+                { key: "pasanganTanggalLahir", label: "Tanggal lahir" },
+                { key: "pasanganKewarganegaraan", label: "Kewarganegaraan", placeholder: "Indonesia" },
+                { key: "pasanganAgama", label: "Agama", placeholder: "Islam" },
+                { key: "pasanganPekerjaan", label: "Pekerjaan", placeholder: "Pekerjaan" },
+                { key: "pasanganAlamat", label: "Alamat", placeholder: "Alamat lengkap" },
+              ],
+              {
+                before: (
+                  <NikLookupField
+                    label="NIK Calon Suami"
+                    value={pasanganNik}
+                    onChange={handlePasanganNikChange}
+                    onSearch={handlePasanganNikLookup}
+                    lookupState={pasanganLookupState}
+                    isLoading={isPasanganLookupLoading}
+                    inputClassName={INPUT_BASE}
+                  />
+                ),
+              },
+            )}
 
             <div className="space-y-4">
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Rincian Pernikahan</p>

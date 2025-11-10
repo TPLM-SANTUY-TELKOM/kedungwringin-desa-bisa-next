@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, type ChangeEvent } from "react";
+import { useCallback, useState, type ChangeEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 
+import { NikLookupField } from "@/components/form/NikLookupField";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 import type { SuratNikahOption } from "@/data/surat-nikah-options";
 import { createDefaultFormN4, REQUIRED_FIELDS_N4, type FormN4Data } from "@/app/surat-nikah/types";
+import { useNikAutofillField, type PendudukLookupResult } from "@/hooks/useNikAutofillField";
 
 const INPUT_BASE =
   "h-12 rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
@@ -22,6 +24,130 @@ export function SuratFormN4({ surat }: { surat: SuratNikahOption }) {
   const router = useRouter();
   const [form, setForm] = useState<FormN4Data>(() => createDefaultFormN4());
   const [error, setError] = useState<string | null>(null);
+
+  const applyAyahData = useCallback(
+    (data: PendudukLookupResult) => {
+      setForm((prev) => ({
+        ...prev,
+        ayahNik: data.nik ?? prev.ayahNik,
+        ayahNama: data.nama ?? prev.ayahNama,
+        ayahTempatLahir: data.tempat_lahir ?? prev.ayahTempatLahir,
+        ayahTanggalLahir: data.tanggal_lahir || prev.ayahTanggalLahir,
+        ayahAgama: data.agama ?? prev.ayahAgama,
+        ayahPekerjaan: data.pekerjaan ?? prev.ayahPekerjaan,
+        ayahAlamat: data.alamat ?? prev.ayahAlamat,
+      }));
+    },
+    [setForm],
+  );
+
+  const applyIbuData = useCallback(
+    (data: PendudukLookupResult) => {
+      setForm((prev) => ({
+        ...prev,
+        ibuNik: data.nik ?? prev.ibuNik,
+        ibuNama: data.nama ?? prev.ibuNama,
+        ibuTempatLahir: data.tempat_lahir ?? prev.ibuTempatLahir,
+        ibuTanggalLahir: data.tanggal_lahir || prev.ibuTanggalLahir,
+        ibuAgama: data.agama ?? prev.ibuAgama,
+        ibuPekerjaan: data.pekerjaan ?? prev.ibuPekerjaan,
+        ibuAlamat: data.alamat ?? prev.ibuAlamat,
+      }));
+    },
+    [setForm],
+  );
+
+  const applyAnakData = useCallback(
+    (data: PendudukLookupResult) => {
+      setForm((prev) => ({
+        ...prev,
+        anakNik: data.nik ?? prev.anakNik,
+        anakNama: data.nama ?? prev.anakNama,
+        anakTempatLahir: data.tempat_lahir ?? prev.anakTempatLahir,
+        anakTanggalLahir: data.tanggal_lahir || prev.anakTanggalLahir,
+        anakAgama: data.agama ?? prev.anakAgama,
+        anakPekerjaan: data.pekerjaan ?? prev.anakPekerjaan,
+        anakAlamat: data.alamat ?? prev.anakAlamat,
+      }));
+    },
+    [setForm],
+  );
+
+  const applyCalonPasanganData = useCallback(
+    (data: PendudukLookupResult) => {
+      setForm((prev) => ({
+        ...prev,
+        calonPasanganNik: data.nik ?? prev.calonPasanganNik,
+        calonPasanganNama: data.nama ?? prev.calonPasanganNama,
+        calonPasanganTempatLahir: data.tempat_lahir ?? prev.calonPasanganTempatLahir,
+        calonPasanganTanggalLahir: data.tanggal_lahir || prev.calonPasanganTanggalLahir,
+        calonPasanganAgama: data.agama ?? prev.calonPasanganAgama,
+        calonPasanganPekerjaan: data.pekerjaan ?? prev.calonPasanganPekerjaan,
+        calonPasanganAlamat: data.alamat ?? prev.calonPasanganAlamat,
+      }));
+    },
+    [setForm],
+  );
+
+  const {
+    lookupState: ayahLookupState,
+    isLookupLoading: isAyahLookupLoading,
+    handleNikChange: handleAyahNikChange,
+    handleNikLookup: handleAyahNikLookup,
+  } = useNikAutofillField({
+    nikValue: form.ayahNik,
+    onNikValueChange: (value) =>
+      setForm((prev) => ({
+        ...prev,
+        ayahNik: value,
+      })),
+    onApplyData: applyAyahData,
+  });
+
+  const {
+    lookupState: ibuLookupState,
+    isLookupLoading: isIbuLookupLoading,
+    handleNikChange: handleIbuNikChange,
+    handleNikLookup: handleIbuNikLookup,
+  } = useNikAutofillField({
+    nikValue: form.ibuNik,
+    onNikValueChange: (value) =>
+      setForm((prev) => ({
+        ...prev,
+        ibuNik: value,
+      })),
+    onApplyData: applyIbuData,
+  });
+
+  const {
+    lookupState: anakLookupState,
+    isLookupLoading: isAnakLookupLoading,
+    handleNikChange: handleAnakNikChange,
+    handleNikLookup: handleAnakNikLookup,
+  } = useNikAutofillField({
+    nikValue: form.anakNik,
+    onNikValueChange: (value) =>
+      setForm((prev) => ({
+        ...prev,
+        anakNik: value,
+      })),
+    onApplyData: applyAnakData,
+  });
+
+  const {
+    lookupState: calonPasanganLookupState,
+    isLookupLoading: isCalonPasanganLookupLoading,
+    handleNikChange: handleCalonPasanganNikChange,
+    handleNikLookup: handleCalonPasanganNikLookup,
+  } = useNikAutofillField({
+    nikValue: form.calonPasanganNik,
+    onNikValueChange: (value) =>
+      setForm((prev) => ({
+        ...prev,
+        calonPasanganNik: value,
+      })),
+    onApplyData: applyCalonPasanganData,
+  });
 
   const handleInputChange =
     (field: keyof FormN4Data) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -57,22 +183,29 @@ export function SuratFormN4({ surat }: { surat: SuratNikahOption }) {
   const renderIdentitySection = (
     title: string,
     fields: Array<{ key: keyof FormN4Data; label: string; placeholder?: string }>,
+    customFields?: Partial<Record<keyof FormN4Data, ReactNode>>,
   ) => (
     <div className="space-y-4">
       <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">{title}</p>
       <div className="grid gap-4">
-        {fields.map(({ key, label, placeholder }) => (
-          <div key={key as string} className="space-y-2">
-            <Label className="text-sm font-semibold text-slate-700">{label}</Label>
-            {key.toLowerCase().includes("alamat") ? (
-              <Textarea value={form[key] ?? ""} onChange={handleInputChange(key)} className={TEXTAREA_BASE} placeholder={placeholder} rows={3} />
-            ) : key.toLowerCase().includes("tanggal") ? (
-              <Input type="date" value={form[key] ?? ""} onChange={handleInputChange(key)} className={INPUT_BASE} />
-            ) : (
-              <Input value={form[key] ?? ""} onChange={handleInputChange(key)} placeholder={placeholder} className={INPUT_BASE} />
-            )}
-          </div>
-        ))}
+        {fields.map(({ key, label, placeholder }) => {
+          const customField = customFields?.[key];
+          if (customField) {
+            return <div key={key as string}>{customField}</div>;
+          }
+          return (
+            <div key={key as string} className="space-y-2">
+              <Label className="text-sm font-semibold text-slate-700">{label}</Label>
+              {key.toLowerCase().includes("alamat") ? (
+                <Textarea value={form[key] ?? ""} onChange={handleInputChange(key)} className={TEXTAREA_BASE} placeholder={placeholder} rows={3} />
+              ) : key.toLowerCase().includes("tanggal") ? (
+                <Input type="date" value={form[key] ?? ""} onChange={handleInputChange(key)} className={INPUT_BASE} />
+              ) : (
+                <Input value={form[key] ?? ""} onChange={handleInputChange(key)} placeholder={placeholder} className={INPUT_BASE} />
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -127,57 +260,117 @@ export function SuratFormN4({ surat }: { surat: SuratNikahOption }) {
               </div>
             </div>
 
-            {renderIdentitySection("Data Ayah/Wali/Pengampu", [
-              { key: "ayahNama", label: "Nama lengkap dan alias", placeholder: "Nama ayah" },
-              { key: "ayahAlias", label: "Alias", placeholder: "Alias (jika ada)" },
-              { key: "ayahBin", label: "Bin", placeholder: "Nama kakek (jika diperlukan)" },
-              { key: "ayahNik", label: "Nomor Induk Kependudukan", placeholder: "16 digit NIK" },
-              { key: "ayahTempatLahir", label: "Tempat lahir", placeholder: "Kabupaten" },
-              { key: "ayahTanggalLahir", label: "Tanggal lahir" },
-              { key: "ayahKewarganegaraan", label: "Kewarganegaraan", placeholder: "Indonesia" },
-              { key: "ayahAgama", label: "Agama", placeholder: "Islam" },
-              { key: "ayahPekerjaan", label: "Pekerjaan", placeholder: "Wiraswasta" },
-              { key: "ayahAlamat", label: "Alamat", placeholder: "Alamat lengkap" },
-            ])}
+            {renderIdentitySection(
+              "Data Ayah/Wali/Pengampu",
+              [
+                { key: "ayahNama", label: "Nama lengkap dan alias", placeholder: "Nama ayah" },
+                { key: "ayahAlias", label: "Alias", placeholder: "Alias (jika ada)" },
+                { key: "ayahBin", label: "Bin", placeholder: "Nama kakek (jika diperlukan)" },
+                { key: "ayahTempatLahir", label: "Tempat lahir", placeholder: "Kabupaten" },
+                { key: "ayahTanggalLahir", label: "Tanggal lahir" },
+                { key: "ayahKewarganegaraan", label: "Kewarganegaraan", placeholder: "Indonesia" },
+                { key: "ayahAgama", label: "Agama", placeholder: "Islam" },
+                { key: "ayahPekerjaan", label: "Pekerjaan", placeholder: "Wiraswasta" },
+                { key: "ayahAlamat", label: "Alamat", placeholder: "Alamat lengkap" },
+              ],
+              {
+                before: (
+                  <NikLookupField
+                    label="Nomor Induk Kependudukan"
+                    value={form.ayahNik}
+                    onChange={handleAyahNikChange}
+                    onSearch={handleAyahNikLookup}
+                    lookupState={ayahLookupState}
+                    isLoading={isAyahLookupLoading}
+                    inputClassName={INPUT_BASE}
+                  />
+                ),
+              },
+            )}
 
-            {renderIdentitySection("Data Ibu/Wali/Pengampu", [
-              { key: "ibuNama", label: "Nama lengkap dan alias", placeholder: "Nama ibu" },
-              { key: "ibuAlias", label: "Alias", placeholder: "Alias (jika ada)" },
-              { key: "ibuBinti", label: "Binti", placeholder: "Nama kakek (jika diperlukan)" },
-              { key: "ibuNik", label: "Nomor Induk Kependudukan", placeholder: "16 digit NIK" },
-              { key: "ibuTempatLahir", label: "Tempat lahir", placeholder: "Kabupaten" },
-              { key: "ibuTanggalLahir", label: "Tanggal lahir" },
-              { key: "ibuKewarganegaraan", label: "Kewarganegaraan", placeholder: "Indonesia" },
-              { key: "ibuAgama", label: "Agama", placeholder: "Islam" },
-              { key: "ibuPekerjaan", label: "Pekerjaan", placeholder: "Pekerjaan" },
-              { key: "ibuAlamat", label: "Alamat", placeholder: "Alamat lengkap" },
-            ])}
+            {renderIdentitySection(
+              "Data Ibu/Wali/Pengampu",
+              [
+                { key: "ibuNama", label: "Nama lengkap dan alias", placeholder: "Nama ibu" },
+                { key: "ibuAlias", label: "Alias", placeholder: "Alias (jika ada)" },
+                { key: "ibuBinti", label: "Binti", placeholder: "Nama kakek (jika diperlukan)" },
+                { key: "ibuTempatLahir", label: "Tempat lahir", placeholder: "Kabupaten" },
+                { key: "ibuTanggalLahir", label: "Tanggal lahir" },
+                { key: "ibuKewarganegaraan", label: "Kewarganegaraan", placeholder: "Indonesia" },
+                { key: "ibuAgama", label: "Agama", placeholder: "Islam" },
+                { key: "ibuPekerjaan", label: "Pekerjaan", placeholder: "Pekerjaan" },
+                { key: "ibuAlamat", label: "Alamat", placeholder: "Alamat lengkap" },
+              ],
+              {
+                before: (
+                  <NikLookupField
+                    label="Nomor Induk Kependudukan"
+                    value={form.ibuNik}
+                    onChange={handleIbuNikChange}
+                    onSearch={handleIbuNikLookup}
+                    lookupState={ibuLookupState}
+                    isLoading={isIbuLookupLoading}
+                    inputClassName={INPUT_BASE}
+                  />
+                ),
+              },
+            )}
 
-            {renderIdentitySection("Identitas Anak Yang Diberi Izin", [
-              { key: "anakNama", label: "Nama lengkap dan alias", placeholder: "Nama anak" },
-              { key: "anakAlias", label: "Alias", placeholder: "Alias (jika ada)" },
-              { key: "anakBinti", label: "Bin/Binti", placeholder: "Nama ayah" },
-              { key: "anakNik", label: "Nomor Induk Kependudukan", placeholder: "16 digit NIK" },
-              { key: "anakTempatLahir", label: "Tempat lahir", placeholder: "Kabupaten" },
-              { key: "anakTanggalLahir", label: "Tanggal lahir" },
-              { key: "anakKewarganegaraan", label: "Kewarganegaraan", placeholder: "Indonesia" },
-              { key: "anakAgama", label: "Agama", placeholder: "Islam" },
-              { key: "anakPekerjaan", label: "Pekerjaan", placeholder: "Pekerjaan" },
-              { key: "anakAlamat", label: "Alamat", placeholder: "Alamat lengkap" },
-            ])}
+            {renderIdentitySection(
+              "Identitas Anak Yang Diberi Izin",
+              [
+                { key: "anakNama", label: "Nama lengkap dan alias", placeholder: "Nama anak" },
+                { key: "anakAlias", label: "Alias", placeholder: "Alias (jika ada)" },
+                { key: "anakBinti", label: "Bin/Binti", placeholder: "Nama ayah" },
+                { key: "anakTempatLahir", label: "Tempat lahir", placeholder: "Kabupaten" },
+                { key: "anakTanggalLahir", label: "Tanggal lahir" },
+                { key: "anakKewarganegaraan", label: "Kewarganegaraan", placeholder: "Indonesia" },
+                { key: "anakAgama", label: "Agama", placeholder: "Islam" },
+                { key: "anakPekerjaan", label: "Pekerjaan", placeholder: "Pekerjaan" },
+                { key: "anakAlamat", label: "Alamat", placeholder: "Alamat lengkap" },
+              ],
+              {
+                before: (
+                  <NikLookupField
+                    label="Nomor Induk Kependudukan"
+                    value={form.anakNik}
+                    onChange={handleAnakNikChange}
+                    onSearch={handleAnakNikLookup}
+                    lookupState={anakLookupState}
+                    isLoading={isAnakLookupLoading}
+                    inputClassName={INPUT_BASE}
+                  />
+                ),
+              },
+            )}
 
-            {renderIdentitySection("Calon Pasangan", [
-              { key: "calonPasanganNama", label: "Nama lengkap dan alias", placeholder: "Nama calon pasangan" },
-              { key: "calonPasanganAlias", label: "Alias", placeholder: "Alias (jika ada)" },
-              { key: "calonPasanganBin", label: "Bin/Binti", placeholder: "Nama orang tua" },
-              { key: "calonPasanganNik", label: "Nomor Induk Kependudukan", placeholder: "16 digit NIK" },
-              { key: "calonPasanganTempatLahir", label: "Tempat lahir", placeholder: "Kabupaten" },
-              { key: "calonPasanganTanggalLahir", label: "Tanggal lahir" },
-              { key: "calonPasanganKewarganegaraan", label: "Kewarganegaraan", placeholder: "Indonesia" },
-              { key: "calonPasanganAgama", label: "Agama", placeholder: "Islam" },
-              { key: "calonPasanganPekerjaan", label: "Pekerjaan", placeholder: "Pekerjaan" },
-              { key: "calonPasanganAlamat", label: "Alamat", placeholder: "Alamat lengkap" },
-            ])}
+            {renderIdentitySection(
+              "Calon Pasangan",
+              [
+                { key: "calonPasanganNama", label: "Nama lengkap dan alias", placeholder: "Nama calon pasangan" },
+                { key: "calonPasanganAlias", label: "Alias", placeholder: "Alias (jika ada)" },
+                { key: "calonPasanganBin", label: "Bin/Binti", placeholder: "Nama orang tua" },
+                { key: "calonPasanganTempatLahir", label: "Tempat lahir", placeholder: "Kabupaten" },
+                { key: "calonPasanganTanggalLahir", label: "Tanggal lahir" },
+                { key: "calonPasanganKewarganegaraan", label: "Kewarganegaraan", placeholder: "Indonesia" },
+                { key: "calonPasanganAgama", label: "Agama", placeholder: "Islam" },
+                { key: "calonPasanganPekerjaan", label: "Pekerjaan", placeholder: "Pekerjaan" },
+                { key: "calonPasanganAlamat", label: "Alamat", placeholder: "Alamat lengkap" },
+              ],
+              {
+                before: (
+                  <NikLookupField
+                    label="Nomor Induk Kependudukan"
+                    value={form.calonPasanganNik}
+                    onChange={handleCalonPasanganNikChange}
+                    onSearch={handleCalonPasanganNikLookup}
+                    lookupState={calonPasanganLookupState}
+                    isLoading={isCalonPasanganLookupLoading}
+                    inputClassName={INPUT_BASE}
+                  />
+                ),
+              },
+            )}
 
             <div className="grid gap-4 sm:grid-cols-2">
               <Button type="button" variant="outline" onClick={handleCancel} className="h-12 rounded-xl border border-slate-400 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-100">
