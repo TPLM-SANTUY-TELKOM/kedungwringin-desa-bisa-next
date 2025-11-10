@@ -281,10 +281,19 @@ export function SuratFormIzinKeramaian({ surat }: { surat: SuratPengantarOption 
                   <Label className="text-sm font-semibold text-slate-700">Tanggal Penyelenggaraan</Label>
                   <Input type="date" value={form.tanggalPenyelenggaraan} onChange={handleInputChange("tanggalPenyelenggaraan")} className={INPUT_BASE} />
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">Waktu Penyelenggaraan</Label>
-                  <Input value={form.waktuPenyelenggaraan} onChange={handleInputChange("waktuPenyelenggaraan")} placeholder="Contoh: 18:00 - 22:00 WIB" className={INPUT_BASE} />
-                </div>
+                 <div className="space-y-2">
+                   <Label className="text-sm font-semibold text-slate-700">Waktu Penyelenggaraan</Label>
+                   <div className="grid gap-3 sm:grid-cols-2">
+                     <div className="space-y-1">
+                       <Label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Mulai</Label>
+                       <Input type="time" value={form.waktuMulai} onChange={handleInputChange("waktuMulai")} className={INPUT_BASE} />
+                     </div>
+                     <div className="space-y-1">
+                       <Label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Selesai</Label>
+                       <Input type="time" value={form.waktuSelesai} onChange={handleInputChange("waktuSelesai")} className={INPUT_BASE} />
+                     </div>
+                   </div>
+                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
@@ -321,17 +330,7 @@ export function SuratFormIzinKeramaian({ surat }: { surat: SuratPengantarOption 
             </div>
 
             <div className="space-y-4">
-              <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Pejabat Penandatangan & Registrasi</p>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">No. Reg</Label>
-                  <Input value={form.noReg} onChange={handleInputChange("noReg")} placeholder="Nomor Registrasi" className={INPUT_BASE} />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">Tanggal Reg</Label>
-                  <Input type="date" value={form.tanggalReg} onChange={handleInputChange("tanggalReg")} className={INPUT_BASE} />
-                </div>
-              </div>
+              <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Pejabat Penandatangan</p>
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">Kepala Desa</Label>
                 <Input value={form.kepalaDesa} onChange={handleInputChange("kepalaDesa")} placeholder="Parminah" className={INPUT_BASE} />
