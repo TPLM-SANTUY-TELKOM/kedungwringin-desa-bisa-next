@@ -32,7 +32,7 @@ export function SuratPengantarHeader() {
           </p>
         </div>
       </div>
-      <div className="mt-3 h-[2px] w-full bg-black" />
+      <div className="mt-3 w-full border-b-2 border-black print:border-black" />
       <p className="mt-1 w-full text-left text-[12px] font-semibold normal-case">Kode Desa : 02122013</p>
     </header>
   );
