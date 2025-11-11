@@ -24,7 +24,7 @@ export type PendudukLookupResult = {
 
 type LookupStatus = 'idle' | 'loading' | 'success' | 'error';
 
-type LookupState = {
+export type LookupState = {
   status: LookupStatus;
   message?: string;
 };
@@ -119,4 +119,3 @@ export const usePendudukLookup = (
     resetLookupState: reset,
   };
 };
-
