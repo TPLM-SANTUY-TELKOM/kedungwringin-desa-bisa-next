@@ -183,13 +183,17 @@ export function SuratFormN4({ surat }: { surat: SuratNikahOption }) {
   const renderIdentitySection = (
     title: string,
     fields: Array<{ key: keyof FormN4Data; label: string; placeholder?: string }>,
-    customFields?: Partial<Record<keyof FormN4Data, ReactNode>>,
+    options?: {
+      customFields?: Partial<Record<keyof FormN4Data, ReactNode>>;
+      beforeContent?: ReactNode;
+    },
   ) => (
     <div className="space-y-4">
       <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">{title}</p>
+      {options?.beforeContent}
       <div className="grid gap-4">
         {fields.map(({ key, label, placeholder }) => {
-          const customField = customFields?.[key];
+          const customField = options?.customFields?.[key];
           if (customField) {
             return <div key={key as string}>{customField}</div>;
           }
@@ -274,7 +278,7 @@ export function SuratFormN4({ surat }: { surat: SuratNikahOption }) {
                 { key: "ayahAlamat", label: "Alamat", placeholder: "Alamat lengkap" },
               ],
               {
-                before: (
+                beforeContent: (
                   <NikLookupField
                     label="Nomor Induk Kependudukan"
                     value={form.ayahNik}
@@ -302,7 +306,7 @@ export function SuratFormN4({ surat }: { surat: SuratNikahOption }) {
                 { key: "ibuAlamat", label: "Alamat", placeholder: "Alamat lengkap" },
               ],
               {
-                before: (
+                beforeContent: (
                   <NikLookupField
                     label="Nomor Induk Kependudukan"
                     value={form.ibuNik}
@@ -330,7 +334,7 @@ export function SuratFormN4({ surat }: { surat: SuratNikahOption }) {
                 { key: "anakAlamat", label: "Alamat", placeholder: "Alamat lengkap" },
               ],
               {
-                before: (
+                beforeContent: (
                   <NikLookupField
                     label="Nomor Induk Kependudukan"
                     value={form.anakNik}
@@ -358,7 +362,7 @@ export function SuratFormN4({ surat }: { surat: SuratNikahOption }) {
                 { key: "calonPasanganAlamat", label: "Alamat", placeholder: "Alamat lengkap" },
               ],
               {
-                before: (
+                beforeContent: (
                   <NikLookupField
                     label="Nomor Induk Kependudukan"
                     value={form.calonPasanganNik}
