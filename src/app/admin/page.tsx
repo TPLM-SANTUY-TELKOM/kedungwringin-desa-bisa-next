@@ -117,8 +117,14 @@ export default function AdminLogin() {
 
             <Button
               type="submit"
-              className="w-full h-11 bg-orange-500 hover:bg-orange-600 text-white font-semibold transition-all"
+              className="mt-8 w-full inline-flex items-center justify-center rounded-[18px] px-6 py-3 text-base font-semibold text-white border-0 transition-all duration-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#ff6435]/20 focus-visible:ring-offset-4 focus-visible:ring-offset-[#EBEFF3] active:scale-[0.98]"
               disabled={loading}
+              style={{
+                background:
+                  "radial-gradient(50% 50% at 50% 50%, #FC5132 0%, #FC5132 100%)",
+                boxShadow:
+                  "2.42px 2.42px 4.83px 0px #BDC2C7BF, 4.83px 4.83px 7.25px 0px #BDC2C740, -2.42px -2.42px 4.83px 0px #FFFFFFBF, -4.83px -4.83px 7.25px 0px #FFFFFF40, inset 2.42px 2.42px 4.83px 0px #FFFFFFBF, inset 4.83px 4.83px 7.25px 0px #FFFFFF40, inset -2.42px -2.42px 4.83px 0px #FC5132BF, inset -4.83px -4.83px 7.25px 0px #FC513240",
+              }}
             >
               {loading ? "Memproses..." : "Masuk"}
             </Button>

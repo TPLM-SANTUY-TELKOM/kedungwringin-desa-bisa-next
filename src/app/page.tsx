@@ -179,7 +179,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-white/60 bg-white/70 backdrop-blur">
+      <footer className="relative z-10">
         <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-10 px-6 py-12 sm:grid-cols-2 md:grid-cols-4 sm:px-10">
           {/* Brand */}
           <div className="flex items-start gap-3">
