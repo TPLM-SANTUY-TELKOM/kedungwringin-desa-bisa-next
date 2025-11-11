@@ -26,13 +26,13 @@ export function SuratFormN2({ surat }: { surat: SuratNikahOption }) {
   const [error, setError] = useState<string | null>(null);
   const [calonSuamiNik, setCalonSuamiNik] = useState("");
   const [calonIstriNik, setCalonIstriNik] = useState("");
-  const [pemohonNik, setPemohonNik] = useState("");
 
   const applyCalonSuamiData = useCallback(
     (data: PendudukLookupResult) => {
       setForm((prev) => ({
         ...prev,
         calonSuamiNama: data.nama ?? prev.calonSuamiNama,
+        pemohonNama: data.nama ?? prev.pemohonNama,
       }));
     },
     [setForm],
@@ -43,16 +43,6 @@ export function SuratFormN2({ surat }: { surat: SuratNikahOption }) {
       setForm((prev) => ({
         ...prev,
         calonIstriNama: data.nama ?? prev.calonIstriNama,
-      }));
-    },
-    [setForm],
-  );
-
-  const applyPemohonData = useCallback(
-    (data: PendudukLookupResult) => {
-      setForm((prev) => ({
-        ...prev,
-        pemohonNama: data.nama ?? prev.pemohonNama,
       }));
     },
     [setForm],
@@ -80,22 +70,13 @@ export function SuratFormN2({ surat }: { surat: SuratNikahOption }) {
     onApplyData: applyCalonIstriData,
   });
 
-  const {
-    lookupState: pemohonLookupState,
-    isLookupLoading: isPemohonLookupLoading,
-    handleNikChange: handlePemohonNikChange,
-    handleNikLookup: handlePemohonNikLookup,
-  } = useNikAutofillField({
-    nikValue: pemohonNik,
-    onNikValueChange: setPemohonNik,
-    onApplyData: applyPemohonData,
-  });
-
   const handleInputChange =
     (field: keyof FormN2Data) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const value = event.target.value;
       setForm((prev) => ({
         ...prev,
-        [field]: event.target.value,
+        [field]: value,
+        ...(field === "calonSuamiNama" ? { pemohonNama: value } : {}),
       }));
       if (error) setError(null);
     };
@@ -291,18 +272,15 @@ export function SuratFormN2({ surat }: { surat: SuratNikahOption }) {
 
             <div className="space-y-4">
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Penutup</p>
-              <NikLookupField
-                label="NIK Pemohon"
-                value={pemohonNik}
-                onChange={handlePemohonNikChange}
-                onSearch={handlePemohonNikLookup}
-                lookupState={pemohonLookupState}
-                isLoading={isPemohonLookupLoading}
-                inputClassName={INPUT_BASE}
-              />
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">Nama Pemohon</Label>
-                <Input value={form.pemohonNama} onChange={handleInputChange("pemohonNama")} placeholder="Nama pemohon" className={INPUT_BASE} />
+                <Input
+                  value={form.pemohonNama}
+                  onChange={handleInputChange("pemohonNama")}
+                  placeholder="Nama pemohon"
+                  className={INPUT_BASE}
+                />
+                <p className="text-xs text-slate-500">Mengikuti nama calon suami, namun masih bisa diedit manual.</p>
               </div>
             </div>
 
