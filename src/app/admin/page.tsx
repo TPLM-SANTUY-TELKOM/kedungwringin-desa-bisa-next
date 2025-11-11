@@ -104,7 +104,7 @@ export default function AdminLogin() {
               />
             </div>
 
-            <div className="flex items-center justify-between text-sm text-gray-600">
+            {/* <div className="flex items-center justify-between text-sm text-gray-600">
               <label className="flex items-center space-x-2 cursor-pointer">
                 <input
                   type="checkbox"
@@ -113,11 +113,11 @@ export default function AdminLogin() {
                 />
                 <span>Ingat saya</span>
               </label>
-            </div>
+            </div> */}
 
             <Button
               type="submit"
-              className="mt-8 w-full inline-flex items-center justify-center rounded-[18px] px-6 py-3 text-base font-semibold text-white border-0 transition-all duration-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#ff6435]/20 focus-visible:ring-offset-4 focus-visible:ring-offset-[#EBEFF3] active:scale-[0.98]"
+              className="mt-4 w-full inline-flex items-center justify-center rounded-[18px] px-6 py-3 text-base font-semibold text-white border-0 transition-all duration-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#ff6435]/20 focus-visible:ring-offset-4 focus-visible:ring-offset-[#EBEFF3] active:scale-[0.98]"
               disabled={loading}
               style={{
                 background:
