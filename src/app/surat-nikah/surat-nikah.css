@@ -1,0 +1,48 @@
+.surat-nikah-print .print-sheet {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+.surat-nikah-print .print-sheet table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.surat-nikah-print .print-sheet td,
+.surat-nikah-print .print-sheet th {
+  padding: 0;
+  vertical-align: top;
+}
+
+@media print {
+  .surat-nikah-print {
+    min-height: auto !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  .surat-nikah-print .print-wrapper {
+    box-shadow: none !important;
+    border: 0 !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    background: transparent !important;
+    width: 100% !important;
+    max-width: 210mm !important;
+  }
+
+  .surat-nikah-print .print-sheet {
+    border-radius: 0 !important;
+    width: 100% !important;
+    max-width: 210mm !important;
+    padding: 10mm 14mm 12mm 14mm !important;
+    box-sizing: border-box !important;
+    font-size: 12px !important;
+    line-height: 1.3 !important;
+  }
+
+  .surat-nikah-print .print-sheet * {
+    break-inside: avoid;
+  }
+}
