@@ -99,10 +99,10 @@ export function PreviewN4({ surat, data }: PreviewN4Props) {
           </div>
 
           <div className="relative mt-5 text-center leading-tight print:mt-3">
-            <p className="text-[17px] font-semibold uppercase tracking-[0.08em] print:text-[14px]">
+            <p className="text-[17px]  uppercase tracking-[0.08em] print:text-[14px]">
               Formulir Surat Izin Orang Tua
             </p>
-            <p className="mt-2 text-[15px] font-semibold uppercase tracking-[0.25em] underline decoration-slate-700 underline-offset-[6px] print:text-[13px]">
+            <p className="text-[16px] uppercase underline decoration-slate-700 decoration-1 print:text-[14px]">
               Surat Izin Orang Tua
             </p>
             <p className="absolute right-0 top-1/2 -translate-y-1/2 text-[15px] font-semibold uppercase print:text-[13px]">
@@ -311,12 +311,9 @@ export function PreviewN4({ surat, data }: PreviewN4Props) {
             dari siapapun dan untuk digunakan seperlunya.
           </p>
 
-          <div className="mt-2 text-[15px] leading-relaxed print:mt-2 print:text-[12px]">
-            <p>{(data.tempatSurat || "Kedungwringin") + ", " + tanggalSurat}</p>
-          </div>
-
           <div className="mt-4 grid gap-12 text-[15px] leading-relaxed sm:grid-cols-2 print:mt-5 print:gap-10 print:text-[12px]">
             <div className="text-center">
+              <p className="mb-2">&nbsp;</p>
               <p>Ayah/Wali/Pengampu</p>
               <div className="mt-20 print:mt-18">
                 <p className="font-semibold uppercase tracking-wide">
@@ -325,6 +322,9 @@ export function PreviewN4({ surat, data }: PreviewN4Props) {
               </div>
             </div>
             <div className="text-center">
+              <p className="mb-2 text-right sm:text-right">
+                {(data.tempatSurat || "Kedungwringin") + ", " + tanggalSurat}
+              </p>
               <p>Ibu/Wali/Pengampu</p>
               <div className="mt-20 print:mt-18">
                 <p className="font-semibold uppercase tracking-wide">

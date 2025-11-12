@@ -61,7 +61,8 @@ export function PreviewN1({ surat, data }: PreviewN1Props) {
 
   const statusPerkawinanLakiText = data.statusPerkawinanLaki || "-";
   const statusPerkawinanPerempuanText = data.statusPerkawinanPerempuan || "-";
-  const isStatusLakiBeristri = (data.statusPerkawinanLaki || "").toLowerCase() === "beristri";
+  const isStatusLakiBeristri =
+    (data.statusPerkawinanLaki || "").toLowerCase() === "beristri";
 
   return (
     <div className="mx-auto mt-12 flex w-full max-w-4xl flex-col gap-10 print:mt-0 print:gap-6 print:px-0">
@@ -106,10 +107,10 @@ export function PreviewN1({ surat, data }: PreviewN1Props) {
           </div>
 
           <div className="relative mt-4 leading-tight print:mt-3">
-            <p className="text-center text-[16px] font-semibold uppercase print:text-[16px]">
+            <p className="text-center text-[16px] uppercase print:text-[16px]">
               Formulir Pengantar Nikah
             </p>
-            <p className="absolute right-0 top-1/2 -translate-y-1/2 text-[16px] font-semibold uppercase print:text-[14px]">
+            <p className="absolute right-0 top-1/2 -translate-y-1/2 text-[16px]  uppercase print:text-[14px]">
               Model N1
             </p>
           </div>
@@ -137,7 +138,7 @@ export function PreviewN1({ surat, data }: PreviewN1Props) {
           </div>
 
           <div className="mt-5 space-y-1 text-center leading-tight print:mt-4 print:leading-snug">
-            <p className="text-[16px] font-semibold uppercase underline decoration-slate-700 decoration-1 print:text-[14px]">
+            <p className="text-[16px] uppercase underline decoration-slate-700 decoration-1 print:text-[14px]">
               Surat Pengantar Perkawinan
             </p>
             <p className="text-[14px] print:text-[13px]">
@@ -223,7 +224,8 @@ export function PreviewN1({ surat, data }: PreviewN1Props) {
                       {isStatusLakiBeristri && (
                         <span>
                           {" "}
-                          / beristri ke : {data.statusPerkawinanBeristriKe || "-"}
+                          / beristri ke :{" "}
+                          {data.statusPerkawinanBeristriKe || "-"}
                         </span>
                       )}
                     </p>

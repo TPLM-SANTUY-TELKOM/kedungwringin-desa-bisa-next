@@ -91,10 +91,10 @@ export function PreviewN3({ surat, data }: PreviewN3Props) {
             <p className="text-[16px]  uppercase tracking-[0.08em] mb-10">
               Formulir Surat Persetujuan Mempelai
             </p>
-            <p className="mt-2 text-[16px] uppercase tracking-[0.25em] underline decoration-slate-700 underline-offset-[6px]">
+            <p className="text-[16px] uppercase underline decoration-slate-700 decoration-1 print:text-[14px]">
               Surat Persetujuan Mempelai
             </p>
-            <p className="absolute right-0 top-1/2 -translate-y-1/2 text-[16px] font-semibold uppercase">
+            <p className="absolute right-0 top-1/2 -translate-y-1/2 text-[16px]  uppercase">
               Model N3
             </p>
           </div>
@@ -105,7 +105,7 @@ export function PreviewN3({ surat, data }: PreviewN3Props) {
 
           <div className="mt-6 space-y-4">
             <div>
-              <p className="font-semibold uppercase tracking-wide text-[15px]">
+              <p className=" uppercase tracking-wide text-[15px]">
                 A. Calon Suami
               </p>
               <table className="mt-2 w-full text-[15px] leading-relaxed">
@@ -160,7 +160,7 @@ export function PreviewN3({ surat, data }: PreviewN3Props) {
             </div>
 
             <div>
-              <p className="font-semibold uppercase tracking-wide">
+              <p className=" uppercase tracking-wide text-[15px]">
                 B. Calon Istri
               </p>
               <table className="mt-2 w-full text-[15px] leading-relaxed">
@@ -237,7 +237,7 @@ export function PreviewN3({ surat, data }: PreviewN3Props) {
             <div className="text-center">
               <p>Calon Suami</p>
               <div className="mt-16">
-                <p className="font-semibold uppercase tracking-wide">
+                <p className=" uppercase tracking-wide">
                   {data.calonSuamiNama || "........................"}
                 </p>
               </div>
@@ -245,7 +245,7 @@ export function PreviewN3({ surat, data }: PreviewN3Props) {
             <div className="text-center">
               <p>Calon Istri</p>
               <div className="mt-16">
-                <p className="font-semibold uppercase tracking-wide">
+                <p className=" uppercase tracking-wide">
                   {data.calonIstriNama || "........................"}
                 </p>
               </div>

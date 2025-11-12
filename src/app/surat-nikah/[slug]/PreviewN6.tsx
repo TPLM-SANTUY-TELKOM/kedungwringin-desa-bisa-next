@@ -87,11 +87,11 @@ export function PreviewN6({ surat, data }: PreviewN6Props) {
           </div>
 
           <div className="mt-5 leading-tight">
-            <p className="text-center text-[18px] font-semibold uppercase">
+            <p className="text-center text-[18px]  uppercase">
               Formulir Surat Keterangan Kematian Suami / Istri
             </p>
             <div className="mt-1 flex justify-end">
-              <p className="text-[16px] font-semibold uppercase">Model N6</p>
+              <p className="text-[16px]  uppercase">Model N6</p>
             </div>
           </div>
 
@@ -116,10 +116,10 @@ export function PreviewN6({ surat, data }: PreviewN6Props) {
           </table>
 
           <div className="mt-6 text-center leading-tight">
-            <p className="text-[16px] font-semibold uppercase">
+            <p className="text-[16px] uppercase underline decoration-slate-700 decoration-1 print:text-[14px]">
               Surat Keterangan Kematian
             </p>
-            <p className="text-[14px]">
+            <p className="text-[14px] mt-2">
               Nomor :{" "}
               <span className="underline decoration-slate-700 decoration-dotted">
                 {data.nomorSurat || "........"}
@@ -127,7 +127,7 @@ export function PreviewN6({ surat, data }: PreviewN6Props) {
             </p>
           </div>
 
-          <p className="mt-6 leading-relaxed">
+          <p className="mt-2 text-[15px] leading-relaxed">
             Yang bertanda tangan di bawah ini menerangkan dengan sesungguhnya
             bahwa:
           </p>
@@ -231,7 +231,7 @@ export function PreviewN6({ surat, data }: PreviewN6Props) {
               </tbody>
             </table>
 
-            <p className="mt-4 leading-relaxed">
+            <p className="mt-4 text-[15px] leading-relaxed">
               Yang bersangkutan adalah suami/istri dari :
             </p>
 
@@ -315,7 +315,7 @@ export function PreviewN6({ surat, data }: PreviewN6Props) {
             </table>
           </div>
 
-          <p className="mt-6 text-justify leading-relaxed">
+          <p className="mt-6 text-[15px] text-justify leading-relaxed">
             Demikian surat keterangan ini dibuat dengan mengingat sumpah jabatan
             dan untuk digunakan seperlunya.
           </p>

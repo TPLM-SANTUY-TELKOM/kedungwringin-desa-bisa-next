@@ -131,7 +131,7 @@ export function PreviewPengantarNumpang({
           </div>
 
           <div className="mt-6 text-center leading-tight">
-            <p className="inline-block border-b-2 border-slate-900 pb-1 text-[18px] font-semibold uppercase">
+            <p className="text-[16px] uppercase font-semibold underline decoration-slate-700 decoration-1 print:text-[14px]">
               Pengantar Numpang Nikah
             </p>
             <p className="text-[15px]">
