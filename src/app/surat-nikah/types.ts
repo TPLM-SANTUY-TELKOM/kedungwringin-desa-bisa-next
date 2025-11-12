@@ -584,6 +584,7 @@ export const REQUIRED_FIELDS_WALI_NIKAH: Array<keyof WaliNikahData> = [
 export type PernyataanBelumMenikahData = {
   tempatSurat: string;
   tanggalSurat: string;
+  jenisKelamin: GenderOption;
   nama: string;
   tempatLahir: string;
   tanggalLahir: string;
@@ -591,13 +592,13 @@ export type PernyataanBelumMenikahData = {
   nik: string;
   agama: string;
   alamat: string;
-  pernyataanTambahan: string;
   kepalaDesa: string;
 };
 
 export const createDefaultPernyataanBelumMenikah = (): PernyataanBelumMenikahData => ({
   tempatSurat: "Kedungwringin",
   tanggalSurat: new Date().toISOString().slice(0, 10),
+  jenisKelamin: "Laki-laki",
   nama: "",
   tempatLahir: "",
   tanggalLahir: "",
@@ -605,14 +606,13 @@ export const createDefaultPernyataanBelumMenikah = (): PernyataanBelumMenikahDat
   nik: "",
   agama: "Islam",
   alamat: "",
-  pernyataanTambahan:
-    "bahwa saya sampai saat ini belum pernah menikah dengan seorang perempuan baik secara resmi maupun di bawah tangan (masih lajang).",
   kepalaDesa: "Parminah",
 });
 
 export const REQUIRED_FIELDS_PERNYATAAN: Array<keyof PernyataanBelumMenikahData> = [
   "tempatSurat",
   "tanggalSurat",
+  "jenisKelamin",
   "nama",
   "tempatLahir",
   "tanggalLahir",
