@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import type { SuratNikahOption } from "@/data/surat-nikah-options";
 import { createDefaultPernyataanBelumMenikah, REQUIRED_FIELDS_PERNYATAAN, type PernyataanBelumMenikahData } from "@/app/surat-nikah/types";
@@ -31,6 +32,7 @@ export function SuratFormPernyataanBelumMenikah({ surat }: { surat: SuratNikahOp
         ...prev,
         nik: data.nik ?? prev.nik,
         nama: data.nama ?? prev.nama,
+        jenisKelamin: data.jenis_kelamin ?? prev.jenisKelamin,
         tempatLahir: data.tempat_lahir ?? prev.tempatLahir,
         tanggalLahir: data.tanggal_lahir || prev.tanggalLahir,
         pekerjaan: data.pekerjaan ?? prev.pekerjaan,
@@ -64,6 +66,14 @@ export function SuratFormPernyataanBelumMenikah({ surat }: { surat: SuratNikahOp
       }));
       if (error) setError(null);
     };
+
+  const handleSelectChange = (field: keyof PernyataanBelumMenikahData) => (value: string) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+    if (error) setError(null);
+  };
 
   const handleCancel = () => {
     router.back();
@@ -148,14 +158,32 @@ export function SuratFormPernyataanBelumMenikah({ surat }: { surat: SuratNikahOp
                 isLoading={isPendudukLookupLoading}
                 inputClassName={INPUT_BASE}
               />
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div className="space-y-2 sm:col-span-2">
                   <Label className="text-sm font-semibold text-slate-700">Nama Lengkap</Label>
                   <Input value={form.nama} onChange={handleInputChange("nama")} placeholder="Nama lengkap" className={INPUT_BASE} />
                 </div>
                 <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-slate-700">Jenis Kelamin</Label>
+                  <Select value={form.jenisKelamin} onValueChange={handleSelectChange("jenisKelamin")}>
+                    <SelectTrigger className={INPUT_BASE}>
+                      <SelectValue placeholder="Pilih jenis kelamin" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Laki-laki">Laki-laki</SelectItem>
+                      <SelectItem value="Perempuan">Perempuan</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Pekerjaan</Label>
                   <Input value={form.pekerjaan} onChange={handleInputChange("pekerjaan")} placeholder="Pekerjaan" className={INPUT_BASE} />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-slate-700">Agama</Label>
+                  <Input value={form.agama} onChange={handleInputChange("agama")} placeholder="Islam" className={INPUT_BASE} />
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
@@ -169,18 +197,9 @@ export function SuratFormPernyataanBelumMenikah({ surat }: { surat: SuratNikahOp
                 </div>
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-semibold text-slate-700">Agama</Label>
-                <Input value={form.agama} onChange={handleInputChange("agama")} placeholder="Islam" className={INPUT_BASE} />
-              </div>
-              <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">Alamat</Label>
                 <Textarea value={form.alamat} onChange={handleInputChange("alamat")} className={TEXTAREA_BASE} placeholder="Alamat lengkap" />
               </div>
-            </div>
-
-            <div className="space-y-4">
-              <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Isi Pernyataan</p>
-              <Textarea value={form.pernyataanTambahan} onChange={handleInputChange("pernyataanTambahan")} className={TEXTAREA_BASE} />
             </div>
 
             <div className="space-y-4">

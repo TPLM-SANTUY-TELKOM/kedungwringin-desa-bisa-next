@@ -20,6 +20,17 @@ const INPUT_BASE =
 const TEXTAREA_BASE =
   "min-h-[90px] rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
 
+const STATUS_PERKAWINAN_LAKI_OPTIONS = [
+  { value: "Jejaka", label: "Jejaka" },
+  { value: "Duda", label: "Duda" },
+  { value: "Beristri", label: "Beristri" },
+];
+
+const STATUS_PERKAWINAN_PEREMPUAN_OPTIONS = [
+  { value: "Perawan", label: "Perawan" },
+  { value: "Janda", label: "Janda" },
+];
+
 export function SuratFormN1({ surat }: { surat: SuratNikahOption }) {
   const router = useRouter();
   const [form, setForm] = useState<FormN1Data>(() => createDefaultFormN1());
@@ -146,6 +157,23 @@ export function SuratFormN1({ surat }: { surat: SuratNikahOption }) {
     if (error) setError(null);
   };
 
+  const handleStatusPerkawinanLakiChange = (value: string) => {
+    setForm((prev) => ({
+      ...prev,
+      statusPerkawinanLaki: value,
+      statusPerkawinanBeristriKe: value === "Beristri" ? prev.statusPerkawinanBeristriKe : "",
+    }));
+    if (error) setError(null);
+  };
+
+  const handleStatusPerkawinanPerempuanChange = (value: string) => {
+    setForm((prev) => ({
+      ...prev,
+      statusPerkawinanPerempuan: value,
+    }));
+    if (error) setError(null);
+  };
+
   const handleCancel = () => {
     router.back();
   };
@@ -167,6 +195,8 @@ export function SuratFormN1({ surat }: { surat: SuratNikahOption }) {
     const payload = encodeURIComponent(JSON.stringify(form));
     router.push(`/surat-nikah/${surat.slug}/preview?data=${payload}`);
   };
+
+  const isBeristriSelected = form.statusPerkawinanLaki === "Beristri";
 
   return (
     <div className="mx-auto mt-12 w-full max-w-4xl">
@@ -330,30 +360,54 @@ export function SuratFormN1({ surat }: { surat: SuratNikahOption }) {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Laki-laki</Label>
-                  <Input
-                    value={form.statusPerkawinanLaki}
-                    onChange={handleInputChange("statusPerkawinanLaki")}
-                    placeholder="Jejaka/Duda"
-                    className={INPUT_BASE}
-                  />
+                  <Select value={form.statusPerkawinanLaki} onValueChange={handleStatusPerkawinanLakiChange}>
+                    <SelectTrigger className={INPUT_BASE}>
+                      <SelectValue placeholder="Pilih status laki-laki" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {STATUS_PERKAWINAN_LAKI_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                      {form.statusPerkawinanLaki &&
+                        !STATUS_PERKAWINAN_LAKI_OPTIONS.some((option) => option.value === form.statusPerkawinanLaki) && (
+                          <SelectItem value={form.statusPerkawinanLaki}>{form.statusPerkawinanLaki}</SelectItem>
+                        )}
+                    </SelectContent>
+                  </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">Beristri ke (jika laki-laki)</Label>
-                  <Input
-                    value={form.statusPerkawinanBeristriKe}
-                    onChange={handleInputChange("statusPerkawinanBeristriKe")}
-                    placeholder="Isi jika sudah beristri"
-                    className={INPUT_BASE}
-                  />
-                </div>
+                {isBeristriSelected && (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-semibold text-slate-700">Beristri ke (jika laki-laki)</Label>
+                    <Input
+                      value={form.statusPerkawinanBeristriKe}
+                      onChange={handleInputChange("statusPerkawinanBeristriKe")}
+                      placeholder="Isi angka beristri ke"
+                      className={INPUT_BASE}
+                      type="number"
+                      min={1}
+                    />
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Perempuan</Label>
-                  <Input
-                    value={form.statusPerkawinanPerempuan}
-                    onChange={handleInputChange("statusPerkawinanPerempuan")}
-                    placeholder="Perawan/Janda"
-                    className={INPUT_BASE}
-                  />
+                  <Select value={form.statusPerkawinanPerempuan} onValueChange={handleStatusPerkawinanPerempuanChange}>
+                    <SelectTrigger className={INPUT_BASE}>
+                      <SelectValue placeholder="Pilih status perempuan" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {STATUS_PERKAWINAN_PEREMPUAN_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                      {form.statusPerkawinanPerempuan &&
+                        !STATUS_PERKAWINAN_PEREMPUAN_OPTIONS.some((option) => option.value === form.statusPerkawinanPerempuan) && (
+                          <SelectItem value={form.statusPerkawinanPerempuan}>{form.statusPerkawinanPerempuan}</SelectItem>
+                        )}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Nama Suami/Istri Terdahulu</Label>

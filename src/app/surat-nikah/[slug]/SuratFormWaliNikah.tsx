@@ -10,9 +10,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import type { SuratNikahOption } from "@/data/surat-nikah-options";
-import { createDefaultWaliNikahData, REQUIRED_FIELDS_WALI_NIKAH, type WaliNikahData } from "@/app/surat-nikah/types";
+import {
+  createDefaultWaliNikahData,
+  REQUIRED_FIELDS_WALI_NIKAH,
+  WALI_RELATION_OPTIONS,
+  type WaliNikahData,
+  type WaliRelationOption,
+} from "@/app/surat-nikah/types";
 import { useNikAutofillField, type PendudukLookupResult } from "@/hooks/useNikAutofillField";
 
 const INPUT_BASE =
@@ -114,6 +121,14 @@ export function SuratFormWaliNikah({ surat }: { surat: SuratNikahOption }) {
       }));
       if (error) setError(null);
     };
+
+  const handleHubunganWaliChange = (value: string) => {
+    setForm((prev) => ({
+      ...prev,
+      hubunganWali: value as WaliRelationOption,
+    }));
+    if (error) setError(null);
+  };
 
   const handleCancel = () => {
     router.back();
@@ -328,7 +343,18 @@ export function SuratFormWaliNikah({ surat }: { surat: SuratNikahOption }) {
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">Hubungan Wali</Label>
-                <Textarea value={form.hubunganWali} onChange={handleInputChange("hubunganWali")} className={TEXTAREA_BASE} placeholder="Hubungan wali dengan mempelai" rows={3} />
+                <Select value={form.hubunganWali} onValueChange={handleHubunganWaliChange}>
+                  <SelectTrigger className={INPUT_BASE}>
+                    <SelectValue placeholder="Pilih hubungan wali" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {WALI_RELATION_OPTIONS.map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
