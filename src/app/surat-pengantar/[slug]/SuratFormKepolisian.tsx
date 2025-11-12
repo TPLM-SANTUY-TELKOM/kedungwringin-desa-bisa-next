@@ -298,17 +298,7 @@ export function SuratFormKepolisian({ surat }: { surat: SuratPengantarOption }) 
             </div>
 
             <div className="space-y-4">
-              <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Pejabat Penandatangan & Registrasi</p>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">No. Reg</Label>
-                  <Input value={form.noReg} onChange={handleInputChange("noReg")} placeholder="Nomor Registrasi" className={INPUT_BASE} />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">Tanggal Reg</Label>
-                  <Input type="date" value={form.tanggalReg} onChange={handleInputChange("tanggalReg")} className={INPUT_BASE} />
-                </div>
-              </div>
+              <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Pejabat Penandatangan</p>
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">Kepala Desa</Label>
                 <Input value={form.kepalaDesa} onChange={handleInputChange("kepalaDesa")} placeholder="Parminah" className={INPUT_BASE} />

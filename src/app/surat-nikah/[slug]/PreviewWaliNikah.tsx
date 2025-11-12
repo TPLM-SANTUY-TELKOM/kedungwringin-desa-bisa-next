@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ArrowLeft, Printer } from "lucide-react";
@@ -38,13 +38,7 @@ const combineTempatTanggal = (tempat: string, tanggal: string) => {
   return `${tempat}, ${formattedDate}`;
 };
 
-const IdentityRow = ({
-  label,
-  value,
-}: {
-  label: string;
-  value: string | JSX.Element;
-}) => (
+const IdentityRow = ({ label, value }: { label: string; value: string | ReactNode }) => (
   <tr>
     <td className="w-[240px] align-top">{label}</td>
     <td className="w-4 align-top">:</td>

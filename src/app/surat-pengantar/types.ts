@@ -177,7 +177,8 @@ export type SuratPengantarIzinKeramaianData = {
   kabupaten: string;
   maksudKeramaian: string;
   tanggalPenyelenggaraan: string;
-  waktuPenyelenggaraan: string;
+  waktuMulai: string;
+  waktuSelesai: string;
   jenisHiburan: string;
   jumlahUndangan: string;
   tempatPenyelenggaraan: string;
@@ -211,7 +212,8 @@ export const createDefaultSuratPengantarIzinKeramaian = (): SuratPengantarIzinKe
   kabupaten: "Banyumas",
   maksudKeramaian: "",
   tanggalPenyelenggaraan: "",
-  waktuPenyelenggaraan: "",
+  waktuMulai: "",
+  waktuSelesai: "",
   jenisHiburan: "",
   jumlahUndangan: "0",
   tempatPenyelenggaraan: "",
@@ -241,7 +243,8 @@ export const REQUIRED_FIELDS_PENGANTAR_IZIN_KERAMAIAN: Array<keyof SuratPenganta
   "kecamatan",
   "kabupaten",
   "tanggalPenyelenggaraan",
-  "waktuPenyelenggaraan",
+  "waktuMulai",
+  "waktuSelesai",
   "tempatPenyelenggaraan",
   "kepalaDesa",
 ];
