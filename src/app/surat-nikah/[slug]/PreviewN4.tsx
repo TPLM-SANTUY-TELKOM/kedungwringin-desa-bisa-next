@@ -106,7 +106,7 @@ export function PreviewN4({ surat, data }: PreviewN4Props) {
               Surat Izin Orang Tua
             </p>
             <p className="absolute right-0 top-1/2 -translate-y-1/2 text-[15px] font-semibold uppercase print:text-[13px]">
-              Model N4
+              Model N5
             </p>
           </div>
 

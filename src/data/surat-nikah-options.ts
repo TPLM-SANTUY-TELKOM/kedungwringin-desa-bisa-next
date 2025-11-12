@@ -25,9 +25,9 @@ export const SURAT_NIKAH_OPTIONS: SuratNikahOption[] = [
     slug: "formulir-surat-persetujuan-mempelai",
   },
   {
-    code: "N4",
+    code: "N5",
     title: "Formulir Surat Izin Orang Tua",
-    description: "Model N4 - Surat Izin Orang Tua",
+    description: "Model N5 - Surat Izin Orang Tua",
     slug: "formulir-surat-izin-orang-tua",
   },
   {
