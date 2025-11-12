@@ -87,8 +87,8 @@ export function PreviewN4({ surat, data }: PreviewN4Props) {
         </div>
       </div>
 
-      <div className="rounded-[32px] border border-slate-300 bg-white p-6 shadow-[12px_12px_36px_rgba(197,205,214,0.35)] print-wrapper print:p-5">
-        <div className="mx-auto max-w-[720px] border border-slate-400 px-11 py-9 font-['Times_New_Roman',serif] text-[14px] text-slate-900 leading-relaxed print-sheet print:px-7 print:py-6 print:text-[11px] print:leading-snug">
+      <div className="rounded-[32px] border border-slate-300 bg-white p-6 shadow-[12px_12px_36px_rgba(197,205,214,0.35)] print-wrapper print:border-0 print:p-5">
+        <div className="mx-auto max-w-[720px] border border-slate-400 px-11 py-9 font-['Times_New_Roman',serif] text-[14px] text-slate-900 leading-relaxed print-sheet print:border-0 print:px-7 print:py-6 print:text-[11px] print:leading-snug">
           <div className="text-left text-[10px] uppercase leading-snug tracking-wide text-slate-700">
             <p>Keputusan Direktur Jenderal Bimbingan Masyarakat Islam</p>
             <p>Nomor 713 Tahun 2018</p>

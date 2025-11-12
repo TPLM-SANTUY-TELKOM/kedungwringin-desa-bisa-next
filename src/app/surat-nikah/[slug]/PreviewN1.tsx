@@ -94,8 +94,8 @@ export function PreviewN1({ surat, data }: PreviewN1Props) {
         </div>
       </div>
 
-      <div className="rounded-[32px] border border-slate-300 bg-white p-6 shadow-[12px_12px_36px_rgba(197,205,214,0.35)] print-wrapper print:p-0">
-        <div className="mx-auto max-w-[720px] border border-slate-400 px-10 py-8 font-['Times_New_Roman',serif] text-[15px] text-slate-900 print-sheet print:px-8 print:py-6 print:text-[12.5px] print:leading-snug">
+      <div className="rounded-[32px] border border-slate-300 bg-white p-6 shadow-[12px_12px_36px_rgba(197,205,214,0.35)] print-wrapper print:border-0 print:p-0">
+        <div className="mx-auto max-w-[720px] border border-slate-400 px-10 py-8 font-['Times_New_Roman',serif] text-[15px] text-slate-900 print-sheet print:border-0 print:px-8 print:py-6 print:text-[12.5px] print:leading-snug">
           <div className="text-left text-[10px] uppercase leading-snug tracking-wide text-slate-700 print:text-[9px]">
             <p>Keputusan Direktur Jenderal Bimbingan Masyarakat Islam</p>
             <p>Nomor 713 Tahun 2018</p>
