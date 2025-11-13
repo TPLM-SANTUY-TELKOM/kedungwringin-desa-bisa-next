@@ -128,6 +128,20 @@ const AGAMA_OPTIONS: PendudukData["agama"][] = [
   "Buddha",
   "Konghucu",
 ];
+
+const PENDIDIKAN_OPTIONS = [
+  "Tidak/Belum Sekolah",
+  "Belum Tamat SD/Sederajat",
+  "Tamat SD/Sederajat",
+  "SLTP/Sederajat",
+  "SLTA/Sederajat",
+  "Diploma I/II",
+  "Akademi/Diploma III/S.Muda",
+  "Diploma IV/Strata I",
+  "Strata II",
+  "Strata III",
+];
+
 const STATUS_KAWIN_OPTIONS: StatusKawin[] = [
   "Belum Kawin",
   "Kawin",
@@ -358,6 +372,20 @@ export default function PendudukPage() {
     }
   };
 
+  const calculateAge = (birthDate: string): number => {
+    if (!birthDate) return 0;
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    
+    return age;
+  };
+
   const handleFormClose = () => {
     setShowForm(false);
     setEditData(null);
@@ -370,6 +398,21 @@ export default function PendudukPage() {
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = event.target;
+    
+    // Validasi untuk NIK dan No. KK - hanya angka
+    if (name === "nik" || name === "no_kk") {
+      const numericValue = value.replace(/\D/g, ""); // Hapus semua karakter non-digit
+      setFormValues((prev) => ({ ...prev, [name]: numericValue }));
+      return;
+    }
+    
+    // Auto-calculate umur when tanggal_lahir changes
+    if (name === "tanggal_lahir") {
+      const age = calculateAge(value);
+      setFormValues((prev) => ({ ...prev, [name]: value, umur: String(age) }));
+      return;
+    }
+    
     setFormValues((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -748,6 +791,8 @@ export default function PendudukPage() {
                         onChange={handleInputChange}
                         maxLength={16}
                         placeholder="Masukkan nomor induk kependudukan"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         required
                       />
                     </div>
@@ -762,6 +807,8 @@ export default function PendudukPage() {
                         onChange={handleInputChange}
                         maxLength={16}
                         placeholder="Masukkan nomor kartu keluarga"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         required
                       />
                     </div>
@@ -870,13 +917,21 @@ export default function PendudukPage() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="pendidikan">Pendidikan</Label>
-                      <Input
-                        id="pendidikan"
-                        name="pendidikan"
+                      <Select
                         value={formValues.pendidikan}
-                        onChange={handleInputChange}
-                        placeholder="Contoh: SLTA/Sederajat"
-                      />
+                        onValueChange={handleSelectChange("pendidikan")}
+                      >
+                        <SelectTrigger id="pendidikan">
+                          <SelectValue placeholder="Pilih pendidikan" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PENDIDIKAN_OPTIONS.map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="pekerjaan">Pekerjaan</Label>
@@ -996,7 +1051,7 @@ export default function PendudukPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="umur">Umur</Label>
+                      <Label htmlFor="umur">Umur (otomatis)</Label>
                       <Input
                         id="umur"
                         name="umur"
@@ -1004,7 +1059,10 @@ export default function PendudukPage() {
                         min={0}
                         value={formValues.umur}
                         onChange={handleInputChange}
-                        placeholder="Contoh: 34"
+                        placeholder="Otomatis dari tanggal lahir"
+                        readOnly
+                        disabled
+                        className="bg-muted cursor-not-allowed"
                       />
                     </div>
                   </div>
