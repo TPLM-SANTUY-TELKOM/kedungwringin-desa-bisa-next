@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertCircle } from "lucide-react";
+import { NikLookupField } from "@/components/form/NikLookupField";
+import { useNikAutofillField, type PendudukLookupResult } from "@/hooks/useNikAutofillField";
 
 import type { SuratKeteranganOption } from "@/data/surat-keterangan-options";
 import { createDefaultSuratKeteranganBelumPernahKawin, type SuratKeteranganBelumPernahKawinData } from "@/app/surat-keterangan/types";
@@ -22,6 +24,29 @@ export function SuratFormBelumPernahKawin({ surat }: { surat: SuratKeteranganOpt
   const router = useRouter();
   const [form, setForm] = useState<SuratKeteranganBelumPernahKawinData>(() => createDefaultSuratKeteranganBelumPernahKawin());
   const [error, setError] = useState<string | null>(null);
+
+  const handleApplyNikData = (data: PendudukLookupResult) => {
+    setForm((prev) => ({
+      ...prev,
+      nama: data.nama || prev.nama,
+      nik: data.nik || prev.nik,
+      jenisKelamin: (data.jenis_kelamin?.toUpperCase() as "LAKI-LAKI" | "PEREMPUAN") || prev.jenisKelamin,
+      tempatTanggalLahir: data.tempat_lahir && data.tanggal_lahir
+        ? `${data.tempat_lahir}, ${new Date(data.tanggal_lahir).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}`
+        : prev.tempatTanggalLahir,
+      agama: data.agama || prev.agama,
+      pekerjaan: data.pekerjaan || prev.pekerjaan,
+      alamat: data.alamat && data.rt && data.rw
+        ? `${data.alamat}, RT ${data.rt}/RW ${data.rw}`
+        : data.alamat || prev.alamat,
+    }));
+  };
+
+  const { lookupState, isLookupLoading, handleNikChange, handleNikLookup } = useNikAutofillField({
+    nikValue: form.nik,
+    onNikValueChange: (value) => setForm((prev) => ({ ...prev, nik: value })),
+    onApplyData: handleApplyNikData,
+  });
 
   const handleInputChange =
     (field: keyof SuratKeteranganBelumPernahKawinData) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -136,10 +161,14 @@ export function SuratFormBelumPernahKawin({ surat }: { surat: SuratKeteranganOpt
 
             <div className="space-y-4">
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Dengan Ini Menerangkan Bahwa</p>
-              <div className="space-y-2">
-                <Label className="text-sm font-semibold text-slate-700">1. NIK</Label>
-                <Input value={form.nik} onChange={handleInputChange("nik")} placeholder="1201106807780001" className={INPUT_BASE} />
-              </div>
+              <NikLookupField
+                label="1. NIK"
+                value={form.nik}
+                onChange={handleNikChange}
+                onSearch={handleNikLookup}
+                lookupState={lookupState}
+                isLoading={isLookupLoading}
+              />
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">2. Nama</Label>
                 <Input value={form.nama} onChange={handleInputChange("nama")} placeholder="TIAR MAULI" className={INPUT_BASE} />

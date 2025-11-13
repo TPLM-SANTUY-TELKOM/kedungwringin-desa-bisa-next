@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertCircle } from "lucide-react";
+import { NikLookupField } from "@/components/form/NikLookupField";
+import { useNikAutofillField, type PendudukLookupResult } from "@/hooks/useNikAutofillField";
 
 import type { SuratKeteranganOption } from "@/data/surat-keterangan-options";
 import { createDefaultSuratKeteranganDomisiliUsaha, type SuratKeteranganDomisiliUsahaData } from "@/app/surat-keterangan/types";
@@ -22,6 +24,27 @@ export function SuratFormDomisiliUsaha({ surat }: { surat: SuratKeteranganOption
   const router = useRouter();
   const [form, setForm] = useState<SuratKeteranganDomisiliUsahaData>(() => createDefaultSuratKeteranganDomisiliUsaha());
   const [error, setError] = useState<string | null>(null);
+
+  const handleApplyNikData = (data: PendudukLookupResult) => {
+    setForm((prev) => ({
+      ...prev,
+      nama: data.nama || prev.nama,
+      nik: data.nik || prev.nik,
+      jenisKelamin: (data.jenis_kelamin?.toUpperCase() as "LAKI-LAKI" | "PEREMPUAN") || prev.jenisKelamin,
+      tempatLahir: data.tempat_lahir || prev.tempatLahir,
+      tanggalLahir: data.tanggal_lahir || prev.tanggalLahir,
+      pekerjaan: data.pekerjaan || prev.pekerjaan,
+      alamat: data.alamat && data.rt && data.rw
+        ? `${data.alamat}, RT ${data.rt}/RW ${data.rw}`
+        : data.alamat || prev.alamat,
+    }));
+  };
+
+  const { lookupState, isLookupLoading, handleNikChange, handleNikLookup } = useNikAutofillField({
+    nikValue: form.nik,
+    onNikValueChange: (value) => setForm((prev) => ({ ...prev, nik: value })),
+    onApplyData: handleApplyNikData,
+  });
 
   const handleInputChange =
     (field: keyof SuratKeteranganDomisiliUsahaData) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -131,6 +154,14 @@ export function SuratFormDomisiliUsaha({ surat }: { surat: SuratKeteranganOption
 
             <div className="space-y-4">
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Data Pemohon</p>
+              <NikLookupField
+                label="NIK"
+                value={form.nik}
+                onChange={handleNikChange}
+                onSearch={handleNikLookup}
+                lookupState={lookupState}
+                isLoading={isLookupLoading}
+              />
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">1. Nama Lengkap</Label>
                 <Input value={form.nama} onChange={handleInputChange("nama")} placeholder="SUDARSO" className={INPUT_BASE} />
@@ -162,15 +193,11 @@ export function SuratFormDomisiliUsaha({ surat }: { surat: SuratKeteranganOption
                 <Input value={form.kewarganegaraan} onChange={handleInputChange("kewarganegaraan")} placeholder="INDONESIA" className={INPUT_BASE} />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-semibold text-slate-700">5. No. KTP/NIK</Label>
-                <Input value={form.nik} onChange={handleInputChange("nik")} placeholder="1207240405600001" className={INPUT_BASE} />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-semibold text-slate-700">6. Pekerjaan</Label>
+                <Label className="text-sm font-semibold text-slate-700">5. Pekerjaan</Label>
                 <Input value={form.pekerjaan} onChange={handleInputChange("pekerjaan")} placeholder="WIRASWASTA" className={INPUT_BASE} />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-semibold text-slate-700">7. Alamat</Label>
+                <Label className="text-sm font-semibold text-slate-700">6. Alamat</Label>
                 <Textarea value={form.alamat} onChange={handleInputChange("alamat")} placeholder="KEDUNGWRINGIN, RT.003 / RW.004" className={TEXTAREA_BASE} />
               </div>
             </div>

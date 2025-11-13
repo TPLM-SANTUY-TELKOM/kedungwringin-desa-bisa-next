@@ -145,13 +145,21 @@ export function PreviewUmum({ surat, data }: PreviewUmumProps) {
             <p className="text-justify">Demikian Surat Keterangan ini dibuat untuk dipergunakan seperlunya.</p>
           </div>
 
-          {/* Signature */}
-          <div className="mt-10 flex justify-end">
-            <div className="w-[280px] text-center">
+          {/* Signature - Two Columns */}
+          <div className="mt-16 flex justify-between items-start">
+            {/* Left Column - Pemohon */}
+            <div className="text-center w-[280px]">
+              <p className="text-[14px]">Pemohon</p>
+              <div className="my-32"></div>
+              <p className="text-[14px] font-bold uppercase underline">{data.nama}</p>
+            </div>
+
+            {/* Right Column - An.Kepala Desa */}
+            <div className="text-center w-[280px]">
               <p className="text-[14px]">{data.tempatSurat}, {formatDateIndonesian(data.tanggalSurat)}</p>
               <p className="text-[14px]">An.Kepala Desa</p>
               <p className="text-[14px]">Sekretaris Desa</p>
-              <div className="my-16"></div>
+              <div className="my-20"></div>
               <p className="text-[14px] font-bold uppercase underline">{data.kepalaDesa}</p>
             </div>
           </div>
