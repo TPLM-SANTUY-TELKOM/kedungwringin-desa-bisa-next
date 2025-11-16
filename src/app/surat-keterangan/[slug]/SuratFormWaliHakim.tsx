@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertCircle } from "lucide-react";
+import { NikLookupField } from "@/components/form/NikLookupField";
+import { useNikAutofillField, type PendudukLookupResult } from "@/hooks/useNikAutofillField";
 
 import type { SuratKeteranganOption } from "@/data/surat-keterangan-options";
 import { createDefaultSuratKeteranganWaliHakim, type SuratKeteranganWaliHakimData } from "@/app/surat-keterangan/types";
@@ -22,6 +24,27 @@ export function SuratFormWaliHakim({ surat }: { surat: SuratKeteranganOption }) 
   const router = useRouter();
   const [form, setForm] = useState<SuratKeteranganWaliHakimData>(() => createDefaultSuratKeteranganWaliHakim());
   const [error, setError] = useState<string | null>(null);
+  const [nikWali, setNikWali] = useState("");
+
+  const handleApplyNikData = (data: PendudukLookupResult) => {
+    setForm((prev) => ({
+      ...prev,
+      namaWali: data.nama || prev.namaWali,
+      umurWali: data.tanggal_lahir
+        ? String(new Date().getFullYear() - new Date(data.tanggal_lahir).getFullYear())
+        : prev.umurWali,
+      pekerjaanWali: data.pekerjaan || prev.pekerjaanWali,
+      tempatTinggalWali: data.alamat && data.rt && data.rw
+        ? `${data.alamat}, RT ${data.rt}/RW ${data.rw}`
+        : data.alamat || prev.tempatTinggalWali,
+    }));
+  };
+
+  const { lookupState, isLookupLoading, handleNikChange, handleNikLookup } = useNikAutofillField({
+    nikValue: nikWali,
+    onNikValueChange: setNikWali,
+    onApplyData: handleApplyNikData,
+  });
 
   const handleInputChange =
     (field: keyof SuratKeteranganWaliHakimData) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -143,6 +166,14 @@ export function SuratFormWaliHakim({ surat }: { surat: SuratKeteranganOption }) 
 
             <div className="space-y-4">
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">I. Data Wali</p>
+              <NikLookupField
+                label="NIK Wali"
+                value={nikWali}
+                onChange={handleNikChange}
+                onSearch={handleNikLookup}
+                lookupState={lookupState}
+                isLoading={isLookupLoading}
+              />
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">1. Nama Lengkap dan Aliasnya</Label>
                 <Input value={form.namaWali} onChange={handleInputChange("namaWali")} placeholder="ABIDAH FILZA KHAIRU SYANI" className={INPUT_BASE} />

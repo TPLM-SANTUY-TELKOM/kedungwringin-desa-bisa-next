@@ -7,6 +7,7 @@ CREATE TYPE status_kawin AS ENUM ('Belum Kawin', 'Kawin', 'Cerai Hidup', 'Cerai 
 CREATE TYPE status_penduduk AS ENUM ('Aktif', 'Pindah', 'Meninggal');
 CREATE TYPE golongan_darah AS ENUM ('A', 'B', 'AB', 'O', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-');
 CREATE TYPE status_perkawinan AS ENUM ('Belum menikah', 'Menikah', 'Duda', 'Janda');
+CREATE TYPE kewarganegaraan AS ENUM ('WNI', 'WNA');
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -39,6 +40,7 @@ CREATE TABLE IF NOT EXISTS penduduk (
     jenis_kelamin jenis_kelamin NOT NULL,
     golongan_darah golongan_darah,
     agama agama NOT NULL,
+    kewarganegaraan kewarganegaraan NOT NULL DEFAULT 'WNI',
     status_kawin status_kawin NOT NULL,
     status_perkawinan status_perkawinan GENERATED ALWAYS AS (
         CASE
@@ -51,6 +53,10 @@ CREATE TABLE IF NOT EXISTS penduduk (
     ) STORED,
     pekerjaan VARCHAR(255),
     pendidikan VARCHAR(255),
+    nama_ayah VARCHAR(255),
+    nama_ibu VARCHAR(255),
+    no_paspor VARCHAR(255),
+    no_kitap VARCHAR(255),
     alamat TEXT NOT NULL,
     dusun VARCHAR(255) NOT NULL,
     rt VARCHAR(10) NOT NULL,
