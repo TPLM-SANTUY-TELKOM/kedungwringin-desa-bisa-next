@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Calendar, Eye, FileText, Package, PieChart, Search } from "lucide-react";
+import { Calendar, Eye, FileText, Package, PieChart, Search, Pencil, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -94,6 +94,10 @@ export default function SuratMasukPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [kategoriFilter, setKategoriFilter] = useState("");
   const [jenisFilter, setJenisFilter] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalEntries, setTotalEntries] = useState(0);
+  const [deletingEntryId, setDeletingEntryId] = useState<string | null>(null);
 
   const fetchSummary = useCallback(async () => {
     try {
@@ -119,7 +123,8 @@ export default function SuratMasukPage() {
     try {
       setLoadingEntries(true);
       const params = new URLSearchParams({
-        limit: "50",
+        limit: pageSize.toString(),
+        offset: ((page - 1) * pageSize).toString(),
       });
       if (searchQuery.trim()) params.append("search", searchQuery.trim());
       if (kategoriFilter) params.append("kategori", kategoriFilter);
@@ -129,7 +134,15 @@ export default function SuratMasukPage() {
         throw new Error("Gagal memuat surat masuk");
       }
       const data = await response.json();
+      const totalCount = data.totalCount ?? 0;
+      const currentOffset = (page - 1) * pageSize;
+      if (totalCount > 0 && currentOffset >= totalCount) {
+        const lastPage = Math.max(1, Math.ceil(totalCount / pageSize));
+        setPage(lastPage);
+        return;
+      }
       setEntries(data.entries ?? []);
+      setTotalEntries(totalCount);
     } catch (error: unknown) {
       toast({
         title: "Tidak dapat memuat daftar surat",
@@ -139,7 +152,7 @@ export default function SuratMasukPage() {
     } finally {
       setLoadingEntries(false);
     }
-  }, [kategoriFilter, jenisFilter, searchQuery, toast]);
+  }, [kategoriFilter, jenisFilter, page, pageSize, searchQuery, toast]);
 
   const fetchBundles = useCallback(async () => {
     try {
@@ -173,6 +186,10 @@ export default function SuratMasukPage() {
     return () => clearTimeout(handler);
   }, [fetchEntries]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [kategoriFilter, jenisFilter, searchQuery]);
+
   const jenisOptions = useMemo(() => {
     if (!summary) return [];
     if (kategoriFilter) {
@@ -183,10 +200,78 @@ export default function SuratMasukPage() {
 
   const chartData = summary?.monthly ?? [];
   const chartMax = chartData.reduce((max, point) => Math.max(max, point.count), 1);
+  const totalPages = totalEntries > 0 ? Math.ceil(totalEntries / pageSize) : 0;
+  const entryRangeStart = entries.length > 0 ? (page - 1) * pageSize + 1 : 0;
+  const entryRangeEnd = entries.length > 0 ? (page - 1) * pageSize + entries.length : 0;
 
   const openPreview = (entry: SuratFormEntryListItem, target: "_blank" | "_self" = "_blank") => {
     const path = `${basePreviewPath(entry.kategori)}/${entry.slug}/preview?entryId=${entry.id}&from=surat-masuk`;
     window.open(path, target, "noopener,noreferrer");
+  };
+
+  const navigateToForm = (kategori: string, slug: string, entryId: string) => {
+    const path = `${basePreviewPath(kategori)}/${slug}`;
+    router.push(`${path}?entryId=${entryId}&from=surat-masuk`);
+  };
+
+  const handleEditEntry = (entry: SuratFormEntryListItem) => {
+    navigateToForm(entry.kategori, entry.slug, entry.id);
+  };
+
+  const handleDeleteEntry = async ({ id, title, pemohon }: { id: string; title?: string; pemohon?: string }) => {
+    const label = title ?? "surat";
+    const confirmMessage = `Hapus ${label}${pemohon ? ` atas nama ${pemohon}` : ""}? Tindakan ini tidak dapat dibatalkan.`;
+    if (typeof window !== "undefined" && !window.confirm(confirmMessage)) {
+      return;
+    }
+
+    try {
+      setDeletingEntryId(id);
+      const response = await fetch(`/api/surat-form-entries/${id}`, { method: "DELETE" });
+      if (!response.ok) {
+        throw new Error("Gagal menghapus surat.");
+      }
+
+      setEntries((prev) => prev.filter((entry) => entry.id !== id));
+      const updatedTotal = Math.max(totalEntries - 1, 0);
+      setTotalEntries(updatedTotal);
+      toast({
+        title: "Surat dihapus",
+        description: `${label} berhasil dihapus.`,
+      });
+      void fetchSummary();
+      void fetchBundles();
+      const updatedLastPage = updatedTotal > 0 ? Math.ceil(updatedTotal / pageSize) : 0;
+      if (updatedTotal > 0 && page > updatedLastPage) {
+        setPage(updatedLastPage);
+      } else if (updatedTotal === 0) {
+        setPage(1);
+      } else {
+        void fetchEntries();
+      }
+    } catch (error) {
+      toast({
+        title: "Tidak dapat menghapus surat",
+        description: error instanceof Error ? error.message : "Terjadi kesalahan saat menghapus surat.",
+        variant: "destructive",
+      });
+    } finally {
+      setDeletingEntryId(null);
+    }
+  };
+
+  const handlePageSizeChange = (value: string) => {
+    const nextSize = Number(value);
+    if (Number.isNaN(nextSize)) return;
+    setPageSize(nextSize);
+    setPage(1);
+  };
+
+  const handlePageChange = (nextPage: number) => {
+    if (nextPage < 1) return;
+    const maxPage = totalEntries > 0 ? Math.ceil(totalEntries / pageSize) : 0;
+    if (maxPage !== 0 && nextPage > maxPage) return;
+    setPage(nextPage);
   };
 
   return (
@@ -372,16 +457,42 @@ export default function SuratMasukPage() {
                             <span>{formatDate(entry.tanggal_surat ?? entry.created_at)}</span>
                           </div>
                         </td>
-                        <td className="p-3 text-right">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => openPreview(entry)}
-                            title="Lihat preview"
-                          >
-                            <Eye className="mr-1 h-4 w-4" />
-                            Preview
-                          </Button>
+                        <td className="p-3">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => openPreview(entry)}
+                              title="Lihat preview"
+                            >
+                              <Eye className="mr-1 h-4 w-4" />
+                              Preview
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEditEntry(entry)}
+                              title="Ubah data"
+                            >
+                              <Pencil className="mr-1 h-4 w-4" />
+                              Edit
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              disabled={deletingEntryId === entry.id}
+                              onClick={() =>
+                                handleDeleteEntry({
+                                  id: entry.id,
+                                  title: entry.title,
+                                  pemohon: entry.pemohon_nama,
+                                })
+                              }
+                            >
+                              <Trash2 className="mr-1 h-4 w-4" />
+                              {deletingEntryId === entry.id ? "Menghapus..." : "Hapus"}
+                            </Button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -389,6 +500,46 @@ export default function SuratMasukPage() {
                 </table>
               </div>
             )}
+            <div className="mt-4 flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="text-sm text-muted-foreground">
+                {totalEntries === 0
+                  ? "Tidak ada surat yang tersimpan."
+                  : `Menampilkan ${entryRangeStart}-${entryRangeEnd} dari ${totalEntries} surat.`}
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Per halaman</span>
+                  <Select value={String(pageSize)} onValueChange={handlePageSizeChange}>
+                    <SelectTrigger className="w-[90px]">
+                      <SelectValue aria-label={`Menampilkan ${pageSize} surat`} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[5, 10, 20].map((size) => (
+                        <SelectItem key={size} value={String(size)}>
+                          {size}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" onClick={() => handlePageChange(page - 1)} disabled={page <= 1}>
+                    Sebelumnya
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    Halaman {totalEntries === 0 ? 0 : page} dari {totalEntries === 0 ? 0 : totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(page + 1)}
+                    disabled={totalEntries === 0 || page >= (totalPages || 1)}
+                  >
+                    Berikutnya
+                  </Button>
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -459,19 +610,47 @@ export default function SuratMasukPage() {
                             <p className="font-semibold">{form.jenis}</p>
                             <p className="text-xs text-muted-foreground">{formatDate(form.created_at)}</p>
                           </div>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() =>
-                              window.open(
-                                `/surat-nikah/${form.slug}/preview?entryId=${form.id}&from=surat-masuk`,
-                                "_blank",
-                              )
-                            }
-                          >
-                            <Eye className="mr-1 h-4 w-4" />
-                            Preview
-                          </Button>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              title="Lihat preview"
+                              onClick={() =>
+                                window.open(
+                                  `/surat-nikah/${form.slug}/preview?entryId=${form.id}&from=surat-masuk`,
+                                  "_blank",
+                                )
+                              }
+                            >
+                              <Eye className="h-4 w-4" />
+                              <span className="sr-only">Preview</span>
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              title="Edit"
+                              onClick={() => navigateToForm("nikah", form.slug, form.id)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                              <span className="sr-only">Edit</span>
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              title="Hapus"
+                              disabled={deletingEntryId === form.id}
+                              onClick={() =>
+                                handleDeleteEntry({
+                                  id: form.id,
+                                  title: form.title,
+                                  pemohon: bundle.pemohonNama,
+                                })
+                              }
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              <span className="sr-only">Hapus</span>
+                            </Button>
+                          </div>
                         </div>
                       ))}
                     </div>

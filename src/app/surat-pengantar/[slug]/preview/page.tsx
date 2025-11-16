@@ -6,7 +6,7 @@ import type {
   SuratPengantarKepolisianData,
   SuratPengantarIzinKeramaianData,
 } from "@/app/surat-pengantar/types";
-import { findSuratFormEntryById, saveSuratFormEntryFromPreview } from "@/lib/suratFormEntryService";
+import { findSuratFormEntryById, saveSuratFormEntryFromPreview, updateSuratFormEntry } from "@/lib/suratFormEntryService";
 
 import { PreviewUmum } from "../PreviewUmum";
 import { PreviewKepolisian } from "../PreviewKepolisian";
@@ -28,32 +28,44 @@ export default async function PreviewPage({ params, searchParams }: PreviewPageP
 
   const resolvedSearch = await searchParams;
   const entryId = resolvedSearch?.entryId;
+  const encoded = resolvedSearch?.data;
   let formData: unknown;
 
-  if (entryId) {
-    const entry = await findSuratFormEntryById(entryId);
-    if (!entry || entry.slug !== surat.slug) {
-      notFound();
-    }
-    formData = entry.form_data;
-  } else {
-    const encoded = resolvedSearch?.data;
-    if (!encoded) {
-      notFound();
-    }
-
+  if (encoded) {
     try {
       formData = JSON.parse(decodeURIComponent(encoded));
     } catch {
       notFound();
     }
+  }
 
+  if (entryId && formData) {
+    const updated = await updateSuratFormEntry({
+      id: entryId,
+      slug: surat.slug,
+      title: surat.title,
+      jenis: surat.code ?? surat.slug,
+      data: formData as Record<string, unknown>,
+    });
+    if (!updated) {
+      notFound();
+    }
+    formData = updated.form_data;
+  } else if (entryId) {
+    const entry = await findSuratFormEntryById(entryId);
+    if (!entry || entry.slug !== surat.slug) {
+      notFound();
+    }
+    formData = entry.form_data;
+  } else if (formData) {
     await saveSuratFormEntryFromPreview({
       slug: surat.slug,
       title: surat.title,
       jenis: surat.code ?? surat.slug,
       data: formData as Record<string, unknown>,
     });
+  } else {
+    notFound();
   }
 
   switch (surat.slug) {

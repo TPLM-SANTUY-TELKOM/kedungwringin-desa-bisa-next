@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import logoDesa from "@/assets/ic_logo_banyumas.png";
 import { findSuratPengantarBySlug } from "@/data/surat-pengantar-options";
+import { findSuratFormEntryById } from "@/lib/suratFormEntryService";
 
 import { SuratFormUmum } from "./SuratFormUmum";
 import { SuratFormKepolisian } from "./SuratFormKepolisian";
@@ -12,9 +13,10 @@ import { SuratFormIzinKeramaian } from "./SuratFormIzinKeramaian";
 
 type SuratPengantarFormPageProps = {
   params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ entryId?: string; from?: string }> | { entryId?: string; from?: string };
 };
 
-export default async function SuratPengantarFormPage({ params }: SuratPengantarFormPageProps) {
+export default async function SuratPengantarFormPage({ params, searchParams }: SuratPengantarFormPageProps) {
   const { slug } = await params;
   const decodedSlug = decodeURIComponent(slug);
   const surat = findSuratPengantarBySlug(decodedSlug);
@@ -23,14 +25,34 @@ export default async function SuratPengantarFormPage({ params }: SuratPengantarF
     notFound();
   }
 
+  const resolvedSearch = (await searchParams) ?? {};
+  const entryId = resolvedSearch?.entryId;
+  const fromSource = resolvedSearch?.from;
+  let entryData: Record<string, unknown> | null = null;
+
+  if (entryId) {
+    const entry = await findSuratFormEntryById(entryId);
+    if (!entry || entry.slug !== surat.slug) {
+      notFound();
+    }
+    entryData = entry.form_data as Record<string, unknown>;
+  }
+
   const renderForm = () => {
+    const commonProps = {
+      surat,
+      entryId,
+      initialData: entryData,
+      from: fromSource,
+    };
+
     switch (surat.slug) {
       case "surat-pengantar-umum":
-        return <SuratFormUmum surat={surat} />;
+        return <SuratFormUmum {...commonProps} />;
       case "surat-pengantar-kepolisian":
-        return <SuratFormKepolisian surat={surat} />;
+        return <SuratFormKepolisian {...commonProps} />;
       case "surat-pengantar-izin-keramaian":
-        return <SuratFormIzinKeramaian surat={surat} />;
+        return <SuratFormIzinKeramaian {...commonProps} />;
       default:
         return (
           <Card className="mx-auto mt-16 max-w-3xl rounded-3xl border border-white/60 bg-white/70 shadow-[8px_8px_24px_rgba(180,190,205,0.35)]">
@@ -76,4 +98,3 @@ export default async function SuratPengantarFormPage({ params }: SuratPengantarF
     </main>
   );
 }
-

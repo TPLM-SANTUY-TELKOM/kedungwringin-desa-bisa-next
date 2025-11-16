@@ -28,6 +28,16 @@ type SaveSuratFormEntryArgs = {
   data: JsonRecord;
 };
 
+type PreparedEntryFields = {
+  jenisSurat: string;
+  kategori: string;
+  nomorSurat: string | null;
+  tanggalSurat: string | null;
+  pemohonNama: string;
+  pemohonNik: string | null;
+  bundleKey: string | null;
+};
+
 const normalizeDateOnly = (value?: unknown): string | null => {
   if (!value || typeof value !== "string") {
     return null;
@@ -54,12 +64,11 @@ const readField = (source: JsonRecord, path?: string) => {
   }, source);
 };
 
-export async function saveSuratFormEntryFromPreview({
+const computeEntryFields = ({
   slug,
-  title,
   jenis,
   data,
-}: SaveSuratFormEntryArgs): Promise<SuratFormEntryRecord | null> {
+}: SaveSuratFormEntryArgs): PreparedEntryFields | null => {
   const meta = getSuratFormMeta(slug);
   if (!meta) {
     console.warn(`No surat form metadata found for slug "${slug}". Entry will not be persisted.`);
@@ -104,6 +113,30 @@ export async function saveSuratFormEntryFromPreview({
     shouldBundle && typeof bundleSource === "string" && bundleSource.trim().length > 0
       ? bundleSource.replace(/\s+/g, "").toLowerCase()
       : null;
+
+  return {
+    jenisSurat,
+    kategori: meta.category,
+    nomorSurat,
+    tanggalSurat,
+    pemohonNama,
+    pemohonNik,
+    bundleKey,
+  };
+};
+
+export async function saveSuratFormEntryFromPreview({
+  slug,
+  title,
+  jenis,
+  data,
+}: SaveSuratFormEntryArgs): Promise<SuratFormEntryRecord | null> {
+  const computed = computeEntryFields({ slug, title, jenis, data });
+  if (!computed) {
+    return null;
+  }
+
+  const { jenisSurat, kategori, nomorSurat, tanggalSurat, pemohonNama, pemohonNik, bundleKey } = computed;
 
   try {
     if (bundleKey) {
@@ -155,7 +188,7 @@ export async function saveSuratFormEntryFromPreview({
       `,
       [
         jenisSurat,
-        meta.category,
+        kategori,
         slug,
         title,
         nomorSurat,
@@ -193,4 +226,78 @@ export async function findSuratFormEntriesByBundle(bundleKey: string): Promise<S
     [bundleKey, NIKAH_BUNDLE_CODES],
   );
   return result.rows as SuratFormEntryRecord[];
+}
+
+type UpdateSuratFormEntryArgs = SaveSuratFormEntryArgs & { id: string };
+
+export async function updateSuratFormEntry({
+  id,
+  slug,
+  title,
+  jenis,
+  data,
+}: UpdateSuratFormEntryArgs): Promise<SuratFormEntryRecord | null> {
+  const computed = computeEntryFields({ slug, title, jenis, data });
+  if (!computed) {
+    return null;
+  }
+
+  const { jenisSurat, kategori, nomorSurat, tanggalSurat, pemohonNama, pemohonNik, bundleKey } = computed;
+
+  try {
+    const updated = await query(
+      `
+        UPDATE surat_form_entries
+        SET
+          jenis_surat = $1,
+          kategori = $2,
+          slug = $3,
+          title = $4,
+          nomor_surat = $5,
+          tanggal_surat = $6,
+          pemohon_nama = $7,
+          pemohon_nik = $8,
+          bundle_key = $9,
+          form_data = $10,
+          updated_at = NOW()
+        WHERE id = $11
+        RETURNING *
+      `,
+      [
+        jenisSurat,
+        kategori,
+        slug,
+        title,
+        nomorSurat,
+        tanggalSurat,
+        pemohonNama,
+        pemohonNik,
+        bundleKey,
+        data,
+        id,
+      ],
+    );
+
+    return (updated.rows[0] as SuratFormEntryRecord | undefined) ?? null;
+  } catch (error) {
+    console.error(`Unexpected error updating surat_form_entries for id ${id}:`, error);
+    return null;
+  }
+}
+
+export async function deleteSuratFormEntry(id: string): Promise<SuratFormEntryRecord | null> {
+  try {
+    const result = await query(
+      `
+        DELETE FROM surat_form_entries
+        WHERE id = $1
+        RETURNING *
+      `,
+      [id],
+    );
+    return (result.rows[0] as SuratFormEntryRecord | undefined) ?? null;
+  } catch (error) {
+    console.error(`Unexpected error deleting surat_form_entries for id ${id}:`, error);
+    return null;
+  }
 }

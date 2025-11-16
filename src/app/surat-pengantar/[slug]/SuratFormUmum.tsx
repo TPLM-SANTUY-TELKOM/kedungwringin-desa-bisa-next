@@ -13,15 +13,27 @@ import type { SuratPengantarOption } from "@/data/surat-pengantar-options";
 import { createDefaultSuratPengantarUmum, REQUIRED_FIELDS_PENGANTAR_UMUM, type SuratPengantarUmumData } from "@/app/surat-pengantar/types";
 import { usePendudukLookup, type PendudukLookupResult } from "@/app/surat-pengantar/usePendudukLookup";
 import { useToast } from "@/hooks/use-toast";
+import { usePrefillFormState } from "@/hooks/usePrefillFormState";
 
 const INPUT_BASE =
   "h-12 rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
 const TEXTAREA_BASE =
   "min-h-[90px] rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
 
-export function SuratFormUmum({ surat }: { surat: SuratPengantarOption }) {
+type SuratFormPengantarUmumProps = {
+  surat: SuratPengantarOption;
+  entryId?: string | null;
+  initialData?: Record<string, unknown> | null;
+  from?: string | null;
+};
+
+export function SuratFormUmum({ surat, entryId, initialData, from }: SuratFormPengantarUmumProps) {
   const router = useRouter();
-  const [form, setForm] = useState<SuratPengantarUmumData>(() => createDefaultSuratPengantarUmum());
+  const { form, setForm } = usePrefillFormState<SuratPengantarUmumData>({
+    createDefault: createDefaultSuratPengantarUmum,
+    entryId,
+    initialData: (initialData as Partial<SuratPengantarUmumData>) ?? null,
+  });
   const lastSuccessfulNikRef = useRef<string | null>(null);
   const { toast } = useToast();
 
@@ -87,6 +99,10 @@ export function SuratFormUmum({ surat }: { surat: SuratPengantarOption }) {
   };
 
   const handleCancel = () => {
+    if (from === "surat-masuk") {
+      router.push("/surat-masuk");
+      return;
+    }
     router.back();
   };
 
@@ -108,8 +124,15 @@ export function SuratFormUmum({ surat }: { surat: SuratPengantarOption }) {
       return;
     }
 
-    const payload = encodeURIComponent(JSON.stringify(form));
-    router.push(`/surat-pengantar/${surat.slug}/preview?data=${payload}`);
+    const params = new URLSearchParams();
+    params.set("data", JSON.stringify(form));
+    if (entryId) {
+      params.set("entryId", entryId);
+    }
+    if (from) {
+      params.set("from", from);
+    }
+    router.push(`/surat-pengantar/${surat.slug}/preview?${params.toString()}`);
   };
 
   return (
@@ -343,4 +366,3 @@ export function SuratFormUmum({ surat }: { surat: SuratPengantarOption }) {
     </div>
   );
 }
-

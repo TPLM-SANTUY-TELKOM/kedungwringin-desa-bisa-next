@@ -20,15 +20,27 @@ import {
   type PengantarNumpangNikahData,
 } from "@/app/surat-nikah/types";
 import { useNikAutofillField, type PendudukLookupResult } from "@/hooks/useNikAutofillField";
+import { usePrefillFormState } from "@/hooks/usePrefillFormState";
 
 const INPUT_BASE =
   "h-12 rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
 const TEXTAREA_BASE =
   "rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
 
-export function SuratFormPengantarNumpang({ surat }: { surat: SuratNikahOption }) {
+type SuratFormPengantarNumpangProps = {
+  surat: SuratNikahOption;
+  entryId?: string | null;
+  initialData?: Record<string, unknown> | null;
+  from?: string | null;
+};
+
+export function SuratFormPengantarNumpang({ surat, entryId, initialData, from }: SuratFormPengantarNumpangProps) {
   const router = useRouter();
-  const [form, setForm] = useState<PengantarNumpangNikahData>(() => createDefaultPengantarNumpangData());
+  const { form, setForm } = usePrefillFormState<PengantarNumpangNikahData>({
+    createDefault: createDefaultPengantarNumpangData,
+    entryId,
+    initialData: (initialData as Partial<PengantarNumpangNikahData>) ?? null,
+  });
   const [error, setError] = useState<string | null>(null);
 
   const applyPendudukData = useCallback(
@@ -84,6 +96,10 @@ export function SuratFormPengantarNumpang({ surat }: { surat: SuratNikahOption }
   };
 
   const handleCancel = () => {
+    if (from === "surat-masuk") {
+      router.push("/surat-masuk");
+      return;
+    }
     router.back();
   };
 
@@ -101,8 +117,15 @@ export function SuratFormPengantarNumpang({ surat }: { surat: SuratNikahOption }
       return;
     }
 
-    const payload = encodeURIComponent(JSON.stringify(form));
-    router.push(`/surat-nikah/${surat.slug}/preview?data=${payload}`);
+    const params = new URLSearchParams();
+    params.set("data", JSON.stringify(form));
+    if (entryId) {
+      params.set("entryId", entryId);
+    }
+    if (from) {
+      params.set("from", from);
+    }
+    router.push(`/surat-nikah/${surat.slug}/preview?${params.toString()}`);
   };
 
   return (

@@ -13,15 +13,27 @@ import type { SuratPengantarOption } from "@/data/surat-pengantar-options";
 import { createDefaultSuratPengantarKepolisian, REQUIRED_FIELDS_PENGANTAR_KEPOLISIAN, type SuratPengantarKepolisianData } from "@/app/surat-pengantar/types";
 import { usePendudukLookup, type PendudukLookupResult } from "@/app/surat-pengantar/usePendudukLookup";
 import { useToast } from "@/hooks/use-toast";
+import { usePrefillFormState } from "@/hooks/usePrefillFormState";
 
 const INPUT_BASE =
   "h-12 rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
 const TEXTAREA_BASE =
   "min-h-[90px] rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
 
-export function SuratFormKepolisian({ surat }: { surat: SuratPengantarOption }) {
+type SuratFormKepolisianProps = {
+  surat: SuratPengantarOption;
+  entryId?: string | null;
+  initialData?: Record<string, unknown> | null;
+  from?: string | null;
+};
+
+export function SuratFormKepolisian({ surat, entryId, initialData, from }: SuratFormKepolisianProps) {
   const router = useRouter();
-  const [form, setForm] = useState<SuratPengantarKepolisianData>(() => createDefaultSuratPengantarKepolisian());
+  const { form, setForm } = usePrefillFormState<SuratPengantarKepolisianData>({
+    createDefault: createDefaultSuratPengantarKepolisian,
+    entryId,
+    initialData: (initialData as Partial<SuratPengantarKepolisianData>) ?? null,
+  });
   const lastSuccessfulNikRef = useRef<string | null>(null);
   const { toast } = useToast();
 
@@ -86,6 +98,10 @@ export function SuratFormKepolisian({ surat }: { surat: SuratPengantarOption }) 
   };
 
   const handleCancel = () => {
+    if (from === "surat-masuk") {
+      router.push("/surat-masuk");
+      return;
+    }
     router.back();
   };
 
@@ -107,8 +123,15 @@ export function SuratFormKepolisian({ surat }: { surat: SuratPengantarOption }) 
       return;
     }
 
-    const payload = encodeURIComponent(JSON.stringify(form));
-    router.push(`/surat-pengantar/${surat.slug}/preview?data=${payload}`);
+    const params = new URLSearchParams();
+    params.set("data", JSON.stringify(form));
+    if (entryId) {
+      params.set("entryId", entryId);
+    }
+    if (from) {
+      params.set("from", from);
+    }
+    router.push(`/surat-pengantar/${surat.slug}/preview?${params.toString()}`);
   };
 
   return (
@@ -338,4 +361,3 @@ export function SuratFormKepolisian({ surat }: { surat: SuratPengantarOption }) 
     </div>
   );
 }
-

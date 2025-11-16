@@ -14,6 +14,7 @@ import { AlertCircle } from "lucide-react";
 import type { SuratNikahOption } from "@/data/surat-nikah-options";
 import { createDefaultFormN1, REQUIRED_FIELDS_N1, type FormN1Data, type GenderOption } from "@/app/surat-nikah/types";
 import { useNikAutofillField, type PendudukLookupResult } from "@/hooks/useNikAutofillField";
+import { usePrefillFormState } from "@/hooks/usePrefillFormState";
 
 const INPUT_BASE =
   "h-12 rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
@@ -31,9 +32,20 @@ const STATUS_PERKAWINAN_PEREMPUAN_OPTIONS = [
   { value: "Janda", label: "Janda" },
 ];
 
-export function SuratFormN1({ surat }: { surat: SuratNikahOption }) {
+type SuratFormN1Props = {
+  surat: SuratNikahOption;
+  entryId?: string | null;
+  initialData?: Record<string, unknown> | null;
+  from?: string | null;
+};
+
+export function SuratFormN1({ surat, entryId, initialData, from }: SuratFormN1Props) {
   const router = useRouter();
-  const [form, setForm] = useState<FormN1Data>(() => createDefaultFormN1());
+  const { form, setForm } = usePrefillFormState<FormN1Data>({
+    createDefault: createDefaultFormN1,
+    entryId,
+    initialData: (initialData as Partial<FormN1Data>) ?? null,
+  });
   const [error, setError] = useState<string | null>(null);
 
   const applyPemohonPendudukData = useCallback(
@@ -175,6 +187,10 @@ export function SuratFormN1({ surat }: { surat: SuratNikahOption }) {
   };
 
   const handleCancel = () => {
+    if (from === "surat-masuk") {
+      router.push("/surat-masuk");
+      return;
+    }
     router.back();
   };
 
@@ -192,8 +208,15 @@ export function SuratFormN1({ surat }: { surat: SuratNikahOption }) {
       return;
     }
 
-    const payload = encodeURIComponent(JSON.stringify(form));
-    router.push(`/surat-nikah/${surat.slug}/preview?data=${payload}`);
+    const params = new URLSearchParams();
+    params.set("data", JSON.stringify(form));
+    if (entryId) {
+      params.set("entryId", entryId);
+    }
+    if (from) {
+      params.set("from", from);
+    }
+    router.push(`/surat-nikah/${surat.slug}/preview?${params.toString()}`);
   };
 
   const isBeristriSelected = form.statusPerkawinanLaki === "Beristri";

@@ -15,15 +15,27 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { SuratNikahOption } from "@/data/surat-nikah-options";
 import { createDefaultPernyataanBelumMenikah, REQUIRED_FIELDS_PERNYATAAN, type PernyataanBelumMenikahData } from "@/app/surat-nikah/types";
 import { useNikAutofillField, type PendudukLookupResult } from "@/hooks/useNikAutofillField";
+import { usePrefillFormState } from "@/hooks/usePrefillFormState";
 
 const INPUT_BASE =
   "h-12 rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
 const TEXTAREA_BASE =
   "min-h-[120px] rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
 
-export function SuratFormPernyataanBelumMenikah({ surat }: { surat: SuratNikahOption }) {
+type SuratFormPernyataanBelumMenikahProps = {
+  surat: SuratNikahOption;
+  entryId?: string | null;
+  initialData?: Record<string, unknown> | null;
+  from?: string | null;
+};
+
+export function SuratFormPernyataanBelumMenikah({ surat, entryId, initialData, from }: SuratFormPernyataanBelumMenikahProps) {
   const router = useRouter();
-  const [form, setForm] = useState<PernyataanBelumMenikahData>(() => createDefaultPernyataanBelumMenikah());
+  const { form, setForm } = usePrefillFormState<PernyataanBelumMenikahData>({
+    createDefault: createDefaultPernyataanBelumMenikah,
+    entryId,
+    initialData: (initialData as Partial<PernyataanBelumMenikahData>) ?? null,
+  });
   const [error, setError] = useState<string | null>(null);
 
   const applyPendudukData = useCallback(
@@ -76,6 +88,10 @@ export function SuratFormPernyataanBelumMenikah({ surat }: { surat: SuratNikahOp
   };
 
   const handleCancel = () => {
+    if (from === "surat-masuk") {
+      router.push("/surat-masuk");
+      return;
+    }
     router.back();
   };
 
@@ -93,8 +109,15 @@ export function SuratFormPernyataanBelumMenikah({ surat }: { surat: SuratNikahOp
       return;
     }
 
-    const payload = encodeURIComponent(JSON.stringify(form));
-    router.push(`/surat-nikah/${surat.slug}/preview?data=${payload}`);
+    const params = new URLSearchParams();
+    params.set("data", JSON.stringify(form));
+    if (entryId) {
+      params.set("entryId", entryId);
+    }
+    if (from) {
+      params.set("from", from);
+    }
+    router.push(`/surat-nikah/${surat.slug}/preview?${params.toString()}`);
   };
 
   return (
