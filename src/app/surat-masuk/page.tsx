@@ -185,7 +185,7 @@ export default function SuratMasukPage() {
   const chartMax = chartData.reduce((max, point) => Math.max(max, point.count), 1);
 
   const openPreview = (entry: SuratFormEntryListItem, target: "_blank" | "_self" = "_blank") => {
-    const path = `${basePreviewPath(entry.kategori)}/${entry.slug}/preview?entryId=${entry.id}`;
+    const path = `${basePreviewPath(entry.kategori)}/${entry.slug}/preview?entryId=${entry.id}&from=surat-masuk`;
     window.open(path, target, "noopener,noreferrer");
   };
 
@@ -439,7 +439,9 @@ export default function SuratMasukPage() {
                           size="sm"
                           variant="secondary"
                           onClick={() =>
-                            router.push(`/surat-nikah/bundles/${encodeURIComponent(bundle.bundleKey)}/preview`)
+                            router.push(
+                              `/surat-nikah/bundles/${encodeURIComponent(bundle.bundleKey)}/preview?from=surat-masuk`,
+                            )
                           }
                         >
                           <Eye className="mr-2 h-4 w-4" />
@@ -461,7 +463,10 @@ export default function SuratMasukPage() {
                             size="sm"
                             variant="ghost"
                             onClick={() =>
-                              window.open(`/surat-nikah/${form.slug}/preview?entryId=${form.id}`, "_blank")
+                              window.open(
+                                `/surat-nikah/${form.slug}/preview?entryId=${form.id}&from=surat-masuk`,
+                                "_blank",
+                              )
                             }
                           >
                             <Eye className="mr-1 h-4 w-4" />

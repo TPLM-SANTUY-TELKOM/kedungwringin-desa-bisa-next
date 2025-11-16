@@ -1,7 +1,6 @@
 'use client';
 
 import Image from "next/image";
-import Link from "next/link";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -10,6 +9,7 @@ import { NIKAH_BUNDLE_CODES } from "@/data/surat-form-meta";
 import type { SuratFormEntryRecord } from "@/lib/suratFormEntryService";
 import { Button } from "@/components/ui/button";
 import logoDesa from "@/assets/ic_logo_banyumas.png";
+import { useBackNavigation } from "@/hooks/useBackNavigation";
 
 import { PreviewN1 } from "../../../[slug]/PreviewN1";
 import { PreviewN2 } from "../../../[slug]/PreviewN2";
@@ -43,6 +43,7 @@ const PREVIEW_COMPONENTS: Record<
 export function BundlePreviewClient({ bundleKey }: BundlePreviewClientProps) {
   const [entries, setEntries] = useState<SuratFormEntryRecord[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const handleBack = useBackNavigation("/surat-masuk");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -100,8 +101,8 @@ export function BundlePreviewClient({ bundleKey }: BundlePreviewClientProps) {
           <span className="text-base font-semibold text-slate-900 sm:text-lg">Desa Kedungwringin</span>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <Button asChild variant="outline" className="rounded-full border-slate-300">
-            <Link href="/surat-masuk">Kembali ke Surat Masuk</Link>
+          <Button variant="outline" className="rounded-full border-slate-300" onClick={handleBack}>
+            Kembali ke Surat Masuk
           </Button>
           <Button
             className="rounded-full border-0 bg-slate-900 px-6 text-white hover:bg-slate-800"

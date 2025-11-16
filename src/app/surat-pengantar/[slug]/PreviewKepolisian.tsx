@@ -1,11 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { ArrowLeft, Printer } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { SuratPengantarOption } from "@/data/surat-pengantar-options";
 import { formatDateIndonesian, type SuratPengantarKepolisianData } from "@/app/surat-pengantar/types";
+import { useBackNavigation } from "@/hooks/useBackNavigation";
 
 import { SuratPengantarHeader } from "./SuratPengantarHeader";
 
@@ -15,7 +15,7 @@ type PreviewKepolisianProps = {
 };
 
 export function PreviewKepolisian({ surat, data }: PreviewKepolisianProps) {
-  const router = useRouter();
+  const handleBack = useBackNavigation("/surat-pengantar");
 
   const alamatLengkap = [
     data.alamat.trim(),
@@ -32,7 +32,7 @@ export function PreviewKepolisian({ surat, data }: PreviewKepolisianProps) {
     <div className="mx-auto mt-12 flex w-full max-w-4xl flex-col gap-10 print:mt-0 print:px-0">
       <div className="flex flex-wrap items-center justify-between gap-3 print-hidden">
         <div className="flex items-center gap-3">
-          <Button variant="outline" onClick={() => router.back()} className="rounded-full border-slate-300 px-6">
+          <Button variant="outline" onClick={handleBack} className="rounded-full border-slate-300 px-6">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Kembali
           </Button>
@@ -192,4 +192,3 @@ export function PreviewKepolisian({ surat, data }: PreviewKepolisianProps) {
     </div>
   );
 }
-
