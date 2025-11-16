@@ -81,6 +81,25 @@ CREATE TABLE IF NOT EXISTS surat (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
 );
 
+-- Create surat_form_entries table to store raw form submissions
+CREATE TABLE IF NOT EXISTS surat_form_entries (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    jenis_surat VARCHAR(50) NOT NULL,
+    kategori VARCHAR(50) NOT NULL,
+    slug VARCHAR(255) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    nomor_surat VARCHAR(255),
+    tanggal_surat DATE,
+    pemohon_penduduk_id UUID REFERENCES penduduk(id) ON DELETE SET NULL,
+    pemohon_nama VARCHAR(255) NOT NULL,
+    pemohon_nik VARCHAR(32),
+    status VARCHAR(32) NOT NULL DEFAULT 'submitted',
+    bundle_key VARCHAR(64),
+    form_data JSONB NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
+);
+
 -- Create function to generate next surat number
 CREATE OR REPLACE FUNCTION get_next_surat_number(p_jenis_surat jenis_surat)
 RETURNS VARCHAR AS $$
@@ -195,11 +214,19 @@ CREATE TRIGGER update_penduduk_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+CREATE TRIGGER update_surat_form_entries_updated_at
+    BEFORE UPDATE ON surat_form_entries
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
 -- Create indexes for better performance
 CREATE INDEX idx_penduduk_nik ON penduduk(nik);
 CREATE INDEX idx_penduduk_no_kk ON penduduk(no_kk);
 CREATE INDEX idx_surat_penduduk_id ON surat(penduduk_id);
 CREATE INDEX idx_surat_jenis_surat ON surat(jenis_surat);
+CREATE INDEX idx_surat_form_entries_kategori ON surat_form_entries(kategori);
+CREATE INDEX idx_surat_form_entries_bundle ON surat_form_entries(bundle_key);
+CREATE INDEX idx_surat_form_entries_created_at ON surat_form_entries(created_at);
 CREATE INDEX idx_user_roles_user_id ON user_roles(user_id);
 
 -- Insert sample admin user

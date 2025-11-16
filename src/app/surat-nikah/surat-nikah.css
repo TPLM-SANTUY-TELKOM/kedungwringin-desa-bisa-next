@@ -45,4 +45,44 @@
   .surat-nikah-print .print-sheet * {
     break-inside: avoid;
   }
+
+  .bundle-preview {
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  .bundle-preview .bundle-preview-stack {
+    gap: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  .bundle-preview .bundle-preview-stack section {
+    border: 0 !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    page-break-after: always;
+  }
+
+  .bundle-preview .bundle-preview-stack section:last-child {
+    page-break-after: auto;
+  }
+
+  .bundle-preview .print-hidden {
+    display: none !important;
+  }
+}
+
+.bundle-preview .bundle-preview-stack section {
+  background: transparent;
+}
+
+.bundle-preview section.surat-nikah-print {
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 auto !important;
+  background: transparent !important;
 }

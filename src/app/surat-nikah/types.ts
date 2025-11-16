@@ -176,7 +176,9 @@ export type FormN2Data = {
   tujuanInstansi: string;
   tujuanTempat: string;
   calonSuamiNama: string;
+  calonSuamiNik: string;
   calonIstriNama: string;
+  calonIstriNik: string;
   hariAkad: string;
   tanggalAkad: string;
   waktuAkad: string;
@@ -193,6 +195,7 @@ export type FormN2Data = {
   pejabatPenerima: string;
   pejabatJabatan: string;
   pemohonNama: string;
+  pemohonNik: string;
 };
 
 export const createDefaultFormN2 = (): FormN2Data => ({
@@ -203,7 +206,9 @@ export const createDefaultFormN2 = (): FormN2Data => ({
   tujuanInstansi: "Kepala KUA Kecamatan Patikraja",
   tujuanTempat: "Tempat",
   calonSuamiNama: "",
+  calonSuamiNik: "",
   calonIstriNama: "",
+  calonIstriNik: "",
   hariAkad: "",
   tanggalAkad: "",
   waktuAkad: "",
@@ -220,6 +225,7 @@ export const createDefaultFormN2 = (): FormN2Data => ({
   pejabatPenerima: "",
   pejabatJabatan: "Kepala KUA/Penghulu/PPN Luar Negeri",
   pemohonNama: "",
+  pemohonNik: "",
 });
 
 export const REQUIRED_FIELDS_N2: Array<keyof FormN2Data> = [

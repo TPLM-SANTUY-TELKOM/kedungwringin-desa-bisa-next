@@ -10,6 +10,7 @@ import type {
   SuratKeteranganDomisiliUsahaData,
   SuratKeteranganTidakMampuData,
 } from "@/app/surat-keterangan/types";
+import { findSuratFormEntryById, saveSuratFormEntryFromPreview } from "@/lib/suratFormEntryService";
 
 import { PreviewUmum } from "../PreviewUmum";
 import { PreviewBelumPernahKawin } from "../PreviewBelumPernahKawin";
@@ -21,7 +22,7 @@ import { PreviewTidakMampu } from "../PreviewTidakMampu";
 
 type PreviewPageProps = {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ data?: string }> | { data?: string };
+  searchParams: Promise<{ data?: string; entryId?: string }> | { data?: string; entryId?: string };
 };
 
 export default async function PreviewPage({ params, searchParams }: PreviewPageProps) {
@@ -34,17 +35,31 @@ export default async function PreviewPage({ params, searchParams }: PreviewPageP
   }
 
   const resolvedSearch = await searchParams;
-  const encoded = resolvedSearch?.data;
-
-  if (!encoded) {
-    notFound();
-  }
-
+  const entryId = resolvedSearch?.entryId;
   let formData: unknown;
-  try {
-    formData = JSON.parse(decodeURIComponent(encoded));
-  } catch {
-    notFound();
+
+  if (entryId) {
+    const entry = await findSuratFormEntryById(entryId);
+    if (!entry || entry.slug !== surat.slug) {
+      notFound();
+    }
+    formData = entry.form_data;
+  } else {
+    const encoded = resolvedSearch?.data;
+    if (!encoded) {
+      notFound();
+    }
+    try {
+      formData = JSON.parse(decodeURIComponent(encoded));
+    } catch {
+      notFound();
+    }
+    await saveSuratFormEntryFromPreview({
+      slug: surat.slug,
+      title: surat.title,
+      jenis: surat.code ?? surat.slug,
+      data: formData as Record<string, unknown>,
+    });
   }
 
   switch (surat.slug) {
