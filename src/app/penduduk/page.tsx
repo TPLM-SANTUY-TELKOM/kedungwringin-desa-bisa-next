@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Search, Pencil, Trash2 } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, FileSpreadsheet } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import {
   Select,
@@ -321,6 +321,61 @@ export default function PendudukPage() {
     setFilteredList(filterPenduduk(trimmed, pendudukList, rekapFilter));
   };
 
+  const handleExport = useCallback(async () => {
+    if (pendudukList.length === 0) {
+      toast({
+        title: "Belum ada data",
+        description: "Tidak ada data penduduk yang bisa diekspor.",
+      });
+      return;
+    }
+
+    try {
+      const XLSX = await import("xlsx");
+      const exportData = pendudukList.map((penduduk, index) => ({
+        No: index + 1,
+        NIK: penduduk.nik,
+        "No KK": penduduk.no_kk ?? "-",
+        Nama: penduduk.nama,
+        "Tempat Lahir": penduduk.tempat_lahir,
+        "Tanggal Lahir": formatTanggal(penduduk.tanggal_lahir),
+        "Jenis Kelamin": penduduk.jenis_kelamin,
+        "Golongan Darah": penduduk.golongan_darah ?? "-",
+        Agama: penduduk.agama,
+        Pendidikan: penduduk.pendidikan ?? "-",
+        Pekerjaan: penduduk.pekerjaan ?? "-",
+        "Status Kawin": penduduk.status_kawin,
+        "Status Perkawinan": resolveStatusPerkawinan(penduduk),
+        Alamat: penduduk.alamat,
+        Dusun: penduduk.dusun ?? "-",
+        RT: penduduk.rt ?? "-",
+        RW: penduduk.rw ?? "-",
+        Status: penduduk.status,
+        "No Akta Lahir": penduduk.no_akta_lahir ?? "-",
+        Umur: penduduk.umur ?? "-",
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Data Penduduk");
+
+      const timestamp = new Date().toISOString().split("T")[0];
+      XLSX.writeFile(workbook, `data-penduduk-${timestamp}.xlsx`);
+
+      toast({
+        title: "Berhasil",
+        description: "Data penduduk berhasil diekspor ke Excel.",
+      });
+    } catch (error) {
+      console.error("Error exporting penduduk:", error);
+      toast({
+        title: "Gagal",
+        description: "Terjadi kesalahan saat mengekspor data penduduk.",
+        variant: "destructive",
+      });
+    }
+  }, [pendudukList, toast]);
+
   const openForm = (data?: PendudukData) => {
     if (data) {
       setFormValues(toFormValues(data));
@@ -515,7 +570,7 @@ export default function PendudukPage() {
                 <Search className="absolute right-6 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
               </div>
             </div>
-            <div className="flex items-start gap-3">
+            <div className="flex flex-wrap items-start gap-3">
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium text-muted-foreground">
                   Status Perkawinan
@@ -544,6 +599,15 @@ export default function PendudukPage() {
                   </SelectContent>
                 </Select>
               </div>
+              <Button
+                variant="outline"
+                onClick={handleExport}
+                disabled={pendudukList.length === 0}
+                className="h-14 rounded-full px-6 text-base font-semibold gap-2 border-2 border-foreground/80 bg-white text-foreground md:self-end"
+              >
+                <FileSpreadsheet className="h-5 w-5" />
+                Ekspor Excel
+              </Button>
               <Button
                 onClick={() => openForm()}
                 className="h-14 rounded-full px-8 text-base font-semibold gap-2 border-0 text-white md:self-end"
