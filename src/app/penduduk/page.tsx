@@ -67,6 +67,9 @@ export interface PendudukData {
   rw: string;
   dusun: string;
   status: "Aktif" | "Pindah" | "Meninggal";
+  kewarganegaraan?: "WNI" | "WNA";
+  nama_ayah?: string | null;
+  nama_ibu?: string | null;
   golongan_darah?:
     | "A"
     | "B"
@@ -82,6 +85,8 @@ export interface PendudukData {
     | "O-";
   no_akta_lahir?: string | null;
   umur?: number | null;
+  no_paspor?: string | null;
+  no_kitap?: string | null;
 }
 
 const resolveStatusPerkawinan = (penduduk: PendudukData): StatusPerkawinan => {
@@ -99,11 +104,14 @@ type PendudukFormValues = {
   nik: string;
   no_kk: string;
   nama: string;
+  nama_ayah: string;
+  nama_ibu: string;
   tempat_lahir: string;
   tanggal_lahir: string;
   jenis_kelamin: PendudukData["jenis_kelamin"] | "";
   golongan_darah: NonNullable<PendudukData["golongan_darah"]> | "";
   agama: PendudukData["agama"] | "";
+  kewarganegaraan: "WNI" | "WNA" | "";
   pendidikan: string;
   pekerjaan: string;
   status_kawin: StatusKawin | "";
@@ -114,6 +122,8 @@ type PendudukFormValues = {
   status: PendudukData["status"] | "";
   no_akta_lahir: string;
   umur: string;
+  no_paspor: string;
+  no_kitap: string;
 };
 
 const GOLONGAN_DARAH_OPTIONS: Array<
@@ -175,11 +185,14 @@ const defaultFormValues: PendudukFormValues = {
   nik: "",
   no_kk: "",
   nama: "",
+  nama_ayah: "",
+  nama_ibu: "",
   tempat_lahir: "",
   tanggal_lahir: "",
   jenis_kelamin: "",
   golongan_darah: "",
   agama: "",
+  kewarganegaraan: "WNI",
   pendidikan: "",
   pekerjaan: "",
   status_kawin: "",
@@ -190,17 +203,22 @@ const defaultFormValues: PendudukFormValues = {
   status: "Aktif",
   no_akta_lahir: "",
   umur: "",
+  no_paspor: "",
+  no_kitap: "",
 };
 
 const toFormValues = (data: PendudukData): PendudukFormValues => ({
   nik: data.nik ?? "",
   no_kk: data.no_kk ?? "",
   nama: data.nama ?? "",
+  nama_ayah: data.nama_ayah ?? "",
+  nama_ibu: data.nama_ibu ?? "",
   tempat_lahir: data.tempat_lahir ?? "",
   tanggal_lahir: data.tanggal_lahir ? data.tanggal_lahir.slice(0, 10) : "",
   jenis_kelamin: data.jenis_kelamin ?? "",
   golongan_darah: data.golongan_darah ?? "",
   agama: data.agama ?? "",
+  kewarganegaraan: data.kewarganegaraan ?? "WNI",
   pendidikan: data.pendidikan ?? "",
   pekerjaan: data.pekerjaan ?? "",
   status_kawin: data.status_kawin ?? "",
@@ -211,6 +229,8 @@ const toFormValues = (data: PendudukData): PendudukFormValues => ({
   status: data.status ?? "Aktif",
   no_akta_lahir: data.no_akta_lahir ?? "",
   umur: data.umur ? String(data.umur) : "",
+  no_paspor: data.no_paspor ?? "",
+  no_kitap: data.no_kitap ?? "",
 });
 
 export default function PendudukPage() {
@@ -457,10 +477,14 @@ export default function PendudukPage() {
       nik: formValues.nik.trim(),
       no_kk: formValues.no_kk.trim(),
       nama: formValues.nama.trim(),
+      nama_ayah: formValues.nama_ayah.trim() || null,
+      nama_ibu: formValues.nama_ibu.trim() || null,
       tempat_lahir: formValues.tempat_lahir.trim(),
       tanggal_lahir: formValues.tanggal_lahir,
       jenis_kelamin: formValues.jenis_kelamin as PendudukData["jenis_kelamin"],
       agama: formValues.agama as PendudukData["agama"],
+      kewarganegaraan:
+        (formValues.kewarganegaraan as "WNI" | "WNA") || "WNI",
       status_kawin: formValues.status_kawin as StatusKawin,
       alamat: formValues.alamat.trim(),
       dusun: formValues.dusun.trim(),
@@ -473,6 +497,8 @@ export default function PendudukPage() {
         ? formValues.golongan_darah
         : null,
       no_akta_lahir: formValues.no_akta_lahir.trim() || null,
+      no_paspor: formValues.no_paspor.trim() || null,
+      no_kitap: formValues.no_kitap.trim() || null,
       umur: umurValue !== null && Number.isNaN(umurValue) ? null : umurValue,
     };
 
@@ -625,6 +651,12 @@ export default function PendudukPage() {
                       Nama
                     </th>
                     <th className="p-4 text-left font-semibold whitespace-nowrap">
+                      Nama Ayah
+                    </th>
+                    <th className="p-4 text-left font-semibold whitespace-nowrap">
+                      Nama Ibu
+                    </th>
+                    <th className="p-4 text-left font-semibold whitespace-nowrap">
                       TTL
                     </th>
                     <th className="p-4 text-left font-semibold whitespace-nowrap">
@@ -635,6 +667,9 @@ export default function PendudukPage() {
                     </th>
                     <th className="p-4 text-left font-semibold whitespace-nowrap">
                       Agama
+                    </th>
+                    <th className="p-4 text-left font-semibold whitespace-nowrap">
+                      Kewarganegaraan
                     </th>
                     <th className="p-4 text-left font-semibold whitespace-nowrap">
                       Pendidikan
@@ -653,6 +688,12 @@ export default function PendudukPage() {
                     </th>
                     <th className="p-4 text-left font-semibold whitespace-nowrap">
                       No. Akta Lahir
+                    </th>
+                    <th className="p-4 text-left font-semibold whitespace-nowrap">
+                      No. Paspor
+                    </th>
+                    <th className="p-4 text-left font-semibold whitespace-nowrap">
+                      No. KITAP
                     </th>
                     <th className="p-4 text-left font-semibold whitespace-nowrap">
                       Umur
@@ -680,6 +721,12 @@ export default function PendudukPage() {
                         {penduduk.nama}
                       </td>
                       <td className="p-4 align-top">
+                        {penduduk.nama_ayah || "-"}
+                      </td>
+                      <td className="p-4 align-top">
+                        {penduduk.nama_ibu || "-"}
+                      </td>
+                      <td className="p-4 align-top">
                         <div className="flex flex-col">
                           <span className="capitalize">
                             {penduduk.tempat_lahir}
@@ -698,6 +745,9 @@ export default function PendudukPage() {
                           : "-"}
                       </td>
                       <td className="p-4 align-top">{penduduk.agama}</td>
+                      <td className="p-4 align-top">
+                        {penduduk.kewarganegaraan ?? "WNI"}
+                      </td>
                       <td className="p-4 align-top">
                         {penduduk.pendidikan || "-"}
                       </td>
@@ -721,6 +771,12 @@ export default function PendudukPage() {
                       </td>
                       <td className="p-4 align-top">
                         {penduduk.no_akta_lahir || "-"}
+                      </td>
+                      <td className="p-4 align-top">
+                        {penduduk.no_paspor || "-"}
+                      </td>
+                      <td className="p-4 align-top">
+                        {penduduk.no_kitap || "-"}
                       </td>
                       <td className="p-4 align-top">
                         {penduduk.umur ?? "-"}
@@ -826,6 +882,26 @@ export default function PendudukPage() {
                       />
                     </div>
                     <div className="space-y-2">
+                      <Label htmlFor="nama_ayah">Nama ayah</Label>
+                      <Input
+                        id="nama_ayah"
+                        name="nama_ayah"
+                        value={formValues.nama_ayah}
+                        onChange={handleInputChange}
+                        placeholder="Masukkan nama ayah"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="nama_ibu">Nama ibu</Label>
+                      <Input
+                        id="nama_ibu"
+                        name="nama_ibu"
+                        value={formValues.nama_ibu}
+                        onChange={handleInputChange}
+                        placeholder="Masukkan nama ibu"
+                      />
+                    </div>
+                    <div className="space-y-2">
                       <Label htmlFor="tempat_lahir">
                         Tempat lahir <span className="text-red-500">*</span>
                       </Label>
@@ -913,6 +989,21 @@ export default function PendudukPage() {
                             {option}
                           </option>
                         ))}
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="kewarganegaraan">Kewarganegaraan</Label>
+                      <select
+                        id="kewarganegaraan"
+                        name="kewarganegaraan"
+                        value={formValues.kewarganegaraan}
+                        onChange={(event) =>
+                          handleSelectChange("kewarganegaraan")(event.target.value)
+                        }
+                        className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        <option value="WNI">WNI</option>
+                        <option value="WNA">WNA</option>
                       </select>
                     </div>
                     <div className="space-y-2">
@@ -1048,6 +1139,26 @@ export default function PendudukPage() {
                         value={formValues.no_akta_lahir}
                         onChange={handleInputChange}
                         placeholder="Masukkan nomor akta lahir"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="no_paspor">No. paspor (opsional)</Label>
+                      <Input
+                        id="no_paspor"
+                        name="no_paspor"
+                        value={formValues.no_paspor}
+                        onChange={handleInputChange}
+                        placeholder="Masukkan nomor paspor (jika ada)"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="no_kitap">No. KITAP (opsional)</Label>
+                      <Input
+                        id="no_kitap"
+                        name="no_kitap"
+                        value={formValues.no_kitap}
+                        onChange={handleInputChange}
+                        placeholder="Masukkan nomor KITAP (jika ada)"
                       />
                     </div>
                     <div className="space-y-2">
