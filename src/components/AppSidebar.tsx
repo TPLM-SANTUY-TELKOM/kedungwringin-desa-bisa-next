@@ -10,7 +10,7 @@ import logoDesa from "@/assets/ic_logo_banyumas.png";
 interface MenuItem {
   title: string;
   url: string;
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>;
   adminOnly?: boolean;
 }
 
@@ -40,7 +40,7 @@ export function AppSidebar() {
   return (
     <div className="flex h-full w-64 flex-col border-r border-sidebar-border bg-sidebar-background">
       <div className="p-6 border-b border-sidebar-border">
-        <div className="flex items-center gap-3">
+        <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer">
           <div className="h-12 w-12 rounded-lg bg-white flex items-center justify-center p-2 shadow-sm border border-sidebar-border">
             <Image
               src={logoDesa}
@@ -55,7 +55,7 @@ export function AppSidebar() {
             <h2 className="font-semibold text-sidebar-foreground">Desa Kedungwringin</h2>
             <p className="text-xs text-sidebar-foreground/70">Sistem Layanan Terpadu</p>
           </div>
-        </div>
+        </Link>
       </div>
 
       <div className="flex-1 overflow-auto">
@@ -75,7 +75,7 @@ export function AppSidebar() {
                     href={item.url}
                     className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${getNavCls(active)}`}
                   >
-                    <item.icon className="h-5 w-5 flex-shrink-0" />
+                    <item.icon className="h-5 w-5 shrink-0" />
                     <span>{item.title}</span>
                   </Link>
                 );
@@ -86,17 +86,17 @@ export function AppSidebar() {
       </div>
 
       <div className="border-t border-sidebar-border p-4 space-y-2">
-        <Link
-          href="/"
-          className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 bg-muted/30 hover:bg-muted/60 hover:text-sidebar-foreground text-sidebar-foreground/70 border border-transparent hover:border-sidebar-border/50"
-        >
-          <Globe className="h-5 w-5 flex-shrink-0" />
-          <span>Halaman Utama</span>
-        </Link>
         <div className="mb-3 px-2">
           <p className="text-sm font-medium text-sidebar-foreground">admin@kedungwringin.desa.id</p>
           <p className="text-xs text-sidebar-foreground/70">Administrator</p>
         </div>
+        <Link
+          href="/"
+          className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 bg-muted/30 hover:bg-muted/60 hover:text-sidebar-foreground text-sidebar-foreground/70 border border-transparent hover:border-sidebar-border/50"
+        >
+          <Globe className="h-5 w-5 shrink-0" />
+          <span>Halaman Utama</span>
+        </Link>
         <Button
           variant="ghost"
           className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
