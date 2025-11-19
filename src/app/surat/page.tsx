@@ -1,9 +1,11 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
-import { FileText } from "lucide-react";
+import { FileText, Search } from "lucide-react";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { useMemo, useState } from "react";
 
 type SuratType = {
   id: string;
@@ -152,8 +154,45 @@ const getCategoryPath = (category: string) => {
   }
 };
 
+const categoryLabels = {
+  keterangan: "A. Surat Keterangan",
+  nikah: "B. Surat Pengantar Nikah",
+  pengantar: "C. Surat Pengantar",
+};
+
 export default function SuratPage() {
   const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredSuratTypes = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return suratTypes;
+    }
+
+    const query = searchQuery.toLowerCase().trim();
+    return suratTypes.filter((surat) => {
+      const nameMatch = surat.name.toLowerCase().includes(query);
+      const codeMatch = surat.code?.toLowerCase().includes(query);
+      return nameMatch || codeMatch;
+    });
+  }, [searchQuery]);
+
+  const groupedSurat = useMemo(() => {
+    const groups: { category: "keterangan" | "nikah" | "pengantar"; surats: SuratType[] }[] = [
+      { category: "keterangan", surats: [] },
+      { category: "nikah", surats: [] },
+      { category: "pengantar", surats: [] },
+    ];
+
+    filteredSuratTypes.forEach((surat) => {
+      const group = groups.find((g) => g.category === surat.category);
+      if (group) {
+        group.surats.push(surat);
+      }
+    });
+
+    return groups.filter((group) => group.surats.length > 0);
+  }, [filteredSuratTypes]);
 
   const handleSuratClick = (surat: SuratType) => {
     const categoryPath = getCategoryPath(surat.category);
@@ -162,37 +201,58 @@ export default function SuratPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-8 space-y-6">
+      <div className="p-8 space-y-8">
         <div>
           <h1 className="text-3xl font-bold mb-2">Pelayanan Surat</h1>
           <p className="text-muted-foreground">Pilih jenis surat yang akan dibuat</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {suratTypes.map((surat) => (
-            <Card 
-              key={surat.id} 
-              className="p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary/20" 
-              onClick={() => handleSuratClick(surat)}
-            >
-              <div className="flex items-start gap-4">
-                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <FileText className="h-6 w-6 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold mb-1 text-foreground">{surat.name}</h3>
-                  {surat.code && (
-                    <p className="text-sm text-muted-foreground">Kode: {surat.code}</p>
-                  )}
-                  <p className="text-xs text-muted-foreground mt-1 capitalize">
-                    {surat.category === "keterangan" && "Surat Keterangan"}
-                    {surat.category === "nikah" && "Surat Nikah"}
-                    {surat.category === "pengantar" && "Surat Pengantar"}
-                  </p>
-                </div>
-              </div>
-            </Card>
-          ))}
+
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Cari surat berdasarkan nama atau kode..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 h-12"
+          />
         </div>
+
+        {groupedSurat.map((group) => (
+          <div key={group.category} className="space-y-4">
+            <div>
+              <h2 className="text-xl font-semibold text-foreground mb-4">
+                {categoryLabels[group.category]}
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {group.surats.map((surat) => (
+                  <Card 
+                    key={surat.id} 
+                    className="p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary/20" 
+                    onClick={() => handleSuratClick(surat)}
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <FileText className="h-6 w-6 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold mb-1 text-foreground">{surat.name}</h3>
+                        {surat.code && (
+                          <p className="text-sm text-muted-foreground">Kode: {surat.code}</p>
+                        )}
+                        <p className="text-xs text-muted-foreground mt-1 capitalize">
+                          {surat.category === "keterangan" && "Surat Keterangan"}
+                          {surat.category === "nikah" && "Surat Nikah"}
+                          {surat.category === "pengantar" && "Surat Pengantar"}
+                        </p>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </DashboardLayout>
   );
