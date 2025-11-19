@@ -743,13 +743,16 @@ export default function PendudukPage() {
               <table className="min-w-[1500px] w-full text-sm">
                 <thead className="bg-muted/50 text-foreground">
                   <tr>
-                    <th className="sticky left-0 z-30 bg-muted p-4 text-left font-semibold whitespace-nowrap border-r border-border shadow-[2px_0_4px_rgba(0,0,0,0.1)] min-w-[140px]">
+                    <th className="sticky left-0 z-30 bg-muted p-4 text-center font-semibold whitespace-nowrap border-r border-border shadow-[2px_0_4px_rgba(0,0,0,0.1)] min-w-[60px] w-[60px]">
+                      No
+                    </th>
+                    <th className="sticky left-[60px] z-30 bg-muted p-4 text-left font-semibold whitespace-nowrap border-r border-border shadow-[2px_0_4px_rgba(0,0,0,0.1)] min-w-[140px]">
                       NIK
                     </th>
                     <th className="p-4 text-left font-semibold whitespace-nowrap">
                       No. KK
                     </th>
-                    <th className="sticky left-[140px] z-30 bg-muted p-4 text-left font-semibold whitespace-nowrap border-r border-border shadow-[2px_0_4px_rgba(0,0,0,0.1)] min-w-[180px]">
+                    <th className="sticky left-[200px] z-30 bg-muted p-4 text-left font-semibold whitespace-nowrap border-r border-border shadow-[2px_0_4px_rgba(0,0,0,0.1)] min-w-[180px]">
                       Nama
                     </th>
                     <th className="p-4 text-left font-semibold whitespace-nowrap">
@@ -809,9 +812,14 @@ export default function PendudukPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y">
-                  {paginatedList.map((penduduk) => (
+                  {paginatedList.map((penduduk, index) => {
+                    const rowNumber = (currentPage - 1) * actualItemsPerPage + index + 1;
+                    return (
                     <tr key={penduduk.id} className="group hover:bg-muted/30">
-                      <td className="sticky left-0 z-20 bg-background p-4 font-mono text-xs uppercase tracking-wide align-top group-hover:bg-muted border-r border-border shadow-[2px_0_4px_rgba(0,0,0,0.1)] min-w-[140px]">
+                      <td className="sticky left-0 z-20 bg-background p-4 text-center font-semibold align-top group-hover:bg-muted border-r border-border shadow-[2px_0_4px_rgba(0,0,0,0.1)] min-w-[60px] w-[60px]">
+                        {rowNumber}
+                      </td>
+                      <td className="sticky left-[60px] z-20 bg-background p-4 font-mono text-xs uppercase tracking-wide align-top group-hover:bg-muted border-r border-border shadow-[2px_0_4px_rgba(0,0,0,0.1)] min-w-[140px]">
                         {penduduk.nik}
                       </td>
                       <td className="p-4 align-top">
@@ -819,7 +827,7 @@ export default function PendudukPage() {
                           {penduduk.no_kk || "-"}
                         </span>
                       </td>
-                      <td className="sticky left-[140px] z-20 bg-background p-4 font-semibold align-top group-hover:bg-muted border-r border-border shadow-[2px_0_4px_rgba(0,0,0,0.1)] min-w-[180px]">
+                      <td className="sticky left-[200px] z-20 bg-background p-4 font-semibold align-top group-hover:bg-muted border-r border-border shadow-[2px_0_4px_rgba(0,0,0,0.1)] min-w-[180px]">
                         {penduduk.nama}
                       </td>
                       <td className="p-4 align-top">
@@ -917,7 +925,7 @@ export default function PendudukPage() {
                         </div>
                       </td>
                     </tr>
-                  ))}
+                  )})}
                 </tbody>
               </table>
             </div>
