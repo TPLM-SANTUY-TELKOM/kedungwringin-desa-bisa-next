@@ -17,10 +17,12 @@ import { SuratFormPengantarNumpang } from "./SuratFormPengantarNumpang";
 
 type SuratNikahFormPageProps = {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ from?: string }>;
 };
 
-export default async function SuratNikahFormPage({ params }: SuratNikahFormPageProps) {
+export default async function SuratNikahFormPage({ params, searchParams }: SuratNikahFormPageProps) {
   const { slug } = await params;
+  const { from } = await searchParams;
   const decodedSlug = decodeURIComponent(slug);
   const surat = findSuratNikahBySlug(decodedSlug);
 
@@ -28,24 +30,26 @@ export default async function SuratNikahFormPage({ params }: SuratNikahFormPageP
     notFound();
   }
 
+  const backUrl = from === "admin" ? "/surat" : "/surat-nikah";
+
   const renderForm = () => {
     switch (surat.slug) {
       case "formulir-pengantar-nikah":
-        return <SuratFormN1 surat={surat} />;
+        return <SuratFormN1 surat={surat} backUrl={backUrl} />;
       case "formulir-permohonan-kehendak-perkawinan":
-        return <SuratFormN2 surat={surat} />;
+        return <SuratFormN2 surat={surat} backUrl={backUrl} />;
       case "formulir-surat-persetujuan-mempelai":
-        return <SuratFormN3 surat={surat} />;
+        return <SuratFormN3 surat={surat} backUrl={backUrl} />;
       case "formulir-surat-izin-orang-tua":
-        return <SuratFormN4 surat={surat} />;
+        return <SuratFormN4 surat={surat} backUrl={backUrl} />;
       case "formulir-surat-keterangan-kematian":
-        return <SuratFormN6 surat={surat} />;
+        return <SuratFormN6 surat={surat} backUrl={backUrl} />;
       case "surat-keterangan-wali-nikah":
-        return <SuratFormWaliNikah surat={surat} />;
+        return <SuratFormWaliNikah surat={surat} backUrl={backUrl} />;
       case "surat-pernyataan-belum-menikah":
-        return <SuratFormPernyataanBelumMenikah surat={surat} />;
+        return <SuratFormPernyataanBelumMenikah surat={surat} backUrl={backUrl} />;
       case "surat-pengantar-numpang-nikah":
-        return <SuratFormPengantarNumpang surat={surat} />;
+        return <SuratFormPengantarNumpang surat={surat} backUrl={backUrl} />;
       default:
         return (
           <Card className="mx-auto mt-16 max-w-3xl rounded-3xl border border-white/60 bg-white/70 shadow-[8px_8px_24px_rgba(180,190,205,0.35)]">

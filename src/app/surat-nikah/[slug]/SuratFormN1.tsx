@@ -31,7 +31,7 @@ const STATUS_PERKAWINAN_PEREMPUAN_OPTIONS = [
   { value: "Janda", label: "Janda" },
 ];
 
-export function SuratFormN1({ surat }: { surat: SuratNikahOption }) {
+export function SuratFormN1({ surat, backUrl = "/surat-nikah" }: { surat: SuratNikahOption; backUrl?: string }) {
   const router = useRouter();
   const [form, setForm] = useState<FormN1Data>(() => createDefaultFormN1());
   const [error, setError] = useState<string | null>(null);
@@ -175,7 +175,7 @@ export function SuratFormN1({ surat }: { surat: SuratNikahOption }) {
   };
 
   const handleCancel = () => {
-    router.back();
+    router.push(backUrl);
   };
 
   const handlePreview = () => {

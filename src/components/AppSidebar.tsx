@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, Users, FileText, LogOut, Inbox } from "lucide-react";
+import { Home, Users, FileText, LogOut, Inbox, Globe } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -85,7 +85,14 @@ export function AppSidebar() {
         </div>
       </div>
 
-      <div className="border-t border-sidebar-border p-4">
+      <div className="border-t border-sidebar-border p-4 space-y-2">
+        <Link
+          href="/"
+          className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 bg-muted/30 hover:bg-muted/60 hover:text-sidebar-foreground text-sidebar-foreground/70 border border-transparent hover:border-sidebar-border/50"
+        >
+          <Globe className="h-5 w-5 flex-shrink-0" />
+          <span>Halaman Utama</span>
+        </Link>
         <div className="mb-3 px-2">
           <p className="text-sm font-medium text-sidebar-foreground">admin@kedungwringin.desa.id</p>
           <p className="text-xs text-sidebar-foreground/70">Administrator</p>
@@ -99,7 +106,7 @@ export function AppSidebar() {
           }}
         >
           <LogOut className="h-4 w-4 mr-2" />
-          Keluar
+          Logout
         </Button>
       </div>
     </div>

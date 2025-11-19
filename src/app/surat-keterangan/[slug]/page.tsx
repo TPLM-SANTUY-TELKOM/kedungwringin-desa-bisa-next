@@ -16,10 +16,12 @@ import { SuratFormTidakMampu } from "./SuratFormTidakMampu";
 
 type SuratKeteranganFormPageProps = {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ from?: string }>;
 };
 
-export default async function SuratKeteranganFormPage({ params }: SuratKeteranganFormPageProps) {
+export default async function SuratKeteranganFormPage({ params, searchParams }: SuratKeteranganFormPageProps) {
   const { slug } = await params;
+  const { from } = await searchParams;
   const decodedSlug = decodeURIComponent(slug);
   const surat = findSuratKeteranganBySlug(decodedSlug);
 
@@ -27,22 +29,24 @@ export default async function SuratKeteranganFormPage({ params }: SuratKeteranga
     notFound();
   }
 
+  const backUrl = from === "admin" ? "/surat" : "/surat-keterangan";
+
   const renderForm = () => {
     switch (surat.slug) {
       case "surat-keterangan-umum":
-        return <SuratFormUmum surat={surat} />;
+        return <SuratFormUmum surat={surat} backUrl={backUrl} />;
       case "surat-keterangan-belum-pernah-kawin":
-        return <SuratFormBelumPernahKawin surat={surat} />;
+        return <SuratFormBelumPernahKawin surat={surat} backUrl={backUrl} />;
       case "surat-keterangan-domisili-tempat-tinggal":
-        return <SuratFormDomisiliTempatTinggal surat={surat} />;
+        return <SuratFormDomisiliTempatTinggal surat={surat} backUrl={backUrl} />;
       case "surat-keterangan-usaha":
-        return <SuratFormUsaha surat={surat} />;
+        return <SuratFormUsaha surat={surat} backUrl={backUrl} />;
       case "surat-keterangan-wali-hakim":
-        return <SuratFormWaliHakim surat={surat} />;
+        return <SuratFormWaliHakim surat={surat} backUrl={backUrl} />;
       case "surat-keterangan-domisili-usaha":
-        return <SuratFormDomisiliUsaha surat={surat} />;
+        return <SuratFormDomisiliUsaha surat={surat} backUrl={backUrl} />;
       case "surat-keterangan-tidak-mampu":
-        return <SuratFormTidakMampu surat={surat} />;
+        return <SuratFormTidakMampu surat={surat} backUrl={backUrl} />;
       default:
         return (
           <Card className="mx-auto mt-16 max-w-3xl rounded-3xl border border-white/60 bg-white/70 shadow-[8px_8px_24px_rgba(180,190,205,0.35)]">

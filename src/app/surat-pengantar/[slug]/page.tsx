@@ -12,10 +12,12 @@ import { SuratFormIzinKeramaian } from "./SuratFormIzinKeramaian";
 
 type SuratPengantarFormPageProps = {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ from?: string }>;
 };
 
-export default async function SuratPengantarFormPage({ params }: SuratPengantarFormPageProps) {
+export default async function SuratPengantarFormPage({ params, searchParams }: SuratPengantarFormPageProps) {
   const { slug } = await params;
+  const { from } = await searchParams;
   const decodedSlug = decodeURIComponent(slug);
   const surat = findSuratPengantarBySlug(decodedSlug);
 
@@ -23,14 +25,16 @@ export default async function SuratPengantarFormPage({ params }: SuratPengantarF
     notFound();
   }
 
+  const backUrl = from === "admin" ? "/surat" : "/surat-pengantar";
+
   const renderForm = () => {
     switch (surat.slug) {
       case "surat-pengantar-umum":
-        return <SuratFormUmum surat={surat} />;
+        return <SuratFormUmum surat={surat} backUrl={backUrl} />;
       case "surat-pengantar-kepolisian":
-        return <SuratFormKepolisian surat={surat} />;
+        return <SuratFormKepolisian surat={surat} backUrl={backUrl} />;
       case "surat-pengantar-izin-keramaian":
-        return <SuratFormIzinKeramaian surat={surat} />;
+        return <SuratFormIzinKeramaian surat={surat} backUrl={backUrl} />;
       default:
         return (
           <Card className="mx-auto mt-16 max-w-3xl rounded-3xl border border-white/60 bg-white/70 shadow-[8px_8px_24px_rgba(180,190,205,0.35)]">

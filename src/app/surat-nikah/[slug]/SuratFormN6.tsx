@@ -20,7 +20,7 @@ const INPUT_BASE =
 const TEXTAREA_BASE =
   "rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
 
-export function SuratFormN6({ surat }: { surat: SuratNikahOption }) {
+export function SuratFormN6({ surat, backUrl = "/surat-nikah" }: { surat: SuratNikahOption; backUrl?: string }) {
   const router = useRouter();
   const [form, setForm] = useState<FormN6Data>(() => createDefaultFormN6());
   const [error, setError] = useState<string | null>(null);
@@ -97,7 +97,7 @@ export function SuratFormN6({ surat }: { surat: SuratNikahOption }) {
     };
 
   const handleCancel = () => {
-    router.back();
+    router.push(backUrl);
   };
 
   const handlePreview = () => {

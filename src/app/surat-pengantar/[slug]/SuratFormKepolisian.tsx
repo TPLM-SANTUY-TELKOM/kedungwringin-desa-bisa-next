@@ -19,7 +19,7 @@ const INPUT_BASE =
 const TEXTAREA_BASE =
   "min-h-[90px] rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
 
-export function SuratFormKepolisian({ surat }: { surat: SuratPengantarOption }) {
+export function SuratFormKepolisian({ surat, backUrl = "/surat-pengantar" }: { surat: SuratPengantarOption; backUrl?: string }) {
   const router = useRouter();
   const [form, setForm] = useState<SuratPengantarKepolisianData>(() => createDefaultSuratPengantarKepolisian());
   const lastSuccessfulNikRef = useRef<string | null>(null);
@@ -86,7 +86,7 @@ export function SuratFormKepolisian({ surat }: { surat: SuratPengantarOption }) 
   };
 
   const handleCancel = () => {
-    router.back();
+    router.push(backUrl);
   };
 
   const handlePreview = () => {

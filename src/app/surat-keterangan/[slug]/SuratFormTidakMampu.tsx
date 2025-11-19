@@ -20,7 +20,7 @@ const INPUT_BASE =
 const TEXTAREA_BASE =
   "min-h-[90px] rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
 
-export function SuratFormTidakMampu({ surat }: { surat: SuratKeteranganOption }) {
+export function SuratFormTidakMampu({ surat, backUrl = "/surat-keterangan" }: { surat: SuratKeteranganOption; backUrl?: string }) {
   const router = useRouter();
   const [form, setForm] = useState<SuratKeteranganTidakMampuData>(() => createDefaultSuratKeteranganTidakMampu());
   const [error, setError] = useState<string | null>(null);
@@ -65,7 +65,7 @@ export function SuratFormTidakMampu({ surat }: { surat: SuratKeteranganOption })
   };
 
   const handleCancel = () => {
-    router.push('/surat-keterangan');
+    router.push(backUrl);
   };
 
   const handlePreview = () => {
