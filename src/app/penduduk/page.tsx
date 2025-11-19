@@ -827,34 +827,34 @@ export default function PendudukPage() {
                 <Search className="absolute right-6 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
               </div>
             </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-muted-foreground">
-                Status Perkawinan
-              </label>
-              <Select
-                value={rekapFilter}
-                onValueChange={(value) => setRekapFilter(value as RekapFilter)}
-              >
-                <SelectTrigger className="h-14 w-[260px] rounded-full border-2 border-foreground/80 px-6 text-base">
-                  <SelectValue placeholder="Pilih status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{getRekapLabel("all")}</SelectItem>
-                  <SelectItem value="cerai-hidup-laki">
-                    {getRekapLabel("cerai-hidup-laki")}
-                  </SelectItem>
-                  <SelectItem value="cerai-hidup-perempuan">
-                    {getRekapLabel("cerai-hidup-perempuan")}
-                  </SelectItem>
-                  <SelectItem value="cerai-mati-laki">
-                    {getRekapLabel("cerai-mati-laki")}
-                  </SelectItem>
-                  <SelectItem value="cerai-mati-perempuan">
-                    {getRekapLabel("cerai-mati-perempuan")}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-muted-foreground">
+                  Status Perkawinan
+                </label>
+                <Select
+                  value={rekapFilter}
+                  onValueChange={(value) => setRekapFilter(value as RekapFilter)}
+                >
+                  <SelectTrigger className="h-14 w-[260px] rounded-full border-2 border-foreground/80 px-6 text-base">
+                    <SelectValue placeholder="Pilih status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{getRekapLabel("all")}</SelectItem>
+                    <SelectItem value="cerai-hidup-laki">
+                      {getRekapLabel("cerai-hidup-laki")}
+                    </SelectItem>
+                    <SelectItem value="cerai-hidup-perempuan">
+                      {getRekapLabel("cerai-hidup-perempuan")}
+                    </SelectItem>
+                    <SelectItem value="cerai-mati-laki">
+                      {getRekapLabel("cerai-mati-laki")}
+                    </SelectItem>
+                    <SelectItem value="cerai-mati-perempuan">
+                      {getRekapLabel("cerai-mati-perempuan")}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-muted-foreground opacity-0 pointer-events-none">
                 Aksi
@@ -869,19 +869,19 @@ export default function PendudukPage() {
                   <FileSpreadsheet className="h-5 w-5" />
                   Export Excel
                 </Button>
-                <Button
-                  onClick={() => openForm()}
+              <Button
+                onClick={() => openForm()}
                   className="h-14 rounded-full px-8 text-base font-semibold gap-2 border-0 text-white"
-                  style={{
-                    background:
-                      "radial-gradient(50% 50% at 50% 50%, #FC5132 0%, #FC5132 100%)",
-                    boxShadow:
-                      "2.42px 2.42px 4.83px 0px #BDC2C7BF, 4.83px 4.83px 7.25px 0px #BDC2C740, -2.42px -2.42px 4.83px 0px #FFFFFFBF, -4.83px -4.83px 7.25px 0px #FFFFFF40, inset 2.42px 2.42px 4.83px 0px #FFFFFFBF, inset 4.83px 4.83px 7.25px 0px #FFFFFF40, inset -2.42px -2.42px 4.83px 0px #FC5132BF, inset -4.83px -4.83px 7.25px 0px #FC513240",
-                  }}
-                >
-                  <Plus className="h-5 w-5 text-white" />
-                  Tambah
-                </Button>
+                style={{
+                  background:
+                    "radial-gradient(50% 50% at 50% 50%, #FC5132 0%, #FC5132 100%)",
+                  boxShadow:
+                    "2.42px 2.42px 4.83px 0px #BDC2C7BF, 4.83px 4.83px 7.25px 0px #BDC2C740, -2.42px -2.42px 4.83px 0px #FFFFFFBF, -4.83px -4.83px 7.25px 0px #FFFFFF40, inset 2.42px 2.42px 4.83px 0px #FFFFFFBF, inset 4.83px 4.83px 7.25px 0px #FFFFFF40, inset -2.42px -2.42px 4.83px 0px #FC5132BF, inset -4.83px -4.83px 7.25px 0px #FC513240",
+                }}
+              >
+                <Plus className="h-5 w-5 text-white" />
+                Tambah
+              </Button>
               </div>
             </div>
           </div>
