@@ -16,7 +16,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Search, Pencil, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Download, FileSpreadsheet } from "lucide-react";
+import * as XLSX from "xlsx";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import {
   Select,
@@ -413,6 +414,149 @@ export default function PendudukPage() {
     }
   };
 
+  // Export to Excel function
+  const handleExportToExcel = async () => {
+    try {
+      // Show loading toast
+      toast({
+        title: "Memproses...",
+        description: "Sedang menyiapkan data untuk export",
+      });
+
+      // Fetch all penduduk data (not just filtered)
+      const { data: allData, error } = await db
+        .from("penduduk")
+        .select("*")
+        .order("nama", { ascending: true });
+
+      if (error) throw error;
+
+      if (!allData || allData.length === 0) {
+        toast({
+          title: "Tidak ada data",
+          description: "Tidak ada data penduduk untuk di-export",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Prepare data for Excel
+      const excelData = allData.map((penduduk: PendudukData, index: number) => {
+        const resolvedStatus = resolveStatusPerkawinan(penduduk);
+        return {
+          No: index + 1,
+          NIK: penduduk.nik,
+          "No. KK": penduduk.no_kk || "-",
+          Nama: penduduk.nama,
+          "Nama Ayah": penduduk.nama_ayah || "-",
+          "Nama Ibu": penduduk.nama_ibu || "-",
+          "Tempat Lahir": penduduk.tempat_lahir,
+          "Tanggal Lahir": penduduk.tanggal_lahir ? formatTanggal(penduduk.tanggal_lahir) : "-",
+          "Jenis Kelamin": penduduk.jenis_kelamin,
+          "Golongan Darah": penduduk.golongan_darah || "-",
+          Agama: penduduk.agama,
+          Kewarganegaraan: penduduk.kewarganegaraan || "WNI",
+          Pendidikan: penduduk.pendidikan || "-",
+          Pekerjaan: penduduk.pekerjaan || "-",
+          "Status Kawin": penduduk.status_kawin,
+          "Status Perkawinan": resolvedStatus,
+          Alamat: penduduk.alamat,
+          Dusun: penduduk.dusun,
+          RT: penduduk.rt,
+          RW: penduduk.rw,
+          "No. Akta Lahir": penduduk.no_akta_lahir || "-",
+          "No. Paspor": penduduk.no_paspor || "-",
+          "No. KITAP": penduduk.no_kitap || "-",
+          Umur: penduduk.umur || "-",
+          Status: penduduk.status,
+        };
+      });
+
+      // Prepare header information
+      const headerTitle = "DATA PENDUDUK DESA KEDUNGWRINGIN";
+      const exportDate = new Date().toLocaleDateString("id-ID", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+      const headerSubtitle = `Tanggal Export: ${exportDate}`;
+      
+      // Create worksheet with data starting from row 4 (after header)
+      const worksheet = XLSX.utils.json_to_sheet(excelData, { origin: "A4" });
+      
+      // Add header rows
+      XLSX.utils.sheet_add_aoa(worksheet, [
+        [headerTitle],
+        [headerSubtitle],
+        [], // Empty row for spacing
+      ], { origin: "A1" });
+      
+      // Merge cells for title (span across all columns)
+      const totalColumns = Object.keys(excelData[0] || {}).length;
+      if (!worksheet["!merges"]) {
+        worksheet["!merges"] = [];
+      }
+      worksheet["!merges"].push(
+        { s: { r: 0, c: 0 }, e: { r: 0, c: totalColumns - 1 } }, // Title merge
+        { s: { r: 1, c: 0 }, e: { r: 1, c: totalColumns - 1 } }  // Subtitle merge
+      );
+      
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Data Penduduk");
+
+      // Set column widths
+      const columnWidths = [
+        { wch: 5 },   // No
+        { wch: 18 },  // NIK
+        { wch: 18 },  // No. KK
+        { wch: 25 },  // Nama
+        { wch: 20 },  // Nama Ayah
+        { wch: 20 },  // Nama Ibu
+        { wch: 20 },  // Tempat Lahir
+        { wch: 20 },  // Tanggal Lahir
+        { wch: 15 },  // Jenis Kelamin
+        { wch: 15 },  // Golongan Darah
+        { wch: 15 },  // Agama
+        { wch: 18 },  // Kewarganegaraan
+        { wch: 25 },  // Pendidikan
+        { wch: 25 },  // Pekerjaan
+        { wch: 15 },  // Status Kawin
+        { wch: 18 },  // Status Perkawinan
+        { wch: 40 },  // Alamat
+        { wch: 20 },  // Dusun
+        { wch: 5 },   // RT
+        { wch: 5 },   // RW
+        { wch: 20 },  // No. Akta Lahir
+        { wch: 20 },  // No. Paspor
+        { wch: 20 },  // No. KITAP
+        { wch: 8 },   // Umur
+        { wch: 12 },  // Status
+      ];
+      worksheet["!cols"] = columnWidths;
+
+      // Generate filename with current date
+      const now = new Date();
+      const dateStr = now.toISOString().split("T")[0];
+      const filename = `Data_Penduduk_Kedungwringin_${dateStr}.xlsx`;
+
+      // Write file
+      XLSX.writeFile(workbook, filename);
+
+      toast({
+        title: "Export Berhasil ✅",
+        description: `Data ${allData.length} penduduk berhasil di-export ke Excel`,
+      });
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+      toast({
+        title: "Export Gagal ❌",
+        description: "Terjadi kesalahan saat mengekspor data. Silakan coba lagi.",
+        variant: "destructive",
+      });
+    }
+  };
+
   useEffect(() => {
     const tableContainer = tableContainerRef.current;
     if (!tableContainer) return;
@@ -664,7 +808,7 @@ export default function PendudukPage() {
               Kelola data penduduk Desa Kedungwringin
             </p>
           </div>
-          <div className="flex flex-col gap-4 md:flex-row md:items-start">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end">
             <div className="flex-1 space-y-2">
               <label
                 className="text-sm font-medium text-muted-foreground"
@@ -683,48 +827,62 @@ export default function PendudukPage() {
                 <Search className="absolute right-6 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-muted-foreground">
-                  Status Perkawinan
-                </label>
-                <Select
-                  value={rekapFilter}
-                  onValueChange={(value) => setRekapFilter(value as RekapFilter)}
-                >
-                  <SelectTrigger className="h-14 w-[260px] rounded-full border-2 border-foreground/80 px-6 text-base">
-                    <SelectValue placeholder="Pilih status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">{getRekapLabel("all")}</SelectItem>
-                    <SelectItem value="cerai-hidup-laki">
-                      {getRekapLabel("cerai-hidup-laki")}
-                    </SelectItem>
-                    <SelectItem value="cerai-hidup-perempuan">
-                      {getRekapLabel("cerai-hidup-perempuan")}
-                    </SelectItem>
-                    <SelectItem value="cerai-mati-laki">
-                      {getRekapLabel("cerai-mati-laki")}
-                    </SelectItem>
-                    <SelectItem value="cerai-mati-perempuan">
-                      {getRekapLabel("cerai-mati-perempuan")}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button
-                onClick={() => openForm()}
-                className="h-14 rounded-full px-8 text-base font-semibold gap-2 border-0 text-white md:self-end"
-                style={{
-                  background:
-                    "radial-gradient(50% 50% at 50% 50%, #FC5132 0%, #FC5132 100%)",
-                  boxShadow:
-                    "2.42px 2.42px 4.83px 0px #BDC2C7BF, 4.83px 4.83px 7.25px 0px #BDC2C740, -2.42px -2.42px 4.83px 0px #FFFFFFBF, -4.83px -4.83px 7.25px 0px #FFFFFF40, inset 2.42px 2.42px 4.83px 0px #FFFFFFBF, inset 4.83px 4.83px 7.25px 0px #FFFFFF40, inset -2.42px -2.42px 4.83px 0px #FC5132BF, inset -4.83px -4.83px 7.25px 0px #FC513240",
-                }}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-muted-foreground">
+                Status Perkawinan
+              </label>
+              <Select
+                value={rekapFilter}
+                onValueChange={(value) => setRekapFilter(value as RekapFilter)}
               >
-                <Plus className="h-5 w-5 text-white" />
-                Tambah
-              </Button>
+                <SelectTrigger className="h-14 w-[260px] rounded-full border-2 border-foreground/80 px-6 text-base">
+                  <SelectValue placeholder="Pilih status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{getRekapLabel("all")}</SelectItem>
+                  <SelectItem value="cerai-hidup-laki">
+                    {getRekapLabel("cerai-hidup-laki")}
+                  </SelectItem>
+                  <SelectItem value="cerai-hidup-perempuan">
+                    {getRekapLabel("cerai-hidup-perempuan")}
+                  </SelectItem>
+                  <SelectItem value="cerai-mati-laki">
+                    {getRekapLabel("cerai-mati-laki")}
+                  </SelectItem>
+                  <SelectItem value="cerai-mati-perempuan">
+                    {getRekapLabel("cerai-mati-perempuan")}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-muted-foreground opacity-0 pointer-events-none">
+                Aksi
+              </label>
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={handleExportToExcel}
+                  variant="outline"
+                  className="h-14 rounded-full px-6 text-base font-semibold gap-2 border-2 border-foreground/80"
+                  disabled={loading || pendudukList.length === 0}
+                >
+                  <FileSpreadsheet className="h-5 w-5" />
+                  Export Excel
+                </Button>
+                <Button
+                  onClick={() => openForm()}
+                  className="h-14 rounded-full px-8 text-base font-semibold gap-2 border-0 text-white"
+                  style={{
+                    background:
+                      "radial-gradient(50% 50% at 50% 50%, #FC5132 0%, #FC5132 100%)",
+                    boxShadow:
+                      "2.42px 2.42px 4.83px 0px #BDC2C7BF, 4.83px 4.83px 7.25px 0px #BDC2C740, -2.42px -2.42px 4.83px 0px #FFFFFFBF, -4.83px -4.83px 7.25px 0px #FFFFFF40, inset 2.42px 2.42px 4.83px 0px #FFFFFFBF, inset 4.83px 4.83px 7.25px 0px #FFFFFF40, inset -2.42px -2.42px 4.83px 0px #FC5132BF, inset -4.83px -4.83px 7.25px 0px #FC513240",
+                  }}
+                >
+                  <Plus className="h-5 w-5 text-white" />
+                  Tambah
+                </Button>
+              </div>
             </div>
           </div>
         </div>
