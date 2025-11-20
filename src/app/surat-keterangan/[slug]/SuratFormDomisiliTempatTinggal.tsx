@@ -26,9 +26,10 @@ type SuratFormDomisiliTempatTinggalProps = {
   entryId?: string | null;
   initialData?: Record<string, unknown> | null;
   from?: string | null;
+  backUrl?: string;
 };
 
-export function SuratFormDomisiliTempatTinggal({ surat, entryId, initialData, from }: SuratFormDomisiliTempatTinggalProps) {
+export function SuratFormDomisiliTempatTinggal({ surat, entryId, initialData, from, backUrl = "/surat-keterangan" }: SuratFormDomisiliTempatTinggalProps) {
   const router = useRouter();
   const { form, setForm } = usePrefillFormState<SuratKeteranganDomisiliTempatTinggalData>({
     createDefault: createDefaultSuratKeteranganDomisiliTempatTinggal,
@@ -81,7 +82,7 @@ export function SuratFormDomisiliTempatTinggal({ surat, entryId, initialData, fr
       router.push("/surat-masuk");
       return;
     }
-    router.push("/surat-keterangan");
+    router.push(backUrl);
   };
 
   const handlePreview = () => {

@@ -26,9 +26,10 @@ type SuratFormTidakMampuProps = {
   entryId?: string | null;
   initialData?: Record<string, unknown> | null;
   from?: string | null;
+  backUrl?: string;
 };
 
-export function SuratFormTidakMampu({ surat, entryId, initialData, from }: SuratFormTidakMampuProps) {
+export function SuratFormTidakMampu({ surat, entryId, initialData, from, backUrl = "/surat-keterangan" }: SuratFormTidakMampuProps) {
   const router = useRouter();
   const { form, setForm } = usePrefillFormState<SuratKeteranganTidakMampuData>({
     createDefault: createDefaultSuratKeteranganTidakMampu,
@@ -81,7 +82,7 @@ export function SuratFormTidakMampu({ surat, entryId, initialData, from }: Surat
       router.push("/surat-masuk");
       return;
     }
-    router.push("/surat-keterangan");
+    router.push(backUrl);
   };
 
   const handlePreview = () => {

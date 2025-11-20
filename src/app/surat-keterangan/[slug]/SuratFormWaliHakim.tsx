@@ -26,9 +26,10 @@ type SuratFormWaliHakimProps = {
   entryId?: string | null;
   initialData?: Record<string, unknown> | null;
   from?: string | null;
+  backUrl?: string;
 };
 
-export function SuratFormWaliHakim({ surat, entryId, initialData, from }: SuratFormWaliHakimProps) {
+export function SuratFormWaliHakim({ surat, entryId, initialData, from, backUrl = "/surat-keterangan" }: SuratFormWaliHakimProps) {
   const router = useRouter();
   const { form, setForm } = usePrefillFormState<SuratKeteranganWaliHakimData>({
     createDefault: createDefaultSuratKeteranganWaliHakim,
@@ -80,7 +81,7 @@ export function SuratFormWaliHakim({ surat, entryId, initialData, from }: SuratF
       router.push("/surat-masuk");
       return;
     }
-    router.push("/surat-keterangan");
+    router.push(backUrl);
   };
 
   const handleCheckboxChange = (value: string) => {

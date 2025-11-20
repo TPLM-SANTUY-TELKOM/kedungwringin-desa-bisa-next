@@ -6,6 +6,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { db } from "@/lib/client";
@@ -15,7 +16,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Search, Pencil, Trash2 } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Download, FileSpreadsheet } from "lucide-react";
+import * as XLSX from "xlsx";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import {
   Select,
@@ -247,6 +249,13 @@ export default function PendudukPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const isAdmin = true; // Sementara hardcode sebagai admin
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState<number | "custom">(10);
+  const [customItemsPerPage, setCustomItemsPerPage] = useState<string>("");
+  const [showCustomInput, setShowCustomInput] = useState(false);
 
   const rekapCounts = useMemo(() => {
     const counts = {
@@ -347,7 +356,241 @@ export default function PendudukPage() {
 
   useEffect(() => {
     setFilteredList(filterPenduduk(searchQuery, pendudukList, rekapFilter));
+    setCurrentPage(1); // Reset to first page when filter changes
   }, [searchQuery, pendudukList, rekapFilter]);
+
+  // Pagination calculations
+  const actualItemsPerPage = useMemo(() => {
+    if (itemsPerPage === "custom") {
+      const custom = parseInt(customItemsPerPage);
+      return isNaN(custom) || custom < 1 ? 10 : custom;
+    }
+    return itemsPerPage;
+  }, [itemsPerPage, customItemsPerPage]);
+
+  const totalPages = useMemo(() => {
+    return Math.ceil(filteredList.length / actualItemsPerPage);
+  }, [filteredList.length, actualItemsPerPage]);
+
+  const paginatedList = useMemo(() => {
+    const startIndex = (currentPage - 1) * actualItemsPerPage;
+    const endIndex = startIndex + actualItemsPerPage;
+    return filteredList.slice(startIndex, endIndex);
+  }, [filteredList, currentPage, actualItemsPerPage]);
+
+  const paginationInfo = useMemo(() => {
+    const start = filteredList.length === 0 ? 0 : (currentPage - 1) * actualItemsPerPage + 1;
+    const end = Math.min(currentPage * actualItemsPerPage, filteredList.length);
+    return { start, end };
+  }, [currentPage, actualItemsPerPage, filteredList.length]);
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      // Scroll to top of table
+      tableContainerRef.current?.scrollTo({ left: 0, behavior: 'smooth' });
+    }
+  };
+
+  // Handle items per page change
+  const handleItemsPerPageChange = (value: string) => {
+    if (value === "custom") {
+      setShowCustomInput(true);
+      setItemsPerPage("custom");
+    } else {
+      setShowCustomInput(false);
+      setItemsPerPage(parseInt(value));
+      setCurrentPage(1);
+    }
+  };
+
+  // Handle custom items per page input
+  const handleCustomItemsPerPageChange = (value: string) => {
+    setCustomItemsPerPage(value);
+    const numValue = parseInt(value);
+    if (!isNaN(numValue) && numValue > 0) {
+      setCurrentPage(1);
+    }
+  };
+
+  // Export to Excel function
+  const handleExportToExcel = async () => {
+    try {
+      // Show loading toast
+      toast({
+        title: "Memproses...",
+        description: "Sedang menyiapkan data untuk export",
+      });
+
+      // Fetch all penduduk data (not just filtered)
+      const { data: allData, error } = await db
+        .from("penduduk")
+        .select("*")
+        .order("nama", { ascending: true });
+
+      if (error) throw error;
+
+      if (!allData || allData.length === 0) {
+        toast({
+          title: "Tidak ada data",
+          description: "Tidak ada data penduduk untuk di-export",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Prepare data for Excel
+      const excelData = allData.map((penduduk: PendudukData, index: number) => {
+        const resolvedStatus = resolveStatusPerkawinan(penduduk);
+        return {
+          No: index + 1,
+          NIK: penduduk.nik,
+          "No. KK": penduduk.no_kk || "-",
+          Nama: penduduk.nama,
+          "Nama Ayah": penduduk.nama_ayah || "-",
+          "Nama Ibu": penduduk.nama_ibu || "-",
+          "Tempat Lahir": penduduk.tempat_lahir,
+          "Tanggal Lahir": penduduk.tanggal_lahir ? formatTanggal(penduduk.tanggal_lahir) : "-",
+          "Jenis Kelamin": penduduk.jenis_kelamin,
+          "Golongan Darah": penduduk.golongan_darah || "-",
+          Agama: penduduk.agama,
+          Kewarganegaraan: penduduk.kewarganegaraan || "WNI",
+          Pendidikan: penduduk.pendidikan || "-",
+          Pekerjaan: penduduk.pekerjaan || "-",
+          "Status Kawin": penduduk.status_kawin,
+          "Status Perkawinan": resolvedStatus,
+          Alamat: penduduk.alamat,
+          Dusun: penduduk.dusun,
+          RT: penduduk.rt,
+          RW: penduduk.rw,
+          "No. Akta Lahir": penduduk.no_akta_lahir || "-",
+          "No. Paspor": penduduk.no_paspor || "-",
+          "No. KITAP": penduduk.no_kitap || "-",
+          Umur: penduduk.umur || "-",
+          Status: penduduk.status,
+        };
+      });
+
+      // Prepare header information
+      const headerTitle = "DATA PENDUDUK DESA KEDUNGWRINGIN";
+      const exportDate = new Date().toLocaleDateString("id-ID", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+      const headerSubtitle = `Tanggal Export: ${exportDate}`;
+      
+      // Create worksheet with data starting from row 4 (after header)
+      const worksheet = XLSX.utils.json_to_sheet(excelData, { origin: "A4" });
+      
+      // Add header rows
+      XLSX.utils.sheet_add_aoa(worksheet, [
+        [headerTitle],
+        [headerSubtitle],
+        [], // Empty row for spacing
+      ], { origin: "A1" });
+      
+      // Merge cells for title (span across all columns)
+      const totalColumns = Object.keys(excelData[0] || {}).length;
+      if (!worksheet["!merges"]) {
+        worksheet["!merges"] = [];
+      }
+      worksheet["!merges"].push(
+        { s: { r: 0, c: 0 }, e: { r: 0, c: totalColumns - 1 } }, // Title merge
+        { s: { r: 1, c: 0 }, e: { r: 1, c: totalColumns - 1 } }  // Subtitle merge
+      );
+      
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Data Penduduk");
+
+      // Set column widths
+      const columnWidths = [
+        { wch: 5 },   // No
+        { wch: 18 },  // NIK
+        { wch: 18 },  // No. KK
+        { wch: 25 },  // Nama
+        { wch: 20 },  // Nama Ayah
+        { wch: 20 },  // Nama Ibu
+        { wch: 20 },  // Tempat Lahir
+        { wch: 20 },  // Tanggal Lahir
+        { wch: 15 },  // Jenis Kelamin
+        { wch: 15 },  // Golongan Darah
+        { wch: 15 },  // Agama
+        { wch: 18 },  // Kewarganegaraan
+        { wch: 25 },  // Pendidikan
+        { wch: 25 },  // Pekerjaan
+        { wch: 15 },  // Status Kawin
+        { wch: 18 },  // Status Perkawinan
+        { wch: 40 },  // Alamat
+        { wch: 20 },  // Dusun
+        { wch: 5 },   // RT
+        { wch: 5 },   // RW
+        { wch: 20 },  // No. Akta Lahir
+        { wch: 20 },  // No. Paspor
+        { wch: 20 },  // No. KITAP
+        { wch: 8 },   // Umur
+        { wch: 12 },  // Status
+      ];
+      worksheet["!cols"] = columnWidths;
+
+      // Generate filename with current date
+      const now = new Date();
+      const dateStr = now.toISOString().split("T")[0];
+      const filename = `Data_Penduduk_Kedungwringin_${dateStr}.xlsx`;
+
+      // Write file
+      XLSX.writeFile(workbook, filename);
+
+      toast({
+        title: "Export Berhasil ✅",
+        description: `Data ${allData.length} penduduk berhasil di-export ke Excel`,
+      });
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+      toast({
+        title: "Export Gagal ❌",
+        description: "Terjadi kesalahan saat mengekspor data. Silakan coba lagi.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  useEffect(() => {
+    const tableContainer = tableContainerRef.current;
+    if (!tableContainer) return;
+
+    const handleScroll = () => {
+      const { scrollLeft, scrollWidth, clientWidth } = tableContainer;
+      const canScrollLeft = scrollLeft > 0;
+      const canScrollRight = scrollLeft < scrollWidth - clientWidth - 1;
+
+      // Update shadow indicators using data attributes
+      if (canScrollLeft) {
+        tableContainer.setAttribute('data-scroll-left', 'true');
+      } else {
+        tableContainer.setAttribute('data-scroll-left', 'false');
+      }
+
+      if (canScrollRight) {
+        tableContainer.setAttribute('data-scroll-right', 'true');
+      } else {
+        tableContainer.setAttribute('data-scroll-right', 'false');
+      }
+    };
+
+    // Initial check
+    handleScroll();
+
+    tableContainer.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+
+    return () => {
+      tableContainer.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, [filteredList]);
 
   const handleSearch = () => {
     const trimmed = searchQuery.trim();
@@ -565,7 +808,7 @@ export default function PendudukPage() {
               Kelola data penduduk Desa Kedungwringin
             </p>
           </div>
-          <div className="flex flex-col gap-4 md:flex-row md:items-start">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end">
             <div className="flex-1 space-y-2">
               <label
                 className="text-sm font-medium text-muted-foreground"
@@ -584,7 +827,6 @@ export default function PendudukPage() {
                 <Search className="absolute right-6 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
               </div>
             </div>
-            <div className="flex items-start gap-3">
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium text-muted-foreground">
                   Status Perkawinan
@@ -613,9 +855,23 @@ export default function PendudukPage() {
                   </SelectContent>
                 </Select>
               </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-muted-foreground opacity-0 pointer-events-none">
+                Aksi
+              </label>
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={handleExportToExcel}
+                  variant="outline"
+                  className="h-14 rounded-full px-6 text-base font-semibold gap-2 border-2 border-foreground/80"
+                  disabled={loading || pendudukList.length === 0}
+                >
+                  <FileSpreadsheet className="h-5 w-5" />
+                  Export Excel
+                </Button>
               <Button
                 onClick={() => openForm()}
-                className="h-14 rounded-full px-8 text-base font-semibold gap-2 border-0 text-white md:self-end"
+                  className="h-14 rounded-full px-8 text-base font-semibold gap-2 border-0 text-white"
                 style={{
                   background:
                     "radial-gradient(50% 50% at 50% 50%, #FC5132 0%, #FC5132 100%)",
@@ -626,6 +882,7 @@ export default function PendudukPage() {
                 <Plus className="h-5 w-5 text-white" />
                 Tambah
               </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -637,17 +894,23 @@ export default function PendudukPage() {
               <p className="text-muted-foreground">Memuat data...</p>
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-xl border border-border">
+            <div 
+              ref={tableContainerRef}
+              className="overflow-x-auto rounded-xl border border-border scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent"
+            >
               <table className="min-w-[1500px] w-full text-sm">
                 <thead className="bg-muted/50 text-foreground">
                   <tr>
-                    <th className="p-4 text-left font-semibold whitespace-nowrap">
+                    <th className="sticky left-0 z-30 bg-muted p-4 text-center font-semibold whitespace-nowrap border-r border-border shadow-[2px_0_4px_rgba(0,0,0,0.1)] min-w-[60px] w-[60px]">
+                      No
+                    </th>
+                    <th className="sticky left-[60px] z-30 bg-muted p-4 text-left font-semibold whitespace-nowrap border-r border-border shadow-[2px_0_4px_rgba(0,0,0,0.1)] min-w-[140px]">
                       NIK
                     </th>
                     <th className="p-4 text-left font-semibold whitespace-nowrap">
                       No. KK
                     </th>
-                    <th className="p-4 text-left font-semibold whitespace-nowrap">
+                    <th className="sticky left-[200px] z-30 bg-muted p-4 text-left font-semibold whitespace-nowrap border-r border-border shadow-[2px_0_4px_rgba(0,0,0,0.1)] min-w-[180px]">
                       Nama
                     </th>
                     <th className="p-4 text-left font-semibold whitespace-nowrap">
@@ -701,15 +964,20 @@ export default function PendudukPage() {
                     <th className="p-4 text-left font-semibold whitespace-nowrap">
                       Status
                     </th>
-                    <th className="sticky right-0 z-20 bg-muted/50 p-4 text-center font-semibold border-l border-border">
+                    <th className="sticky right-0 z-30 bg-muted p-4 text-center font-semibold border-l border-border min-w-[120px] w-[120px] shadow-[-2px_0_4px_rgba(0,0,0,0.1)]">
                       Aksi
                     </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
-                  {filteredList.map((penduduk) => (
+                  {paginatedList.map((penduduk, index) => {
+                    const rowNumber = (currentPage - 1) * actualItemsPerPage + index + 1;
+                    return (
                     <tr key={penduduk.id} className="group hover:bg-muted/30">
-                      <td className="p-4 font-mono text-xs uppercase tracking-wide align-top">
+                      <td className="sticky left-0 z-20 bg-background p-4 text-center font-semibold align-top group-hover:bg-muted border-r border-border shadow-[2px_0_4px_rgba(0,0,0,0.1)] min-w-[60px] w-[60px]">
+                        {rowNumber}
+                      </td>
+                      <td className="sticky left-[60px] z-20 bg-background p-4 font-mono text-xs uppercase tracking-wide align-top group-hover:bg-muted border-r border-border shadow-[2px_0_4px_rgba(0,0,0,0.1)] min-w-[140px]">
                         {penduduk.nik}
                       </td>
                       <td className="p-4 align-top">
@@ -717,7 +985,7 @@ export default function PendudukPage() {
                           {penduduk.no_kk || "-"}
                         </span>
                       </td>
-                      <td className="p-4 font-semibold align-top">
+                      <td className="sticky left-[200px] z-20 bg-background p-4 font-semibold align-top group-hover:bg-muted border-r border-border shadow-[2px_0_4px_rgba(0,0,0,0.1)] min-w-[180px]">
                         {penduduk.nama}
                       </td>
                       <td className="p-4 align-top">
@@ -794,12 +1062,13 @@ export default function PendudukPage() {
                           {penduduk.status}
                         </span>
                       </td>
-                      <td className="sticky right-0 z-10 bg-background p-4 group-hover:bg-muted/30 border-l border-border">
-                        <div className="flex items-center justify-center gap-2">
+                      <td className="sticky right-0 z-20 bg-background p-4 group-hover:bg-muted border-l border-border min-w-[120px] w-[120px] shadow-[-2px_0_4px_rgba(0,0,0,0.1)]">
+                        <div className="flex items-center justify-center gap-2 flex-nowrap">
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => handleEdit(penduduk)}
+                            className="h-8 w-8 p-0 flex-shrink-0"
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>
@@ -807,15 +1076,134 @@ export default function PendudukPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDelete(penduduk.id!)}
+                            className="h-8 w-8 p-0 flex-shrink-0"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </td>
                     </tr>
-                  ))}
+                  )})}
                 </tbody>
               </table>
+            </div>
+          )}
+          
+          {/* Pagination Controls */}
+          {!loading && filteredList.length > 0 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-6 border-t border-border">
+              {/* Items per page selector */}
+              <div className="flex items-center gap-3">
+                <label className="text-sm text-muted-foreground whitespace-nowrap">
+                  Tampilkan:
+                </label>
+                <div className="flex items-center gap-2">
+                  <Select
+                    value={itemsPerPage === "custom" ? "custom" : String(itemsPerPage)}
+                    onValueChange={handleItemsPerPageChange}
+                  >
+                    <SelectTrigger className="w-[100px] h-9">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="5">5</SelectItem>
+                      <SelectItem value="10">10</SelectItem>
+                      <SelectItem value="custom">Custom</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {showCustomInput && (
+                    <Input
+                      type="number"
+                      min="1"
+                      value={customItemsPerPage}
+                      onChange={(e) => handleCustomItemsPerPageChange(e.target.value)}
+                      placeholder="Jumlah"
+                      className="w-20 h-9"
+                    />
+                  )}
+                  <span className="text-sm text-muted-foreground whitespace-nowrap">
+                    per halaman
+                  </span>
+                </div>
+              </div>
+
+              {/* Page info */}
+              <div className="text-sm text-muted-foreground">
+                Menampilkan <span className="font-semibold text-foreground">{paginationInfo.start}</span> -{" "}
+                <span className="font-semibold text-foreground">{paginationInfo.end}</span> dari{" "}
+                <span className="font-semibold text-foreground">{filteredList.length}</span> data
+              </div>
+
+              {/* Pagination buttons */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(1)}
+                  disabled={currentPage === 1}
+                  className="h-9 w-9 p-0"
+                >
+                  <ChevronsLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="h-9 w-9 p-0"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                
+                {/* Page numbers */}
+                {totalPages > 0 && (
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pageNum: number;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+                      
+                      return (
+                        <Button
+                          key={pageNum}
+                          variant={currentPage === pageNum ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handlePageChange(pageNum)}
+                          className="h-9 w-9 p-0"
+                        >
+                          {pageNum}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="h-9 w-9 p-0"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePageChange(totalPages)}
+                  disabled={currentPage === totalPages}
+                  className="h-9 w-9 p-0"
+                >
+                  <ChevronsRight className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           )}
         </Card>

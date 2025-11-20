@@ -9,7 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import logoDesa from "@/assets/ic_logo_banyumas.png";
 import bglogin from "@/assets/bg_login.png";
 import Image from "next/image";
-import { Images } from "lucide-react";
+import { Images, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -46,6 +47,15 @@ export default function AdminLogin() {
       {/* BAGIAN KIRI - FORM LOGIN */}
       <div className="flex flex-col justify-center px-10 md:px-16 bg-gray-50 border-r border-gray-200">
         <div className="max-w-md mx-auto w-full space-y-6">
+          {/* Tombol Kembali */}
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors w-fit"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Kembali ke Halaman Utama
+          </Link>
+
           {/* Logo & Judul */}
           <div className="flex items-center gap-3">
             <Image

@@ -27,9 +27,10 @@ type SuratFormPernyataanBelumMenikahProps = {
   entryId?: string | null;
   initialData?: Record<string, unknown> | null;
   from?: string | null;
+  backUrl?: string;
 };
 
-export function SuratFormPernyataanBelumMenikah({ surat, entryId, initialData, from }: SuratFormPernyataanBelumMenikahProps) {
+export function SuratFormPernyataanBelumMenikah({ surat, entryId, initialData, from, backUrl = "/surat-nikah" }: SuratFormPernyataanBelumMenikahProps) {
   const router = useRouter();
   const { form, setForm } = usePrefillFormState<PernyataanBelumMenikahData>({
     createDefault: createDefaultPernyataanBelumMenikah,
@@ -92,7 +93,7 @@ export function SuratFormPernyataanBelumMenikah({ surat, entryId, initialData, f
       router.push("/surat-masuk");
       return;
     }
-    router.back();
+    router.push(backUrl);
   };
 
   const handlePreview = () => {

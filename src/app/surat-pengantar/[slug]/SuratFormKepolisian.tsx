@@ -25,9 +25,10 @@ type SuratFormKepolisianProps = {
   entryId?: string | null;
   initialData?: Record<string, unknown> | null;
   from?: string | null;
+  backUrl?: string;
 };
 
-export function SuratFormKepolisian({ surat, entryId, initialData, from }: SuratFormKepolisianProps) {
+export function SuratFormKepolisian({ surat, entryId, initialData, from, backUrl = "/surat-pengantar" }: SuratFormKepolisianProps) {
   const router = useRouter();
   const { form, setForm } = usePrefillFormState<SuratPengantarKepolisianData>({
     createDefault: createDefaultSuratPengantarKepolisian,
@@ -102,7 +103,7 @@ export function SuratFormKepolisian({ surat, entryId, initialData, from }: Surat
       router.push("/surat-masuk");
       return;
     }
-    router.back();
+    router.push(backUrl);
   };
 
   const handlePreview = () => {

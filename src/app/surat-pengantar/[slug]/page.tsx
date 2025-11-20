@@ -18,6 +18,7 @@ type SuratPengantarFormPageProps = {
 
 export default async function SuratPengantarFormPage({ params, searchParams }: SuratPengantarFormPageProps) {
   const { slug } = await params;
+  const { from } = await searchParams;
   const decodedSlug = decodeURIComponent(slug);
   const surat = findSuratPengantarBySlug(decodedSlug);
 
@@ -38,12 +39,15 @@ export default async function SuratPengantarFormPage({ params, searchParams }: S
     entryData = entry.form_data as Record<string, unknown>;
   }
 
+  const backUrl = fromSource === "admin" ? "/surat" : "/surat-pengantar";
+
   const renderForm = () => {
     const commonProps = {
       surat,
       entryId,
       initialData: entryData,
       from: fromSource,
+      backUrl,
     };
 
     switch (surat.slug) {

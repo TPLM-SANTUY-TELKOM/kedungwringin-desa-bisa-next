@@ -26,9 +26,10 @@ type SuratFormUsahaProps = {
   entryId?: string | null;
   initialData?: Record<string, unknown> | null;
   from?: string | null;
+  backUrl?: string;
 };
 
-export function SuratFormUsaha({ surat, entryId, initialData, from }: SuratFormUsahaProps) {
+export function SuratFormUsaha({ surat, entryId, initialData, from, backUrl = "/surat-keterangan" }: SuratFormUsahaProps) {
   const router = useRouter();
   const { form, setForm } = usePrefillFormState<SuratKeteranganUsahaData>({
     createDefault: createDefaultSuratKeteranganUsaha,
@@ -81,7 +82,7 @@ export function SuratFormUsaha({ surat, entryId, initialData, from }: SuratFormU
       router.push("/surat-masuk");
       return;
     }
-    router.push("/surat-keterangan");
+    router.push(backUrl);
   };
 
   const handlePreview = () => {

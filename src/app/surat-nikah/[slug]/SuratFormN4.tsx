@@ -26,9 +26,10 @@ type SuratFormN4Props = {
   entryId?: string | null;
   initialData?: Record<string, unknown> | null;
   from?: string | null;
+  backUrl?: string;
 };
 
-export function SuratFormN4({ surat, entryId, initialData, from }: SuratFormN4Props) {
+export function SuratFormN4({ surat, entryId, initialData, from, backUrl = "/surat-nikah" }: SuratFormN4Props) {
   const router = useRouter();
   const { form, setForm } = usePrefillFormState<FormN4Data>({
     createDefault: createDefaultFormN4,
@@ -175,7 +176,7 @@ export function SuratFormN4({ surat, entryId, initialData, from }: SuratFormN4Pr
       router.push("/surat-masuk");
       return;
     }
-    router.back();
+    router.push(backUrl);
   };
 
   const handlePreview = () => {

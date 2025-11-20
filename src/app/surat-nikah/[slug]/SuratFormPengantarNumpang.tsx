@@ -32,9 +32,10 @@ type SuratFormPengantarNumpangProps = {
   entryId?: string | null;
   initialData?: Record<string, unknown> | null;
   from?: string | null;
+  backUrl?: string;
 };
 
-export function SuratFormPengantarNumpang({ surat, entryId, initialData, from }: SuratFormPengantarNumpangProps) {
+export function SuratFormPengantarNumpang({ surat, entryId, initialData, from, backUrl = "/surat-nikah" }: SuratFormPengantarNumpangProps) {
   const router = useRouter();
   const { form, setForm } = usePrefillFormState<PengantarNumpangNikahData>({
     createDefault: createDefaultPengantarNumpangData,
@@ -100,7 +101,7 @@ export function SuratFormPengantarNumpang({ surat, entryId, initialData, from }:
       router.push("/surat-masuk");
       return;
     }
-    router.back();
+    router.push(backUrl);
   };
 
   const handlePreview = () => {

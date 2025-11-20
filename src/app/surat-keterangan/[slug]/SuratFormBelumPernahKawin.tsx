@@ -26,9 +26,10 @@ type SuratFormBelumPernahKawinProps = {
   entryId?: string | null;
   initialData?: Record<string, unknown> | null;
   from?: string | null;
+  backUrl?: string;
 };
 
-export function SuratFormBelumPernahKawin({ surat, entryId, initialData, from }: SuratFormBelumPernahKawinProps) {
+export function SuratFormBelumPernahKawin({ surat, entryId, initialData, from, backUrl = "/surat-keterangan" }: SuratFormBelumPernahKawinProps) {
   const router = useRouter();
   const { form, setForm } = usePrefillFormState<SuratKeteranganBelumPernahKawinData>({
     createDefault: createDefaultSuratKeteranganBelumPernahKawin,
@@ -82,7 +83,7 @@ export function SuratFormBelumPernahKawin({ surat, entryId, initialData, from }:
       router.push("/surat-masuk");
       return;
     }
-    router.push("/surat-keterangan");
+    router.push(backUrl);
   };
 
   const handlePreview = () => {

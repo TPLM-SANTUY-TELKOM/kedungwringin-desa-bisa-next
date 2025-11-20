@@ -23,6 +23,7 @@ type SuratNikahFormPageProps = {
 
 export default async function SuratNikahFormPage({ params, searchParams }: SuratNikahFormPageProps) {
   const { slug } = await params;
+  const { from } = await searchParams;
   const decodedSlug = decodeURIComponent(slug);
   const surat = findSuratNikahBySlug(decodedSlug);
 
@@ -43,80 +44,34 @@ export default async function SuratNikahFormPage({ params, searchParams }: Surat
     entryData = entry.form_data as Record<string, unknown>;
   }
 
+  const backUrl = fromSource === "admin" ? "/surat" : "/surat-nikah";
+
   const renderForm = () => {
+    const commonProps = {
+      surat,
+      entryId,
+      initialData: entryData as Record<string, unknown> | null,
+      from: fromSource,
+      backUrl,
+    };
+
     switch (surat.slug) {
       case "formulir-pengantar-nikah":
-        return (
-          <SuratFormN1
-            surat={surat}
-            entryId={entryId}
-            from={fromSource}
-            initialData={entryData as Record<string, unknown> | null}
-          />
-        );
+        return <SuratFormN1 {...commonProps} />;
       case "formulir-permohonan-kehendak-perkawinan":
-        return (
-          <SuratFormN2
-            surat={surat}
-            entryId={entryId}
-            from={fromSource}
-            initialData={entryData as Record<string, unknown> | null}
-          />
-        );
+        return <SuratFormN2 {...commonProps} />;
       case "formulir-surat-persetujuan-mempelai":
-        return (
-          <SuratFormN3
-            surat={surat}
-            entryId={entryId}
-            from={fromSource}
-            initialData={entryData as Record<string, unknown> | null}
-          />
-        );
+        return <SuratFormN3 {...commonProps} />;
       case "formulir-surat-izin-orang-tua":
-        return (
-          <SuratFormN4
-            surat={surat}
-            entryId={entryId}
-            from={fromSource}
-            initialData={entryData as Record<string, unknown> | null}
-          />
-        );
+        return <SuratFormN4 {...commonProps} />;
       case "formulir-surat-keterangan-kematian":
-        return (
-          <SuratFormN6
-            surat={surat}
-            entryId={entryId}
-            from={fromSource}
-            initialData={entryData as Record<string, unknown> | null}
-          />
-        );
+        return <SuratFormN6 {...commonProps} />;
       case "surat-keterangan-wali-nikah":
-        return (
-          <SuratFormWaliNikah
-            surat={surat}
-            entryId={entryId}
-            from={fromSource}
-            initialData={entryData as Record<string, unknown> | null}
-          />
-        );
+        return <SuratFormWaliNikah {...commonProps} />;
       case "surat-pernyataan-belum-menikah":
-        return (
-          <SuratFormPernyataanBelumMenikah
-            surat={surat}
-            entryId={entryId}
-            from={fromSource}
-            initialData={entryData as Record<string, unknown> | null}
-          />
-        );
+        return <SuratFormPernyataanBelumMenikah {...commonProps} />;
       case "surat-pengantar-numpang-nikah":
-        return (
-          <SuratFormPengantarNumpang
-            surat={surat}
-            entryId={entryId}
-            from={fromSource}
-            initialData={entryData as Record<string, unknown> | null}
-          />
-        );
+        return <SuratFormPengantarNumpang {...commonProps} />;
       default:
         return (
           <Card className="mx-auto mt-16 max-w-3xl rounded-3xl border border-white/60 bg-white/70 shadow-[8px_8px_24px_rgba(180,190,205,0.35)]">
