@@ -14,6 +14,17 @@ interface Stats {
   totalAktif: number;
 }
 
+type SuratSummaryResponse = {
+  total: number;
+  byCategory?: Record<string, number>;
+  byJenis?: Record<string, number>;
+  monthly?: Array<{ label: string; count: number }>;
+};
+
+type PendudukStatusRow = {
+  status?: string | null;
+};
+
 export default function DashboardPage() {
   const router = useRouter();
   const [stats, setStats] = useState<Stats>({
@@ -29,14 +40,29 @@ export default function DashboardPage() {
 
   const fetchStats = async () => {
     try {
-      const [pendudukRes, suratRes] = await Promise.all([
+      const suratSummaryPromise: Promise<SuratSummaryResponse | null> = fetch("/api/surat-form-entries/summary", {
+        cache: "no-store",
+      })
+        .then(async (response) => {
+          if (!response.ok) {
+            throw new Error("Gagal memuat rekap surat");
+          }
+          return (await response.json()) as SuratSummaryResponse;
+        })
+        .catch((error) => {
+          console.error("Error fetching surat summary:", error);
+          return null;
+        });
+
+      const [pendudukRes, suratSummary] = await Promise.all([
         db.from("penduduk").select("status", { count: "exact" }),
-        db.from("surat").select("*", { count: "exact" }),
+        suratSummaryPromise,
       ]);
 
       const totalPenduduk = pendudukRes.count || 0;
-      const totalAktif = pendudukRes.data?.filter((p: any) => p.status === "Aktif").length || 0;
-      const totalSurat = suratRes.count || 0;
+      const pendudukData = Array.isArray(pendudukRes.data) ? (pendudukRes.data as PendudukStatusRow[]) : [];
+      const totalAktif = pendudukData.filter((p) => p.status === "Aktif").length;
+      const totalSurat = suratSummary?.total ?? 0;
 
       setStats({
         totalPenduduk,

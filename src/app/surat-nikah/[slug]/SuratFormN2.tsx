@@ -14,25 +14,37 @@ import { Textarea } from "@/components/ui/textarea";
 import type { SuratNikahOption } from "@/data/surat-nikah-options";
 import { createDefaultFormN2, REQUIRED_FIELDS_N2, type FormN2Data } from "@/app/surat-nikah/types";
 import { useNikAutofillField, type PendudukLookupResult } from "@/hooks/useNikAutofillField";
+import { usePrefillFormState } from "@/hooks/usePrefillFormState";
 
 const INPUT_BASE =
   "h-12 rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
 const TEXTAREA_BASE =
   "rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
 
-export function SuratFormN2({ surat }: { surat: SuratNikahOption }) {
+type SuratFormN2Props = {
+  surat: SuratNikahOption;
+  entryId?: string | null;
+  initialData?: Record<string, unknown> | null;
+  from?: string | null;
+};
+
+export function SuratFormN2({ surat, entryId, initialData, from }: SuratFormN2Props) {
   const router = useRouter();
-  const [form, setForm] = useState<FormN2Data>(() => createDefaultFormN2());
+  const { form, setForm } = usePrefillFormState<FormN2Data>({
+    createDefault: createDefaultFormN2,
+    entryId,
+    initialData: (initialData as Partial<FormN2Data>) ?? null,
+  });
   const [error, setError] = useState<string | null>(null);
-  const [calonSuamiNik, setCalonSuamiNik] = useState("");
-  const [calonIstriNik, setCalonIstriNik] = useState("");
 
   const applyCalonSuamiData = useCallback(
     (data: PendudukLookupResult) => {
       setForm((prev) => ({
         ...prev,
         calonSuamiNama: data.nama ?? prev.calonSuamiNama,
+        calonSuamiNik: data.nik ?? prev.calonSuamiNik,
         pemohonNama: data.nama ?? prev.pemohonNama,
+        pemohonNik: data.nik ?? prev.pemohonNik,
       }));
     },
     [setForm],
@@ -43,6 +55,7 @@ export function SuratFormN2({ surat }: { surat: SuratNikahOption }) {
       setForm((prev) => ({
         ...prev,
         calonIstriNama: data.nama ?? prev.calonIstriNama,
+        calonIstriNik: data.nik ?? prev.calonIstriNik,
       }));
     },
     [setForm],
@@ -54,8 +67,13 @@ export function SuratFormN2({ surat }: { surat: SuratNikahOption }) {
     handleNikChange: handleCalonSuamiNikChange,
     handleNikLookup: handleCalonSuamiNikLookup,
   } = useNikAutofillField({
-    nikValue: calonSuamiNik,
-    onNikValueChange: setCalonSuamiNik,
+    nikValue: form.calonSuamiNik,
+    onNikValueChange: (value) =>
+      setForm((prev) => ({
+        ...prev,
+        calonSuamiNik: value,
+        pemohonNik: value,
+      })),
     onApplyData: applyCalonSuamiData,
   });
 
@@ -65,8 +83,12 @@ export function SuratFormN2({ surat }: { surat: SuratNikahOption }) {
     handleNikChange: handleCalonIstriNikChange,
     handleNikLookup: handleCalonIstriNikLookup,
   } = useNikAutofillField({
-    nikValue: calonIstriNik,
-    onNikValueChange: setCalonIstriNik,
+    nikValue: form.calonIstriNik,
+    onNikValueChange: (value) =>
+      setForm((prev) => ({
+        ...prev,
+        calonIstriNik: value,
+      })),
     onApplyData: applyCalonIstriData,
   });
 
@@ -82,6 +104,10 @@ export function SuratFormN2({ surat }: { surat: SuratNikahOption }) {
     };
 
   const handleCancel = () => {
+    if (from === "surat-masuk") {
+      router.push("/surat-masuk");
+      return;
+    }
     router.back();
   };
 
@@ -99,8 +125,15 @@ export function SuratFormN2({ surat }: { surat: SuratNikahOption }) {
       return;
     }
 
-    const payload = encodeURIComponent(JSON.stringify(form));
-    router.push(`/surat-nikah/${surat.slug}/preview?data=${payload}`);
+    const params = new URLSearchParams();
+    params.set("data", JSON.stringify(form));
+    if (entryId) {
+      params.set("entryId", entryId);
+    }
+    if (from) {
+      params.set("from", from);
+    }
+    router.push(`/surat-nikah/${surat.slug}/preview?${params.toString()}`);
   };
 
   const lampiranKeys: Array<keyof FormN2Data> = [
@@ -193,7 +226,7 @@ export function SuratFormN2({ surat }: { surat: SuratNikahOption }) {
               <div className="grid gap-4 sm:grid-cols-2">
                 <NikLookupField
                   label="NIK Calon Suami"
-                  value={calonSuamiNik}
+                  value={form.calonSuamiNik}
                   onChange={handleCalonSuamiNikChange}
                   onSearch={handleCalonSuamiNikLookup}
                   lookupState={calonSuamiLookupState}
@@ -202,7 +235,7 @@ export function SuratFormN2({ surat }: { surat: SuratNikahOption }) {
                 />
                 <NikLookupField
                   label="NIK Calon Istri"
-                  value={calonIstriNik}
+                  value={form.calonIstriNik}
                   onChange={handleCalonIstriNikChange}
                   onSearch={handleCalonIstriNikLookup}
                   lookupState={calonIstriLookupState}

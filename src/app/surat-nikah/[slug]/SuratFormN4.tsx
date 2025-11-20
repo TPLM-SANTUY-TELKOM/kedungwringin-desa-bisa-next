@@ -14,15 +14,27 @@ import { Textarea } from "@/components/ui/textarea";
 import type { SuratNikahOption } from "@/data/surat-nikah-options";
 import { createDefaultFormN4, REQUIRED_FIELDS_N4, type FormN4Data } from "@/app/surat-nikah/types";
 import { useNikAutofillField, type PendudukLookupResult } from "@/hooks/useNikAutofillField";
+import { usePrefillFormState } from "@/hooks/usePrefillFormState";
 
 const INPUT_BASE =
   "h-12 rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
 const TEXTAREA_BASE =
   "rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
 
-export function SuratFormN4({ surat }: { surat: SuratNikahOption }) {
+type SuratFormN4Props = {
+  surat: SuratNikahOption;
+  entryId?: string | null;
+  initialData?: Record<string, unknown> | null;
+  from?: string | null;
+};
+
+export function SuratFormN4({ surat, entryId, initialData, from }: SuratFormN4Props) {
   const router = useRouter();
-  const [form, setForm] = useState<FormN4Data>(() => createDefaultFormN4());
+  const { form, setForm } = usePrefillFormState<FormN4Data>({
+    createDefault: createDefaultFormN4,
+    entryId,
+    initialData: (initialData as Partial<FormN4Data>) ?? null,
+  });
   const [error, setError] = useState<string | null>(null);
 
   const applyAyahData = useCallback(
@@ -159,6 +171,10 @@ export function SuratFormN4({ surat }: { surat: SuratNikahOption }) {
     };
 
   const handleCancel = () => {
+    if (from === "surat-masuk") {
+      router.push("/surat-masuk");
+      return;
+    }
     router.back();
   };
 
@@ -176,8 +192,15 @@ export function SuratFormN4({ surat }: { surat: SuratNikahOption }) {
       return;
     }
 
-    const payload = encodeURIComponent(JSON.stringify(form));
-    router.push(`/surat-nikah/${surat.slug}/preview?data=${payload}`);
+    const params = new URLSearchParams();
+    params.set("data", JSON.stringify(form));
+    if (entryId) {
+      params.set("entryId", entryId);
+    }
+    if (from) {
+      params.set("from", from);
+    }
+    router.push(`/surat-nikah/${surat.slug}/preview?${params.toString()}`);
   };
 
   const renderIdentitySection = (

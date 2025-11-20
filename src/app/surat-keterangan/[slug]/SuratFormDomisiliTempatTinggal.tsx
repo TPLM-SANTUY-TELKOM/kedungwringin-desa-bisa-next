@@ -14,15 +14,27 @@ import { useNikAutofillField, type PendudukLookupResult } from "@/hooks/useNikAu
 
 import type { SuratKeteranganOption } from "@/data/surat-keterangan-options";
 import { createDefaultSuratKeteranganDomisiliTempatTinggal, type SuratKeteranganDomisiliTempatTinggalData } from "@/app/surat-keterangan/types";
+import { usePrefillFormState } from "@/hooks/usePrefillFormState";
 
 const INPUT_BASE =
   "h-12 rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
 const TEXTAREA_BASE =
   "min-h-[90px] rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
 
-export function SuratFormDomisiliTempatTinggal({ surat }: { surat: SuratKeteranganOption }) {
+type SuratFormDomisiliTempatTinggalProps = {
+  surat: SuratKeteranganOption;
+  entryId?: string | null;
+  initialData?: Record<string, unknown> | null;
+  from?: string | null;
+};
+
+export function SuratFormDomisiliTempatTinggal({ surat, entryId, initialData, from }: SuratFormDomisiliTempatTinggalProps) {
   const router = useRouter();
-  const [form, setForm] = useState<SuratKeteranganDomisiliTempatTinggalData>(() => createDefaultSuratKeteranganDomisiliTempatTinggal());
+  const { form, setForm } = usePrefillFormState<SuratKeteranganDomisiliTempatTinggalData>({
+    createDefault: createDefaultSuratKeteranganDomisiliTempatTinggal,
+    entryId,
+    initialData: (initialData as Partial<SuratKeteranganDomisiliTempatTinggalData>) ?? null,
+  });
   const [error, setError] = useState<string | null>(null);
 
   const handleApplyNikData = (data: PendudukLookupResult) => {
@@ -65,7 +77,11 @@ export function SuratFormDomisiliTempatTinggal({ surat }: { surat: SuratKeterang
   };
 
   const handleCancel = () => {
-    router.push('/surat-keterangan');
+    if (from === "surat-masuk") {
+      router.push("/surat-masuk");
+      return;
+    }
+    router.push("/surat-keterangan");
   };
 
   const handlePreview = () => {
@@ -94,8 +110,15 @@ export function SuratFormDomisiliTempatTinggal({ surat }: { surat: SuratKeterang
       return;
     }
 
-    const payload = encodeURIComponent(JSON.stringify(form));
-    router.push(`/surat-keterangan/${surat.slug}/preview?data=${payload}`);
+    const params = new URLSearchParams();
+    params.set("data", JSON.stringify(form));
+    if (entryId) {
+      params.set("entryId", entryId);
+    }
+    if (from) {
+      params.set("from", from);
+    }
+    router.push(`/surat-keterangan/${surat.slug}/preview?${params.toString()}`);
   };
 
   return (

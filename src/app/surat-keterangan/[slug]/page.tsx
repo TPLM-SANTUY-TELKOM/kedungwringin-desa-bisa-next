@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import logoDesa from "@/assets/ic_logo_banyumas.png";
 import { findSuratKeteranganBySlug } from "@/data/surat-keterangan-options";
+import { findSuratFormEntryById } from "@/lib/suratFormEntryService";
 
 import { SuratFormUmum } from "./SuratFormUmum";
 import { SuratFormBelumPernahKawin } from "./SuratFormBelumPernahKawin";
@@ -16,9 +17,10 @@ import { SuratFormTidakMampu } from "./SuratFormTidakMampu";
 
 type SuratKeteranganFormPageProps = {
   params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ entryId?: string; from?: string }> | { entryId?: string; from?: string };
 };
 
-export default async function SuratKeteranganFormPage({ params }: SuratKeteranganFormPageProps) {
+export default async function SuratKeteranganFormPage({ params, searchParams }: SuratKeteranganFormPageProps) {
   const { slug } = await params;
   const decodedSlug = decodeURIComponent(slug);
   const surat = findSuratKeteranganBySlug(decodedSlug);
@@ -27,22 +29,42 @@ export default async function SuratKeteranganFormPage({ params }: SuratKeteranga
     notFound();
   }
 
+  const resolvedSearch = (await searchParams) ?? {};
+  const entryId = resolvedSearch?.entryId;
+  const fromSource = resolvedSearch?.from;
+  let entryData: Record<string, unknown> | null = null;
+
+  if (entryId) {
+    const entry = await findSuratFormEntryById(entryId);
+    if (!entry || entry.slug !== surat.slug) {
+      notFound();
+    }
+    entryData = entry.form_data as Record<string, unknown>;
+  }
+
   const renderForm = () => {
+    const commonProps = {
+      surat,
+      entryId,
+      initialData: entryData,
+      from: fromSource,
+    };
+
     switch (surat.slug) {
       case "surat-keterangan-umum":
-        return <SuratFormUmum surat={surat} />;
+        return <SuratFormUmum {...commonProps} />;
       case "surat-keterangan-belum-pernah-kawin":
-        return <SuratFormBelumPernahKawin surat={surat} />;
+        return <SuratFormBelumPernahKawin {...commonProps} />;
       case "surat-keterangan-domisili-tempat-tinggal":
-        return <SuratFormDomisiliTempatTinggal surat={surat} />;
+        return <SuratFormDomisiliTempatTinggal {...commonProps} />;
       case "surat-keterangan-usaha":
-        return <SuratFormUsaha surat={surat} />;
+        return <SuratFormUsaha {...commonProps} />;
       case "surat-keterangan-wali-hakim":
-        return <SuratFormWaliHakim surat={surat} />;
+        return <SuratFormWaliHakim {...commonProps} />;
       case "surat-keterangan-domisili-usaha":
-        return <SuratFormDomisiliUsaha surat={surat} />;
+        return <SuratFormDomisiliUsaha {...commonProps} />;
       case "surat-keterangan-tidak-mampu":
-        return <SuratFormTidakMampu surat={surat} />;
+        return <SuratFormTidakMampu {...commonProps} />;
       default:
         return (
           <Card className="mx-auto mt-16 max-w-3xl rounded-3xl border border-white/60 bg-white/70 shadow-[8px_8px_24px_rgba(180,190,205,0.35)]">

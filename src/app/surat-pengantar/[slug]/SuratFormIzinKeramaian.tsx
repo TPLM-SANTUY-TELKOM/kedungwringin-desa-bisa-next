@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState, type ChangeEvent } from "react";
+import { useCallback, useRef, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,15 +13,27 @@ import type { SuratPengantarOption } from "@/data/surat-pengantar-options";
 import { createDefaultSuratPengantarIzinKeramaian, REQUIRED_FIELDS_PENGANTAR_IZIN_KERAMAIAN, type SuratPengantarIzinKeramaianData } from "@/app/surat-pengantar/types";
 import { usePendudukLookup, type PendudukLookupResult } from "@/app/surat-pengantar/usePendudukLookup";
 import { useToast } from "@/hooks/use-toast";
+import { usePrefillFormState } from "@/hooks/usePrefillFormState";
 
 const INPUT_BASE =
   "h-12 rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
 const TEXTAREA_BASE =
   "min-h-[90px] rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
 
-export function SuratFormIzinKeramaian({ surat }: { surat: SuratPengantarOption }) {
+type SuratFormIzinKeramaianProps = {
+  surat: SuratPengantarOption;
+  entryId?: string | null;
+  initialData?: Record<string, unknown> | null;
+  from?: string | null;
+};
+
+export function SuratFormIzinKeramaian({ surat, entryId, initialData, from }: SuratFormIzinKeramaianProps) {
   const router = useRouter();
-  const [form, setForm] = useState<SuratPengantarIzinKeramaianData>(() => createDefaultSuratPengantarIzinKeramaian());
+  const { form, setForm } = usePrefillFormState<SuratPengantarIzinKeramaianData>({
+    createDefault: createDefaultSuratPengantarIzinKeramaian,
+    entryId,
+    initialData: (initialData as Partial<SuratPengantarIzinKeramaianData>) ?? null,
+  });
   const lastSuccessfulNikRef = useRef<string | null>(null);
   const { toast } = useToast();
 
@@ -42,7 +54,7 @@ export function SuratFormIzinKeramaian({ surat }: { surat: SuratPengantarOption 
         rw: data.rw ?? prev.rw,
       }));
     },
-    [],
+    [setForm],
   );
 
   const { lookupState, lookupByNik, resetLookupState } = usePendudukLookup(applyPendudukData);
@@ -85,6 +97,10 @@ export function SuratFormIzinKeramaian({ surat }: { surat: SuratPengantarOption 
   };
 
   const handleCancel = () => {
+    if (from === "surat-masuk") {
+      router.push("/surat-masuk");
+      return;
+    }
     router.back();
   };
 
@@ -106,8 +122,15 @@ export function SuratFormIzinKeramaian({ surat }: { surat: SuratPengantarOption 
       return;
     }
 
-    const payload = encodeURIComponent(JSON.stringify(form));
-    router.push(`/surat-pengantar/${surat.slug}/preview?data=${payload}`);
+    const params = new URLSearchParams();
+    params.set("data", JSON.stringify(form));
+    if (entryId) {
+      params.set("entryId", entryId);
+    }
+    if (from) {
+      params.set("from", from);
+    }
+    router.push(`/surat-pengantar/${surat.slug}/preview?${params.toString()}`);
   };
 
   return (
@@ -370,4 +393,3 @@ export function SuratFormIzinKeramaian({ surat }: { surat: SuratPengantarOption 
     </div>
   );
 }
-

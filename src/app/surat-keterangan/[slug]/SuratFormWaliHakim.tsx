@@ -14,15 +14,27 @@ import { useNikAutofillField, type PendudukLookupResult } from "@/hooks/useNikAu
 
 import type { SuratKeteranganOption } from "@/data/surat-keterangan-options";
 import { createDefaultSuratKeteranganWaliHakim, type SuratKeteranganWaliHakimData } from "@/app/surat-keterangan/types";
+import { usePrefillFormState } from "@/hooks/usePrefillFormState";
 
 const INPUT_BASE =
   "h-12 rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
 const TEXTAREA_BASE =
   "min-h-[90px] rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
 
-export function SuratFormWaliHakim({ surat }: { surat: SuratKeteranganOption }) {
+type SuratFormWaliHakimProps = {
+  surat: SuratKeteranganOption;
+  entryId?: string | null;
+  initialData?: Record<string, unknown> | null;
+  from?: string | null;
+};
+
+export function SuratFormWaliHakim({ surat, entryId, initialData, from }: SuratFormWaliHakimProps) {
   const router = useRouter();
-  const [form, setForm] = useState<SuratKeteranganWaliHakimData>(() => createDefaultSuratKeteranganWaliHakim());
+  const { form, setForm } = usePrefillFormState<SuratKeteranganWaliHakimData>({
+    createDefault: createDefaultSuratKeteranganWaliHakim,
+    entryId,
+    initialData: (initialData as Partial<SuratKeteranganWaliHakimData>) ?? null,
+  });
   const [error, setError] = useState<string | null>(null);
   const [nikWali, setNikWali] = useState("");
 
@@ -64,7 +76,11 @@ export function SuratFormWaliHakim({ surat }: { surat: SuratKeteranganOption }) 
   };
 
   const handleCancel = () => {
-    router.push('/surat-keterangan');
+    if (from === "surat-masuk") {
+      router.push("/surat-masuk");
+      return;
+    }
+    router.push("/surat-keterangan");
   };
 
   const handleCheckboxChange = (value: string) => {
@@ -106,8 +122,15 @@ export function SuratFormWaliHakim({ surat }: { surat: SuratKeteranganOption }) 
       return;
     }
 
-    const payload = encodeURIComponent(JSON.stringify(form));
-    router.push(`/surat-keterangan/${surat.slug}/preview?data=${payload}`);
+    const params = new URLSearchParams();
+    params.set("data", JSON.stringify(form));
+    if (entryId) {
+      params.set("entryId", entryId);
+    }
+    if (from) {
+      params.set("from", from);
+    }
+    router.push(`/surat-keterangan/${surat.slug}/preview?${params.toString()}`);
   };
 
   return (

@@ -1,12 +1,12 @@
 "use client";
 
 import { useMemo } from "react";
-import { useRouter } from "next/navigation";
 import { ArrowLeft, Printer } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { SuratNikahOption } from "@/data/surat-nikah-options";
 import { formatDateIndonesian, type FormN3Data } from "@/app/surat-nikah/types";
+import { useBackNavigation } from "@/hooks/useBackNavigation";
 
 type PreviewN3Props = {
   surat: SuratNikahOption;
@@ -38,7 +38,7 @@ const combineTempatTanggal = (tempat: string, tanggal: string) => {
 };
 
 export function PreviewN3({ surat, data }: PreviewN3Props) {
-  const router = useRouter();
+  const handleBack = useBackNavigation("/surat-nikah");
 
   const tanggalSurat = useMemo(
     () => formatDateIndonesian(data.tanggalSurat),
@@ -49,11 +49,7 @@ export function PreviewN3({ surat, data }: PreviewN3Props) {
     <div className="mx-auto mt-12 flex w-full max-w-4xl flex-col gap-10 print:mt-0 print:px-0">
       <div className="flex flex-wrap items-center justify-between gap-3 print-hidden">
         <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            onClick={() => router.back()}
-            className="rounded-full border-slate-300 px-6"
-          >
+          <Button variant="outline" onClick={handleBack} className="rounded-full border-slate-300 px-6">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Kembali
           </Button>

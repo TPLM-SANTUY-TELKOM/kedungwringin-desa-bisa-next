@@ -11,6 +11,7 @@ import type {
   PernyataanBelumMenikahData,
   WaliNikahData,
 } from "@/app/surat-nikah/types";
+import { findSuratFormEntryById, saveSuratFormEntryFromPreview, updateSuratFormEntry } from "@/lib/suratFormEntryService";
 
 import { PreviewN1 } from "../PreviewN1";
 import { PreviewN2 } from "../PreviewN2";
@@ -23,7 +24,7 @@ import { PreviewPengantarNumpang } from "../PreviewPengantarNumpang";
 
 type PreviewPageProps = {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ data?: string }> | { data?: string };
+  searchParams: Promise<{ data?: string; entryId?: string }> | { data?: string; entryId?: string };
 };
 
 export default async function PreviewPage({ params, searchParams }: PreviewPageProps) {
@@ -36,16 +37,44 @@ export default async function PreviewPage({ params, searchParams }: PreviewPageP
   }
 
   const resolvedSearch = await searchParams;
+  const entryId = resolvedSearch?.entryId;
   const encoded = resolvedSearch?.data;
+  let formData: unknown;
 
-  if (!encoded) {
-    notFound();
+  if (encoded) {
+    try {
+      formData = JSON.parse(decodeURIComponent(encoded));
+    } catch {
+      notFound();
+    }
   }
 
-  let formData: unknown;
-  try {
-    formData = JSON.parse(decodeURIComponent(encoded));
-  } catch {
+  if (entryId && formData) {
+    const updated = await updateSuratFormEntry({
+      id: entryId,
+      slug: surat.slug,
+      title: surat.title,
+      jenis: surat.code ?? surat.slug,
+      data: formData as Record<string, unknown>,
+    });
+    if (!updated) {
+      notFound();
+    }
+    formData = updated.form_data;
+  } else if (entryId) {
+    const entry = await findSuratFormEntryById(entryId);
+    if (!entry || entry.slug !== surat.slug) {
+      notFound();
+    }
+    formData = entry.form_data;
+  } else if (formData) {
+    await saveSuratFormEntryFromPreview({
+      slug: surat.slug,
+      title: surat.title,
+      jenis: surat.code ?? surat.slug,
+      data: formData as Record<string, unknown>,
+    });
+  } else {
     notFound();
   }
 

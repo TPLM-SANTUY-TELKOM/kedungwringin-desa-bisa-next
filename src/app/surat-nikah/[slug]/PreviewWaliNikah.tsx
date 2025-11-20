@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ArrowLeft, Printer } from "lucide-react";
 
@@ -13,6 +12,7 @@ import {
   type WaliNikahData,
 } from "@/app/surat-nikah/types";
 import logoDesa from "@/assets/ic_logo_banyumas.png";
+import { useBackNavigation } from "@/hooks/useBackNavigation";
 
 type PreviewWaliNikahProps = {
   surat: SuratNikahOption;
@@ -47,7 +47,7 @@ const IdentityRow = ({ label, value }: { label: string; value: string | ReactNod
 );
 
 export function PreviewWaliNikah({ surat, data }: PreviewWaliNikahProps) {
-  const router = useRouter();
+  const handleBack = useBackNavigation("/surat-nikah");
 
   const tanggalSurat = useMemo(
     () => formatDateIndonesian(data.tanggalSurat),
@@ -69,11 +69,7 @@ export function PreviewWaliNikah({ surat, data }: PreviewWaliNikahProps) {
     <div className="mx-auto mt-6 flex w-full max-w-4xl flex-col gap-4 print:mt-0 print:px-0">
       <div className="flex flex-wrap items-center justify-between gap-3 print-hidden">
         <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            onClick={() => router.back()}
-            className="rounded-full border-slate-300 px-6"
-          >
+          <Button variant="outline" onClick={handleBack} className="rounded-full border-slate-300 px-6">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Kembali
           </Button>
