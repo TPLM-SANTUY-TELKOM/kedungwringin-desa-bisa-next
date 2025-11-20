@@ -178,7 +178,10 @@ export default function SuratPage() {
   }, [searchQuery]);
 
   const groupedSurat = useMemo(() => {
-    const groups: { category: "keterangan" | "nikah" | "pengantar"; surats: SuratType[] }[] = [
+    const groups: {
+      category: "keterangan" | "nikah" | "pengantar";
+      surats: SuratType[];
+    }[] = [
       { category: "keterangan", surats: [] },
       { category: "nikah", surats: [] },
       { category: "pengantar", surats: [] },
@@ -201,51 +204,63 @@ export default function SuratPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-8 space-y-8">
+      <div className="p-4 space-y-4">
         <div>
           <h1 className="text-3xl font-bold mb-2">Pelayanan Surat</h1>
-          <p className="text-muted-foreground">Pilih jenis surat yang akan dibuat</p>
+          <p className="text-sm">Pilih jenis surat yang akan dibuat</p>
         </div>
 
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-5 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             type="text"
             placeholder="Cari surat berdasarkan nama atau kode..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 h-12"
+            className="pl-12 h-12 bg-white rounded-xl border-2 border-gray-300"
           />
         </div>
 
         {groupedSurat.map((group) => (
           <div key={group.category} className="space-y-4">
             <div>
-              <h2 className="text-xl font-semibold text-foreground mb-4">
+              <h2 className="text-lg font-semibold text-foreground mb-4">
                 {categoryLabels[group.category]}
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {group.surats.map((surat) => (
-                  <Card 
-                    key={surat.id} 
-                    className="p-6 hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-primary/20" 
+                  <Card
+                    key={surat.id}
+                    className="p-4 h-36 hover:shadow-md transition-shadow cursor-pointer border hover:border-primary/20 flex flex-col justify-between"
                     onClick={() => handleSuratClick(surat)}
                   >
-                    <div className="flex items-start gap-4">
-                      <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <FileText className="h-6 w-6 text-primary" />
+                    <div className="flex items-start gap-3">
+                      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <FileText className="h-5 w-5 text-primary" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-semibold mb-1 text-foreground">{surat.name}</h3>
+                        <h3 className="font-semibold mb-1 text-sm truncate">
+                          {surat.name}
+                        </h3>
                         {surat.code && (
-                          <p className="text-sm text-muted-foreground">Kode: {surat.code}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Kode: {surat.code}
+                          </p>
                         )}
                         <p className="text-xs text-muted-foreground mt-1 capitalize">
-                          {surat.category === "keterangan" && "Surat Keterangan"}
+                          {surat.category === "keterangan" &&
+                            "Surat Keterangan"}
                           {surat.category === "nikah" && "Surat Nikah"}
                           {surat.category === "pengantar" && "Surat Pengantar"}
                         </p>
                       </div>
+                    </div>
+
+                    {/* optional small footer to keep card heights consistent */}
+                    <div className="pt-2">
+                      <span className="text-xs text-muted-foreground">
+                        &nbsp;
+                      </span>
                     </div>
                   </Card>
                 ))}

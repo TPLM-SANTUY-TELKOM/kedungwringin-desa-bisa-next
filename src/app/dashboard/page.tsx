@@ -81,28 +81,28 @@ export default function DashboardPage() {
       title: "Total Penduduk",
       value: stats.totalPenduduk,
       icon: Users,
-      color: "bg-primary",
+      color: "bg-orange-300",
     },
     {
       title: "Penduduk Aktif",
       value: stats.totalAktif,
       icon: UserCheck,
-      color: "bg-secondary",
+      color: "bg-green-300",
     },
     {
       title: "Total Surat",
       value: stats.totalSurat,
       icon: FileText,
-      color: "bg-accent",
+      color: "bg-blue-300",
     },
   ];
 
   return (
     <DashboardLayout>
-      <div className="p-8 space-y-8">
+      <div className="p-4 space-y-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl font-bold text-foreground mb-1">Dashboard</h1>
+          <p className="text-gray-700">
             Selamat datang di Sistem Layanan Terpadu Desa Kedungwringin
           </p>
         </div>
@@ -119,11 +119,11 @@ export default function DashboardPage() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {statCards.map((stat, index) => (
               <Card key={index} className="shadow-card hover:shadow-elevated transition-shadow">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                  <CardTitle className="text-base font-medium text-muted-foreground">
                     {stat.title}
                   </CardTitle>
                   <div className={`${stat.color} h-10 w-10 rounded-lg flex items-center justify-center`}>
@@ -140,21 +140,21 @@ export default function DashboardPage() {
 
         <Card className="shadow-card">
           <CardHeader>
-            <CardTitle>Menu Cepat</CardTitle>
+            <CardTitle className="text-lg">Menu Cepat</CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Button
               onClick={() => router.push("/penduduk")}
               variant="outline"
-              className="h-24 text-left justify-start"
+              className="h-24 text-left justify-start bg-gray-50"
             >
               <div className="flex items-start gap-4">
-                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Users className="h-6 w-6 text-primary" />
+                <div className="h-12 w-12 rounded-lg bg-red-300 flex items-center justify-center ">
+                  <Users className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <p className="font-semibold">Data Penduduk</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm ">
                     Kelola data penduduk desa
                   </p>
                 </div>
@@ -163,11 +163,11 @@ export default function DashboardPage() {
             <Button
               onClick={() => router.push("/surat")}
               variant="outline"
-              className="h-24 text-left justify-start"
+              className="h-24 text-left justify-start bg-gray-50"
             >
               <div className="flex items-start gap-4">
-                <div className="h-12 w-12 rounded-lg bg-secondary/10 flex items-center justify-center flex-shrink-0">
-                  <FileText className="h-6 w-6 text-secondary" />
+                <div className="h-12 w-12 rounded-lg bg-green-300 flex items-center justify-center flex-shrink-0">
+                  <FileText className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <p className="font-semibold">Buat Surat</p>
@@ -180,11 +180,11 @@ export default function DashboardPage() {
             <Button
               onClick={() => router.push("/surat-masuk")}
               variant="outline"
-              className="h-24 text-left justify-start"
+              className="h-24 text-left justify-start bg-gray-50"
             >
               <div className="flex items-start gap-4">
-                <div className="h-12 w-12 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">
-                  <Inbox className="h-6 w-6 text-accent-foreground" />
+                <div className="h-12 w-12 rounded-lg bg-yellow-200 flex items-center justify-center flex-shrink-0">
+                  <Inbox className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <p className="font-semibold">Surat Masuk</p>
