@@ -414,7 +414,7 @@ export default function SuratMasukPage() {
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
-              <CardTitle>Riwayat Surat ({entries.length})</CardTitle>
+              <CardTitle>Riwayat Surat ({totalEntries})</CardTitle>
             </div>
             <Button size="sm" variant="outline" onClick={fetchEntries}>
               Muat ulang
