@@ -68,6 +68,21 @@ CREATE TABLE IF NOT EXISTS penduduk (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
 );
 
+-- Create surat_numbers table for auto-generated surat numbers
+CREATE TABLE IF NOT EXISTS surat_numbers (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    prefix VARCHAR(10) NOT NULL,
+    nomor_urut INTEGER NOT NULL,
+    bulan VARCHAR(2) NOT NULL,
+    tahun INTEGER NOT NULL,
+    jenis_surat VARCHAR(100) NOT NULL,
+    status VARCHAR(20) DEFAULT 'reserved' NOT NULL, -- 'reserved' or 'confirmed'
+    reserved_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+    confirmed_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+    UNIQUE(prefix, nomor_urut, tahun)
+);
+
 -- Create surat table
 CREATE TABLE IF NOT EXISTS surat (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -228,6 +243,8 @@ CREATE INDEX idx_surat_form_entries_kategori ON surat_form_entries(kategori);
 CREATE INDEX idx_surat_form_entries_bundle ON surat_form_entries(bundle_key);
 CREATE INDEX idx_surat_form_entries_created_at ON surat_form_entries(created_at);
 CREATE INDEX idx_user_roles_user_id ON user_roles(user_id);
+CREATE INDEX idx_surat_numbers_prefix_tahun ON surat_numbers(prefix, tahun);
+CREATE INDEX idx_surat_numbers_status ON surat_numbers(status);
 
 -- Insert sample admin user
 INSERT INTO profiles (id, full_name, role) 

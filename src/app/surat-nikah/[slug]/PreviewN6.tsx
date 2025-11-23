@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
-import { ArrowLeft, Printer } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ArrowLeft, Printer, AlertCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { SuratNikahOption } from "@/data/surat-nikah-options";
@@ -11,6 +11,7 @@ import { useBackNavigation } from "@/hooks/useBackNavigation";
 type PreviewN6Props = {
   surat: SuratNikahOption;
   data: FormN6Data;
+  reservedNumberId?: string;
 };
 
 const renderMultiline = (value: string) => {
@@ -32,8 +33,48 @@ const combineTempatTanggal = (tempat: string, tanggal: string) => {
   return `${tempat}, ${formattedDate}`;
 };
 
-export function PreviewN6({ surat, data }: PreviewN6Props) {
+export function PreviewN6({ surat, data, reservedNumberId }: PreviewN6Props) {
   const handleBack = useBackNavigation("/surat-nikah");
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
+
+  const handlePrintClick = () => {
+    if (reservedNumberId) {
+      setShowConfirmDialog(true);
+    } else {
+      window.print();
+    }
+  };
+
+  const handleConfirmPrint = async () => {
+    if (!reservedNumberId) {
+      window.print();
+      return;
+    }
+
+    setIsPrinting(true);
+    try {
+      const response = await fetch(`/api/surat-number?id=${reservedNumberId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "confirmed" }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Gagal mengonfirmasi nomor surat");
+      }
+
+      setShowConfirmDialog(false);
+      setTimeout(() => {
+        window.print();
+      }, 100);
+    } catch (error) {
+      console.error("Error confirming number:", error);
+      alert("Gagal mengonfirmasi nomor surat. Silakan coba lagi.");
+    } finally {
+      setIsPrinting(false);
+    }
+  };
 
   const tanggalSurat = useMemo(
     () => formatDateIndonesian(data.tanggalSurat),
@@ -53,7 +94,7 @@ export function PreviewN6({ surat, data }: PreviewN6Props) {
             Kembali
           </Button>
           <Button
-            onClick={() => window.print()}
+            onClick={handlePrintClick}
             className="rounded-full bg-slate-900 px-6 text-white hover:bg-slate-800"
           >
             <Printer className="mr-2 h-4 w-4" />
@@ -332,6 +373,54 @@ export function PreviewN6({ surat, data }: PreviewN6Props) {
           </div>
         </div>
       </div>
+
+      {showConfirmDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm print-hidden">
+          <div className="relative mx-4 w-full max-w-md rounded-2xl border border-white/50 bg-white/80 p-8 shadow-2xl backdrop-blur-md">
+            <div className="mb-6 flex items-center gap-4">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-100">
+                <AlertCircle className="h-8 w-8 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-slate-800">
+                  Konfirmasi Cetak Surat
+                </h3>
+                <p className="text-sm text-slate-600">Nomor surat akan disimpan</p>
+              </div>
+            </div>
+
+            <div className="mb-6 space-y-2 rounded-xl bg-slate-50 p-4">
+              <p className="text-sm font-medium text-slate-600">Nomor Surat:</p>
+              <p className="text-lg font-bold text-slate-800">{data.nomorSurat}</p>
+            </div>
+
+            <p className="mb-6 text-sm leading-relaxed text-slate-700">
+              Dengan mencetak surat ini, nomor surat akan dikonfirmasi dan disimpan secara
+              permanen. Pastikan semua data sudah benar sebelum melanjutkan.
+            </p>
+
+            <div className="flex gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowConfirmDialog(false)}
+                disabled={isPrinting}
+                className="flex-1 rounded-xl border-slate-300 hover:bg-slate-100"
+              >
+                Batal
+              </Button>
+              <Button
+                type="button"
+                onClick={handleConfirmPrint}
+                disabled={isPrinting}
+                className="flex-1 rounded-xl bg-slate-900 text-white hover:bg-slate-800"
+              >
+                {isPrinting ? "Memproses..." : "Cetak"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

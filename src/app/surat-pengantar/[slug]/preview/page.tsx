@@ -14,7 +14,7 @@ import { PreviewIzinKeramaian } from "../PreviewIzinKeramaian";
 
 type PreviewPageProps = {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ data?: string; entryId?: string }> | { data?: string; entryId?: string };
+  searchParams: Promise<{ data?: string; entryId?: string; reservedNumberId?: string }> | { data?: string; entryId?: string; reservedNumberId?: string };
 };
 
 export default async function PreviewPage({ params, searchParams }: PreviewPageProps) {
@@ -28,6 +28,7 @@ export default async function PreviewPage({ params, searchParams }: PreviewPageP
 
   const resolvedSearch = await searchParams;
   const entryId = resolvedSearch?.entryId;
+  const reservedNumberId = resolvedSearch?.reservedNumberId;
   const encoded = resolvedSearch?.data;
   let formData: unknown;
 
@@ -72,19 +73,19 @@ export default async function PreviewPage({ params, searchParams }: PreviewPageP
     case "surat-pengantar-umum":
       return (
         <main className="min-h-screen bg-[#EBEFF3] px-6 pb-16 pt-10 print:min-h-0 print:bg-white print:px-0 print:pb-0 print:pt-0 sm:px-10 sm:pt-12">
-          <PreviewUmum surat={surat} data={formData as SuratPengantarUmumData} />
+          <PreviewUmum surat={surat} data={formData as SuratPengantarUmumData} reservedNumberId={reservedNumberId} />
         </main>
       );
     case "surat-pengantar-kepolisian":
       return (
         <main className="min-h-screen bg-[#EBEFF3] px-6 pb-16 pt-10 print:min-h-0 print:bg-white print:px-0 print:pb-0 print:pt-0 sm:px-10 sm:pt-12">
-          <PreviewKepolisian surat={surat} data={formData as SuratPengantarKepolisianData} />
+          <PreviewKepolisian surat={surat} data={formData as SuratPengantarKepolisianData} reservedNumberId={reservedNumberId} />
         </main>
       );
     case "surat-pengantar-izin-keramaian":
       return (
         <main className="min-h-screen bg-[#EBEFF3] px-6 pb-16 pt-10 print:min-h-0 print:bg-white print:px-0 print:pb-0 print:pt-0 sm:px-10 sm:pt-12">
-          <PreviewIzinKeramaian surat={surat} data={formData as SuratPengantarIzinKeramaianData} />
+          <PreviewIzinKeramaian surat={surat} data={formData as SuratPengantarIzinKeramaianData} reservedNumberId={reservedNumberId} />
         </main>
       );
     default:

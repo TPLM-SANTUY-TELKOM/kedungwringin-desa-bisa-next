@@ -57,9 +57,7 @@ export const createDefaultSuratPengantarUmum = (): SuratPengantarUmumData => ({
 });
 
 export const REQUIRED_FIELDS_PENGANTAR_UMUM: Array<keyof SuratPengantarUmumData> = [
-  "nomorSurat",
   "tempatSurat",
-  "tanggalSurat",
   "nama",
   "nik",
   "tempatLahir",
@@ -138,9 +136,7 @@ export const createDefaultSuratPengantarKepolisian = (): SuratPengantarKepolisia
 });
 
 export const REQUIRED_FIELDS_PENGANTAR_KEPOLISIAN: Array<keyof SuratPengantarKepolisianData> = [
-  "nomorSurat",
   "tempatSurat",
-  "tanggalSurat",
   "nama",
   "nik",
   "tempatLahir",
@@ -228,9 +224,7 @@ export const createDefaultSuratPengantarIzinKeramaian = (): SuratPengantarIzinKe
 });
 
 export const REQUIRED_FIELDS_PENGANTAR_IZIN_KERAMAIAN: Array<keyof SuratPengantarIzinKeramaianData> = [
-  "nomorSurat",
   "tempatSurat",
-  "tanggalSurat",
   "nama",
   "nik",
   "tempatLahir",

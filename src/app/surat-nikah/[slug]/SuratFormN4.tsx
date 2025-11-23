@@ -37,6 +37,7 @@ export function SuratFormN4({ surat, entryId, initialData, from, backUrl = "/sur
     initialData: (initialData as Partial<FormN4Data>) ?? null,
   });
   const [error, setError] = useState<string | null>(null);
+  const [isGeneratingNumber, setIsGeneratingNumber] = useState(false);
 
   const applyAyahData = useCallback(
     (data: PendudukLookupResult) => {
@@ -179,7 +180,7 @@ export function SuratFormN4({ surat, entryId, initialData, from, backUrl = "/sur
     router.push(backUrl);
   };
 
-  const handlePreview = () => {
+  const handlePreview = async () => {
     const missing = REQUIRED_FIELDS_N4.filter((field) => {
       const value = form[field];
       if (typeof value === "string") {
@@ -193,15 +194,42 @@ export function SuratFormN4({ surat, entryId, initialData, from, backUrl = "/sur
       return;
     }
 
-    const params = new URLSearchParams();
-    params.set("data", JSON.stringify(form));
-    if (entryId) {
-      params.set("entryId", entryId);
+    setIsGeneratingNumber(true);
+    try {
+      const response = await fetch("/api/surat-number", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jenisSurat: surat.slug }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Gagal generate nomor surat");
+      }
+
+      const { nomorSurat, tanggalSurat, id: reservedNumberId } = await response.json();
+
+      const updatedForm = {
+        ...form,
+        nomorSurat,
+        tanggalSurat,
+      };
+
+      const params = new URLSearchParams();
+      params.set("data", JSON.stringify(updatedForm));
+      params.set("reservedNumberId", reservedNumberId);
+      if (entryId) {
+        params.set("entryId", entryId);
+      }
+      if (from) {
+        params.set("from", from);
+      }
+      router.push(`/surat-nikah/${surat.slug}/preview?${params.toString()}`);
+    } catch (error) {
+      console.error("Error generating number:", error);
+      setError("Gagal generate nomor surat. Silakan coba lagi.");
+    } finally {
+      setIsGeneratingNumber(false);
     }
-    if (from) {
-      params.set("from", from);
-    }
-    router.push(`/surat-nikah/${surat.slug}/preview?${params.toString()}`);
   };
 
   const renderIdentitySection = (
@@ -210,6 +238,7 @@ export function SuratFormN4({ surat, entryId, initialData, from, backUrl = "/sur
     options?: {
       customFields?: Partial<Record<keyof FormN4Data, ReactNode>>;
       beforeContent?: ReactNode;
+      lockedFields?: Array<keyof FormN4Data>;
     },
   ) => (
     <div className="space-y-4">
@@ -221,15 +250,16 @@ export function SuratFormN4({ surat, entryId, initialData, from, backUrl = "/sur
           if (customField) {
             return <div key={key as string}>{customField}</div>;
           }
+          const isLocked = options?.lockedFields?.includes(key);
           return (
             <div key={key as string} className="space-y-2">
               <Label className="text-sm font-semibold text-slate-700">{label}</Label>
               {key.toLowerCase().includes("alamat") ? (
-                <Textarea value={form[key] ?? ""} onChange={handleInputChange(key)} className={TEXTAREA_BASE} placeholder={placeholder} rows={3} />
+                <Textarea value={form[key] ?? ""} onChange={handleInputChange(key)} placeholder={placeholder} rows={3} readOnly={isLocked} className={isLocked ? "bg-slate-50 cursor-not-allowed" : TEXTAREA_BASE} />
               ) : key.toLowerCase().includes("tanggal") ? (
-                <Input type="date" value={form[key] ?? ""} onChange={handleInputChange(key)} className={INPUT_BASE} />
+                <Input type="date" value={form[key] ?? ""} onChange={handleInputChange(key)} readOnly={isLocked} className={isLocked ? "bg-slate-50 cursor-not-allowed" : INPUT_BASE} />
               ) : (
-                <Input value={form[key] ?? ""} onChange={handleInputChange(key)} placeholder={placeholder} className={INPUT_BASE} />
+                <Input value={form[key] ?? ""} onChange={handleInputChange(key)} placeholder={placeholder} readOnly={isLocked} className={isLocked ? "bg-slate-50 cursor-not-allowed" : INPUT_BASE} />
               )}
             </div>
           );
@@ -313,6 +343,7 @@ export function SuratFormN4({ surat, entryId, initialData, from, backUrl = "/sur
                     inputClassName={INPUT_BASE}
                   />
                 ),
+                lockedFields: ["ayahNama", "ayahTempatLahir", "ayahTanggalLahir", "ayahAgama", "ayahPekerjaan", "ayahAlamat"],
               },
             )}
 
@@ -341,6 +372,7 @@ export function SuratFormN4({ surat, entryId, initialData, from, backUrl = "/sur
                     inputClassName={INPUT_BASE}
                   />
                 ),
+                lockedFields: ["ibuNama", "ibuTempatLahir", "ibuTanggalLahir", "ibuAgama", "ibuPekerjaan", "ibuAlamat"],
               },
             )}
 
@@ -369,6 +401,7 @@ export function SuratFormN4({ surat, entryId, initialData, from, backUrl = "/sur
                     inputClassName={INPUT_BASE}
                   />
                 ),
+                lockedFields: ["anakNama", "anakTempatLahir", "anakTanggalLahir", "anakAgama", "anakPekerjaan", "anakAlamat"],
               },
             )}
 
@@ -386,6 +419,7 @@ export function SuratFormN4({ surat, entryId, initialData, from, backUrl = "/sur
                 { key: "calonPasanganAlamat", label: "Alamat", placeholder: "Alamat lengkap" },
               ],
               {
+                lockedFields: ["calonPasanganNama", "calonPasanganTempatLahir", "calonPasanganTanggalLahir", "calonPasanganAgama", "calonPasanganPekerjaan", "calonPasanganAlamat"],
                 beforeContent: (
                   <NikLookupField
                     label="Nomor Induk Kependudukan"
@@ -404,8 +438,8 @@ export function SuratFormN4({ surat, entryId, initialData, from, backUrl = "/sur
               <Button type="button" variant="outline" onClick={handleCancel} className="h-12 rounded-xl border border-slate-400 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-100">
                 Batal
               </Button>
-              <Button type="button" onClick={handlePreview} className="h-12 rounded-xl bg-slate-900 text-sm font-semibold text-white hover:bg-slate-800">
-                Preview Surat
+              <Button type="button" onClick={handlePreview} disabled={isGeneratingNumber} className="h-12 rounded-xl bg-slate-900 text-sm font-semibold text-white hover:bg-slate-800">
+                {isGeneratingNumber ? "Memproses..." : "Preview Surat"}
               </Button>
             </div>
           </form>

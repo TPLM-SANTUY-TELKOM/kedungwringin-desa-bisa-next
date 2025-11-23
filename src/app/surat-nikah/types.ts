@@ -95,12 +95,10 @@ export const createDefaultFormN1 = (): FormN1Data => ({
 });
 
 export const REQUIRED_FIELDS_N1: Array<keyof FormN1Data> = [
-  "nomorSurat",
   "kantorDesa",
   "kecamatanKantor",
   "kabupatenKantor",
   "tempatSurat",
-  "tanggalSurat",
   "namaPemohon",
   "nikPemohon",
   "tanggalLahir",
@@ -308,6 +306,7 @@ export const REQUIRED_FIELDS_N3: Array<keyof FormN3Data> = [
 ];
 
 export type FormN4Data = {
+  nomorSurat: string;
   tempatSurat: string;
   tanggalSurat: string;
   ayahNama: string;
@@ -353,6 +352,7 @@ export type FormN4Data = {
 };
 
 export const createDefaultFormN4 = (): FormN4Data => ({
+  nomorSurat: "",
   tempatSurat: "Kedungwringin",
   tanggalSurat: new Date().toISOString().slice(0, 10),
   ayahNama: "",
@@ -399,7 +399,6 @@ export const createDefaultFormN4 = (): FormN4Data => ({
 
 export const REQUIRED_FIELDS_N4: Array<keyof FormN4Data> = [
   "tempatSurat",
-  "tanggalSurat",
   "ayahNama",
   "ayahNik",
   "ayahTempatLahir",
@@ -478,12 +477,10 @@ export const createDefaultFormN6 = (): FormN6Data => ({
 });
 
 export const REQUIRED_FIELDS_N6: Array<keyof FormN6Data> = [
-  "nomorSurat",
   "kantorDesa",
   "kecamatan",
   "kabupaten",
   "tempatSurat",
-  "tanggalSurat",
   "almarhumNama",
   "almarhumTempatLahir",
   "almarhumTanggalLahir",
@@ -595,9 +592,7 @@ export const createDefaultWaliNikahData = (): WaliNikahData => ({
 });
 
 export const REQUIRED_FIELDS_WALI_NIKAH: Array<keyof WaliNikahData> = [
-  "nomorSurat",
   "tempatSurat",
-  "tanggalSurat",
   "waliNama",
   "waliTempatLahir",
   "waliTanggalLahir",
@@ -705,9 +700,7 @@ export const createDefaultPengantarNumpangData = (): PengantarNumpangNikahData =
 });
 
 export const REQUIRED_FIELDS_PENGANTAR_NUMPANG: Array<keyof PengantarNumpangNikahData> = [
-  "nomorSurat",
   "tempatSurat",
-  "tanggalSurat",
   "nama",
   "tempatLahir",
   "tanggalLahir",
