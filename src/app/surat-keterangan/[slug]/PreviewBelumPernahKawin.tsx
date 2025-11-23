@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Printer } from "lucide-react";
+import { ArrowLeft, Printer, X, AlertCircle, CheckCircle2 } from "lucide-react";
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import logoDesa from "@/assets/ic_logo_banyumas.png";
 type PreviewBelumPernahKawinProps = {
   surat: SuratKeteranganOption;
   data: SuratKeteranganBelumPernahKawinData;
+  reservedNumberId?: string;
 };
 
 function formatDateIndonesian(dateString: string): string {
@@ -24,8 +26,49 @@ function formatDateIndonesian(dateString: string): string {
   return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
 }
 
-export function PreviewBelumPernahKawin({ surat, data }: PreviewBelumPernahKawinProps) {
+export function PreviewBelumPernahKawin({ surat, data, reservedNumberId }: PreviewBelumPernahKawinProps) {
   const router = useRouter();
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
+
+  const handlePrintClick = () => {
+    setShowConfirmDialog(true);
+  };
+
+  const handleConfirmPrint = async () => {
+    if (!reservedNumberId) {
+      window.print();
+      setShowConfirmDialog(false);
+      return;
+    }
+
+    setIsPrinting(true);
+    try {
+      const res = await fetch("/api/surat-number", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: reservedNumberId }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Gagal mengkonfirmasi nomor surat");
+      }
+
+      setShowConfirmDialog(false);
+      setTimeout(() => {
+        window.print();
+      }, 100);
+    } catch (error) {
+      console.error("Error confirming number:", error);
+      alert("Terjadi kesalahan saat mengkonfirmasi nomor surat. Silakan coba lagi.");
+    } finally {
+      setIsPrinting(false);
+    }
+  };
+
+  const handleCancelPrint = () => {
+    setShowConfirmDialog(false);
+  };
 
   return (
     <div className="mx-auto mt-12 flex w-full max-w-4xl flex-col gap-10 print:mt-0 print:px-0">
@@ -35,7 +78,7 @@ export function PreviewBelumPernahKawin({ surat, data }: PreviewBelumPernahKawin
             <ArrowLeft className="mr-2 h-4 w-4" />
             Kembali
           </Button>
-          <Button onClick={() => window.print()} className="rounded-full bg-slate-900 px-6 text-white hover:bg-slate-800">
+          <Button onClick={handlePrintClick} className="rounded-full bg-slate-900 px-6 text-white hover:bg-slate-800">
             <Printer className="mr-2 h-4 w-4" />
             Cetak
           </Button>
@@ -191,6 +234,76 @@ export function PreviewBelumPernahKawin({ surat, data }: PreviewBelumPernahKawin
           </div>
         </div>
       </div>
+
+      {/* Custom Confirmation Dialog */}
+      {showConfirmDialog && (
+        <div className="print-hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="relative w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-2xl">
+            {/* Close Button */}
+            <button
+              onClick={handleCancelPrint}
+              className="absolute right-4 top-4 rounded-full p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+              disabled={isPrinting}
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            {/* Icon */}
+            <div className="mb-4 flex justify-center">
+              <div className="rounded-full bg-amber-100 p-3">
+                <AlertCircle className="h-8 w-8 text-amber-600" />
+              </div>
+            </div>
+
+            {/* Title */}
+            <h3 className="mb-2 text-center text-xl font-semibold text-slate-900">
+              Konfirmasi Cetak Surat
+            </h3>
+
+            {/* Message */}
+            <div className="mb-6 space-y-2 text-center text-sm text-slate-600">
+              <p>
+                Anda akan mencetak surat dengan nomor:
+              </p>
+              <p className="rounded-lg bg-slate-50 px-3 py-2 font-mono text-base font-semibold text-slate-900">
+                {data.nomorSurat}
+              </p>
+              <p className="text-xs text-slate-500">
+                Nomor ini akan dikonfirmasi dan tidak dapat diubah.
+              </p>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <Button
+                onClick={handleCancelPrint}
+                variant="outline"
+                className="flex-1 rounded-full border-slate-300"
+                disabled={isPrinting}
+              >
+                Batal
+              </Button>
+              <Button
+                onClick={handleConfirmPrint}
+                className="flex-1 rounded-full bg-slate-900 hover:bg-slate-800"
+                disabled={isPrinting}
+              >
+                {isPrinting ? (
+                  <>
+                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    Memproses...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                    Ya, Cetak
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

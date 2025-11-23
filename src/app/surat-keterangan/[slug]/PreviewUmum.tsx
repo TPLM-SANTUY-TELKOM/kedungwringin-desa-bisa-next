@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Printer } from "lucide-react";
+import { ArrowLeft, Printer, AlertCircle, CheckCircle2, X } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import type { SuratKeteranganOption } from "@/data/surat-keterangan-options";
@@ -12,6 +13,7 @@ import logoDesa from "@/assets/ic_logo_banyumas.png";
 type PreviewUmumProps = {
   surat: SuratKeteranganOption;
   data: SuratKeteranganUmumData;
+  reservedNumberId?: string;
 };
 
 function formatDateIndonesian(dateString: string): string {
@@ -24,20 +26,126 @@ function formatDateIndonesian(dateString: string): string {
   return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
 }
 
-export function PreviewUmum({ surat, data }: PreviewUmumProps) {
+export function PreviewUmum({ surat, data, reservedNumberId }: PreviewUmumProps) {
   const router = useRouter();
+  const [isPrinting, setIsPrinting] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+
+  const handlePrintClick = () => {
+    setShowConfirmDialog(true);
+  };
+
+  const handleConfirmPrint = async () => {
+    setShowConfirmDialog(false);
+
+    if (reservedNumberId) {
+      try {
+        setIsPrinting(true);
+        // Confirm nomor surat
+        const response = await fetch("/api/surat-number", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: reservedNumberId }),
+        });
+
+        if (!response.ok) {
+          console.error("Failed to confirm number");
+          alert("Gagal mengkonfirmasi nomor surat. Silakan coba lagi.");
+          return;
+        }
+      } catch (error) {
+        console.error("Error confirming number:", error);
+        alert("Terjadi kesalahan saat mengkonfirmasi nomor surat.");
+        return;
+      } finally {
+        setIsPrinting(false);
+      }
+    }
+    window.print();
+  };
+
+  const handleCancelPrint = () => {
+    setShowConfirmDialog(false);
+  };
 
   return (
     <div className="mx-auto mt-12 flex w-full max-w-4xl flex-col gap-10 print:mt-0 print:px-0">
+      {/* Custom Confirmation Dialog */}
+      {showConfirmDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm print-hidden">
+          <div className="relative mx-4 w-full max-w-md animate-in fade-in zoom-in-95 duration-200">
+            <div className="rounded-3xl border border-white/60 bg-white/95 shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-xl">
+              {/* Header */}
+              <div className="flex items-start justify-between border-b border-slate-200 p-6">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
+                    <AlertCircle className="h-6 w-6 text-amber-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900">Konfirmasi Cetak Surat</h3>
+                    <p className="text-xs text-slate-500">Pastikan data sudah benar</p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleCancelPrint}
+                  className="rounded-full p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="p-6">
+                <div className="mb-4 rounded-2xl bg-slate-50 p-4">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-slate-600" />
+                    <div className="text-sm text-slate-700">
+                      <p className="mb-2 font-medium">Apakah Anda sudah yakin dengan data ini?</p>
+                      <p className="text-slate-600">
+                        Setelah dicetak, nomor surat <span className="font-semibold text-slate-900">{data.nomorSurat}</span> akan 
+                        dikonfirmasi secara permanen dan tidak dapat dibatalkan.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3">
+                  <Button
+                    onClick={handleCancelPrint}
+                    variant="outline"
+                    className="flex-1 rounded-full border-slate-300 px-6 hover:bg-slate-50"
+                  >
+                    Batal
+                  </Button>
+                  <Button
+                    onClick={handleConfirmPrint}
+                    disabled={isPrinting}
+                    className="flex-1 rounded-full bg-slate-900 px-6 text-white hover:bg-slate-800"
+                  >
+                    <Printer className="mr-2 h-4 w-4" />
+                    {isPrinting ? "Memproses..." : "Ya, Cetak"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center justify-between gap-3 print-hidden">
         <div className="flex items-center gap-3">
           <Button variant="outline" onClick={() => router.push(`/surat-keterangan/${surat.slug}`)} className="rounded-full border-slate-300 px-6">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Kembali
           </Button>
-          <Button onClick={() => window.print()} className="rounded-full bg-slate-900 px-6 text-white hover:bg-slate-800">
+          <Button 
+            onClick={handlePrintClick} 
+            className="rounded-full bg-slate-900 px-6 text-white hover:bg-slate-800"
+            disabled={isPrinting}
+          >
             <Printer className="mr-2 h-4 w-4" />
-            Cetak
+            {isPrinting ? "Memproses..." : "Cetak"}
           </Button>
         </div>
         <div className="text-right text-sm text-slate-500">

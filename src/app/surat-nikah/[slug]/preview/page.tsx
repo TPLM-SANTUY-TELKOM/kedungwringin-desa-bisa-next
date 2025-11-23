@@ -24,7 +24,7 @@ import { PreviewPengantarNumpang } from "../PreviewPengantarNumpang";
 
 type PreviewPageProps = {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ data?: string; entryId?: string }> | { data?: string; entryId?: string };
+  searchParams: Promise<{ data?: string; entryId?: string; reservedNumberId?: string }> | { data?: string; entryId?: string; reservedNumberId?: string };
 };
 
 export default async function PreviewPage({ params, searchParams }: PreviewPageProps) {
@@ -39,6 +39,7 @@ export default async function PreviewPage({ params, searchParams }: PreviewPageP
   const resolvedSearch = await searchParams;
   const entryId = resolvedSearch?.entryId;
   const encoded = resolvedSearch?.data;
+  const reservedNumberId = resolvedSearch?.reservedNumberId;
   let formData: unknown;
 
   if (encoded) {
@@ -85,49 +86,49 @@ export default async function PreviewPage({ params, searchParams }: PreviewPageP
     case "formulir-pengantar-nikah":
       return (
         <main className={previewMainClass}>
-          <PreviewN1 surat={surat} data={formData as FormN1Data} />
+          <PreviewN1 surat={surat} data={formData as FormN1Data} reservedNumberId={reservedNumberId} />
         </main>
       );
     case "formulir-permohonan-kehendak-perkawinan":
       return (
         <main className={previewMainClass}>
-          <PreviewN2 surat={surat} data={formData as FormN2Data} />
+          <PreviewN2 surat={surat} data={formData as FormN2Data} reservedNumberId={reservedNumberId} />
         </main>
       );
     case "formulir-surat-persetujuan-mempelai":
       return (
         <main className={previewMainClass}>
-          <PreviewN3 surat={surat} data={formData as FormN3Data} />
+          <PreviewN3 surat={surat} data={formData as FormN3Data} reservedNumberId={reservedNumberId} />
         </main>
       );
     case "formulir-surat-izin-orang-tua":
       return (
         <main className={previewMainClass}>
-          <PreviewN4 surat={surat} data={formData as FormN4Data} />
+          <PreviewN4 surat={surat} data={formData as FormN4Data} reservedNumberId={reservedNumberId} />
         </main>
       );
     case "formulir-surat-keterangan-kematian":
       return (
         <main className={previewMainClass}>
-          <PreviewN6 surat={surat} data={formData as FormN6Data} />
+          <PreviewN6 surat={surat} data={formData as FormN6Data} reservedNumberId={reservedNumberId} />
         </main>
       );
     case "surat-keterangan-wali-nikah":
       return (
         <main className={previewMainClass}>
-          <PreviewWaliNikah surat={surat} data={formData as WaliNikahData} />
+          <PreviewWaliNikah surat={surat} data={formData as WaliNikahData} reservedNumberId={reservedNumberId} />
         </main>
       );
     case "surat-pernyataan-belum-menikah":
       return (
         <main className={previewMainClass}>
-          <PreviewPernyataanBelumMenikah surat={surat} data={formData as PernyataanBelumMenikahData} />
+          <PreviewPernyataanBelumMenikah surat={surat} data={formData as PernyataanBelumMenikahData} reservedNumberId={reservedNumberId} />
         </main>
       );
     case "surat-pengantar-numpang-nikah":
       return (
         <main className={previewMainClass}>
-          <PreviewPengantarNumpang surat={surat} data={formData as PengantarNumpangNikahData} />
+          <PreviewPengantarNumpang surat={surat} data={formData as PengantarNumpangNikahData} reservedNumberId={reservedNumberId} />
         </main>
       );
     default:

@@ -37,6 +37,8 @@ export function SuratFormDomisiliTempatTinggal({ surat, entryId, initialData, fr
     initialData: (initialData as Partial<SuratKeteranganDomisiliTempatTinggalData>) ?? null,
   });
   const [error, setError] = useState<string | null>(null);
+  const [isGeneratingNumber, setIsGeneratingNumber] = useState(false);
+  const [reservedNumberId, setReservedNumberId] = useState<string | null>(null);
 
   const handleApplyNikData = (data: PendudukLookupResult) => {
     setForm((prev) => ({
@@ -85,10 +87,8 @@ export function SuratFormDomisiliTempatTinggal({ surat, entryId, initialData, fr
     router.push(backUrl);
   };
 
-  const handlePreview = () => {
+  const handlePreview = async () => {
     const requiredFields: Array<keyof SuratKeteranganDomisiliTempatTinggalData> = [
-      "nomorSurat",
-      "tanggalSurat",
       "nama",
       "nik",
       "tempatLahir",
@@ -111,15 +111,37 @@ export function SuratFormDomisiliTempatTinggal({ surat, entryId, initialData, fr
       return;
     }
 
-    const params = new URLSearchParams();
-    params.set("data", JSON.stringify(form));
-    if (entryId) {
-      params.set("entryId", entryId);
+    setIsGeneratingNumber(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/surat-number", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jenisSurat: surat.slug }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Gagal menggenerate nomor surat");
+      }
+
+      const { nomorSurat, id } = await res.json();
+      setReservedNumberId(id);
+
+      const today = new Date().toISOString().split('T')[0];
+      const updatedForm = { ...form, nomorSurat, tanggalSurat: today };
+
+      const params = new URLSearchParams();
+      params.set("data", JSON.stringify(updatedForm));
+      params.set("reservedNumberId", id);
+      if (entryId) params.set("entryId", entryId);
+      if (from) params.set("from", from);
+      router.push(`/surat-keterangan/${surat.slug}/preview?${params.toString()}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Terjadi kesalahan saat menggenerate nomor surat");
+    } finally {
+      setIsGeneratingNumber(false);
     }
-    if (from) {
-      params.set("from", from);
-    }
-    router.push(`/surat-keterangan/${surat.slug}/preview?${params.toString()}`);
   };
 
   return (
@@ -159,24 +181,6 @@ export function SuratFormDomisiliTempatTinggal({ surat, entryId, initialData, fr
 
           <form className="space-y-10">
             <div className="space-y-4">
-              <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Informasi Surat</p>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">Nomor Surat</Label>
-                  <Input value={form.nomorSurat} onChange={handleInputChange("nomorSurat")} placeholder="470/ ... / ... / ...." className={INPUT_BASE} />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">Tanggal Surat</Label>
-                  <Input type="date" value={form.tanggalSurat} onChange={handleInputChange("tanggalSurat")} className={INPUT_BASE} />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-semibold text-slate-700">Tempat Surat</Label>
-                <Input value={form.tempatSurat} onChange={handleInputChange("tempatSurat")} placeholder="Kedungwringin" className={INPUT_BASE} />
-              </div>
-            </div>
-
-            <div className="space-y-4">
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Data Pemohon</p>
               <NikLookupField
                 label="NIK"
@@ -187,15 +191,21 @@ export function SuratFormDomisiliTempatTinggal({ surat, entryId, initialData, fr
                 isLoading={isLookupLoading}
               />
               <div className="space-y-2">
-                <Label className="text-sm font-semibold text-slate-700">Nama Lengkap</Label>
-                <Input value={form.nama} onChange={handleInputChange("nama")} placeholder="HERLI JANTI" className={INPUT_BASE} />
+                <Label className="text-sm font-semibold text-slate-700">Nama Lengkap <span className="text-red-500">*</span></Label>
+                <Input 
+                  value={form.nama} 
+                  onChange={handleInputChange("nama")} 
+                  placeholder="Akan terisi otomatis dari NIK" 
+                  className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}
+                  readOnly
+                />
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Jenis Kelamin</Label>
-                  <Select value={form.jenisKelamin} onValueChange={handleSelectChange("jenisKelamin")}>
-                    <SelectTrigger className={INPUT_BASE}>
-                      <SelectValue placeholder="Pilih jenis kelamin" />
+                  <Select value={form.jenisKelamin} onValueChange={handleSelectChange("jenisKelamin")} disabled>
+                    <SelectTrigger className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}>
+                      <SelectValue placeholder="Otomatis dari NIK" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Laki-laki">Laki-laki</SelectItem>
@@ -205,29 +215,46 @@ export function SuratFormDomisiliTempatTinggal({ surat, entryId, initialData, fr
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Pekerjaan</Label>
-                  <Input value={form.pekerjaan} onChange={handleInputChange("pekerjaan")} placeholder="MENGURUS RUMAH TANGGA" className={INPUT_BASE} />
+                  <Input 
+                    value={form.pekerjaan} 
+                    onChange={handleInputChange("pekerjaan")} 
+                    placeholder="Akan terisi otomatis dari NIK" 
+                    className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}
+                    readOnly
+                  />
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">Tempat Lahir</Label>
-                  <Input value={form.tempatLahir} onChange={handleInputChange("tempatLahir")} placeholder="PURWOKERTO" className={INPUT_BASE} />
+                  <Label className="text-sm font-semibold text-slate-700">Tempat Lahir <span className="text-red-500">*</span></Label>
+                  <Input 
+                    value={form.tempatLahir} 
+                    onChange={handleInputChange("tempatLahir")} 
+                    placeholder="Akan terisi otomatis dari NIK" 
+                    className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}
+                    readOnly
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">Tanggal Lahir</Label>
-                  <Input type="date" value={form.tanggalLahir} onChange={handleInputChange("tanggalLahir")} className={INPUT_BASE} />
+                  <Label className="text-sm font-semibold text-slate-700">Tanggal Lahir <span className="text-red-500">*</span></Label>
+                  <Input 
+                    type="date" 
+                    value={form.tanggalLahir} 
+                    onChange={handleInputChange("tanggalLahir")} 
+                    className={INPUT_BASE} 
+                  />
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Kewarganegaraan</Label>
-                  <Input value={form.kewarganegaraan} onChange={handleInputChange("kewarganegaraan")} placeholder="Indonesia" className={INPUT_BASE} />
+                  <Input value={form.kewarganegaraan} onChange={handleInputChange("kewarganegaraan")} placeholder="Contoh: Indonesia" className={INPUT_BASE} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Agama</Label>
-                  <Select value={form.agama} onValueChange={handleSelectChange("agama")}>
-                    <SelectTrigger className={INPUT_BASE}>
-                      <SelectValue placeholder="Pilih agama" />
+                  <Select value={form.agama} onValueChange={handleSelectChange("agama")} disabled>
+                    <SelectTrigger className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}>
+                      <SelectValue placeholder="Otomatis dari NIK" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Islam">Islam</SelectItem>
@@ -238,6 +265,9 @@ export function SuratFormDomisiliTempatTinggal({ surat, entryId, initialData, fr
                       <SelectItem value="Konghucu">Konghucu</SelectItem>
                     </SelectContent>
                   </Select>
+                  {lookupState.status === 'success' && (
+                    <p className="text-xs text-slate-500">✓ Data otomatis dari NIK</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Status Perkawinan</Label>
@@ -267,17 +297,23 @@ export function SuratFormDomisiliTempatTinggal({ surat, entryId, initialData, fr
             <div className="space-y-4">
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Alamat Domisili Saat Ini</p>
               <div className="space-y-2">
-                <Label className="text-sm font-semibold text-slate-700">Alamat Domisili</Label>
-                <Textarea value={form.alamatDomisili} onChange={handleInputChange("alamatDomisili")} placeholder="JL. SIDODADI, RT.002 / RW.005" className={TEXTAREA_BASE} />
+                <Label className="text-sm font-semibold text-slate-700">Alamat Domisili <span className="text-red-500">*</span></Label>
+                <Textarea 
+                  value={form.alamatDomisili} 
+                  onChange={handleInputChange("alamatDomisili")} 
+                  placeholder="Akan terisi otomatis dari NIK" 
+                  className={`${TEXTAREA_BASE} bg-slate-50 cursor-not-allowed`}
+                  readOnly
+                />
               </div>
               <div className="grid gap-4 sm:grid-cols-4">
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">RT</Label>
-                  <Input value={form.rt} onChange={handleInputChange("rt")} placeholder="002" className={INPUT_BASE} />
+                  <Label className="text-sm font-semibold text-slate-700">RT <span className="text-red-500">*</span></Label>
+                  <Input value={form.rt} onChange={handleInputChange("rt")} placeholder="Contoh: 002" className={INPUT_BASE} />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">RW</Label>
-                  <Input value={form.rw} onChange={handleInputChange("rw")} placeholder="005" className={INPUT_BASE} />
+                  <Label className="text-sm font-semibold text-slate-700">RW <span className="text-red-500">*</span></Label>
+                  <Input value={form.rw} onChange={handleInputChange("rw")} placeholder="Contoh: 005" className={INPUT_BASE} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Kelurahan/Desa</Label>
@@ -314,8 +350,8 @@ export function SuratFormDomisiliTempatTinggal({ surat, entryId, initialData, fr
               <Button type="button" onClick={handleCancel} variant="outline" className="h-12 rounded-full px-8">
                 Batal
               </Button>
-              <Button type="button" onClick={handlePreview} className="h-12 rounded-full bg-slate-900 px-8 hover:bg-slate-800">
-                Preview Surat
+              <Button type="button" onClick={handlePreview} className="h-12 rounded-full bg-slate-900 px-8 hover:bg-slate-800" disabled={isGeneratingNumber}>
+                {isGeneratingNumber ? "Memproses..." : "Preview Surat"}
               </Button>
             </div>
           </form>
