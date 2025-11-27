@@ -1,6 +1,7 @@
 "use client";
 
-import { ArrowLeft, Printer } from "lucide-react";
+import { useState } from "react";
+import { ArrowLeft, Printer, AlertCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { SuratPengantarOption } from "@/data/surat-pengantar-options";
@@ -12,10 +13,49 @@ import { SuratPengantarHeader } from "./SuratPengantarHeader";
 type PreviewUmumProps = {
   surat: SuratPengantarOption;
   data: SuratPengantarUmumData;
+  reservedNumberId?: string;
 };
 
-export function PreviewUmum({ surat, data }: PreviewUmumProps) {
+export function PreviewUmum({ surat, data, reservedNumberId }: PreviewUmumProps) {
   const handleBack = useBackNavigation("/surat-pengantar");
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
+
+  const handlePrintClick = () => {
+    if (reservedNumberId) {
+      setShowConfirmDialog(true);
+    } else {
+      window.print();
+    }
+  };
+
+  const handleConfirmPrint = async () => {
+    if (!reservedNumberId) {
+      window.print();
+      return;
+    }
+
+    setIsPrinting(true);
+    try {
+      const response = await fetch("/api/surat-number", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: reservedNumberId, status: "confirmed" }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Gagal konfirmasi nomor surat");
+      }
+
+      setShowConfirmDialog(false);
+      window.print();
+    } catch (error) {
+      console.error("Error confirming nomor surat:", error);
+      alert("Gagal konfirmasi nomor surat. Silakan coba lagi.");
+    } finally {
+      setIsPrinting(false);
+    }
+  };
 
   const alamatLengkap = [
     data.alamat.trim(),
@@ -36,7 +76,7 @@ export function PreviewUmum({ surat, data }: PreviewUmumProps) {
             <ArrowLeft className="mr-2 h-4 w-4" />
             Kembali
           </Button>
-          <Button onClick={() => window.print()} className="rounded-full bg-slate-900 px-6 text-white hover:bg-slate-800">
+          <Button onClick={handlePrintClick} className="rounded-full bg-slate-900 px-6 text-white hover:bg-slate-800">
             <Printer className="mr-2 h-4 w-4" />
             Cetak
           </Button>
@@ -204,6 +244,41 @@ export function PreviewUmum({ surat, data }: PreviewUmumProps) {
           </table>
         </div>
       </div>
+
+      {showConfirmDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 print-hidden">
+          <div className="w-full max-w-md rounded-2xl border border-white/20 bg-white/95 p-6 shadow-2xl backdrop-blur-md">
+            <div className="mb-4 flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100">
+                <AlertCircle className="h-5 w-5 text-amber-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-slate-900">Konfirmasi Cetak Surat</h3>
+                <p className="mt-1 text-sm text-slate-600">
+                  Nomor surat <span className="font-semibold text-slate-900">{data.nomorSurat}</span> akan dikonfirmasi dan tidak dapat diubah.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setShowConfirmDialog(false)}
+                disabled={isPrinting}
+                className="flex-1 rounded-xl"
+              >
+                Batal
+              </Button>
+              <Button
+                onClick={handleConfirmPrint}
+                disabled={isPrinting}
+                className="flex-1 rounded-xl bg-slate-900 hover:bg-slate-800"
+              >
+                {isPrinting ? "Memproses..." : "Cetak Sekarang"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

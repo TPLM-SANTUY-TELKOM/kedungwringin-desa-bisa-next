@@ -43,6 +43,7 @@ export function SuratFormWaliNikah({ surat, entryId, initialData, from, backUrl 
     entryId,
     initialData: (initialData as Partial<WaliNikahData>) ?? null,
   });
+  const [isGeneratingNumber, setIsGeneratingNumber] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [waliNik, setWaliNik] = useState("");
   const [mempelaiNik, setMempelaiNik] = useState("");
@@ -151,7 +152,7 @@ export function SuratFormWaliNikah({ surat, entryId, initialData, from, backUrl 
     router.push(backUrl);
   };
 
-  const handlePreview = () => {
+  const handlePreview = async () => {
     const missing = REQUIRED_FIELDS_WALI_NIKAH.filter((field) => {
       const value = form[field];
       if (typeof value === "string") {
@@ -165,15 +166,42 @@ export function SuratFormWaliNikah({ surat, entryId, initialData, from, backUrl 
       return;
     }
 
-    const params = new URLSearchParams();
-    params.set("data", JSON.stringify(form));
-    if (entryId) {
-      params.set("entryId", entryId);
+    setIsGeneratingNumber(true);
+    try {
+      const response = await fetch("/api/surat-number", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jenisSurat: surat.slug }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Gagal generate nomor surat");
+      }
+
+      const { nomorSurat, tanggalSurat, id: reservedNumberId } = await response.json();
+
+      const updatedForm = {
+        ...form,
+        nomorSurat,
+        tanggalSurat,
+      };
+
+      const params = new URLSearchParams();
+      params.set("data", JSON.stringify(updatedForm));
+      params.set("reservedNumberId", reservedNumberId);
+      if (entryId) {
+        params.set("entryId", entryId);
+      }
+      if (from) {
+        params.set("from", from);
+      }
+      router.push(`/surat-nikah/${surat.slug}/preview?${params.toString()}`);
+    } catch (error) {
+      console.error("Error generating number:", error);
+      setError("Gagal generate nomor surat. Silakan coba lagi.");
+    } finally {
+      setIsGeneratingNumber(false);
     }
-    if (from) {
-      params.set("from", from);
-    }
-    router.push(`/surat-nikah/${surat.slug}/preview?${params.toString()}`);
   };
 
   const renderIdentityFields = (
@@ -182,6 +210,7 @@ export function SuratFormWaliNikah({ surat, entryId, initialData, from, backUrl 
     options?: {
       before?: ReactNode;
       customFields?: Partial<Record<keyof WaliNikahData, ReactNode>>;
+      lockedFields?: Array<keyof WaliNikahData>;
     },
   ) => (
     <div className="space-y-4">
@@ -193,15 +222,16 @@ export function SuratFormWaliNikah({ surat, entryId, initialData, from, backUrl 
           if (customField) {
             return <div key={key as string}>{customField}</div>;
           }
+          const isLocked = options?.lockedFields?.includes(key);
           return (
             <div key={key as string} className="space-y-2">
               <Label className="text-sm font-semibold text-slate-700">{label}</Label>
               {key.toLowerCase().includes("alamat") ? (
-                <Textarea value={form[key] ?? ""} onChange={handleInputChange(key)} className={TEXTAREA_BASE} placeholder={placeholder} rows={3} />
+                <Textarea value={form[key] ?? ""} onChange={handleInputChange(key)} placeholder={placeholder} rows={3} readOnly={isLocked} className={isLocked ? "bg-slate-50 cursor-not-allowed" : TEXTAREA_BASE} />
               ) : key.toLowerCase().includes("tanggal") ? (
-                <Input type="date" value={form[key] ?? ""} onChange={handleInputChange(key)} className={INPUT_BASE} />
+                <Input type="date" value={form[key] ?? ""} onChange={handleInputChange(key)} readOnly={isLocked} className={isLocked ? "bg-slate-50 cursor-not-allowed" : INPUT_BASE} />
               ) : (
-                <Input value={form[key] ?? ""} onChange={handleInputChange(key)} placeholder={placeholder} className={INPUT_BASE} />
+                <Input value={form[key] ?? ""} onChange={handleInputChange(key)} placeholder={placeholder} readOnly={isLocked} className={isLocked ? "bg-slate-50 cursor-not-allowed" : INPUT_BASE} />
               )}
             </div>
           );
@@ -288,6 +318,7 @@ export function SuratFormWaliNikah({ surat, entryId, initialData, from, backUrl 
                     inputClassName={INPUT_BASE}
                   />
                 ),
+                lockedFields: ["waliNama", "waliTempatLahir", "waliTanggalLahir", "waliAgama", "waliPekerjaan", "waliAlamat"],
               },
             )}
 
@@ -315,6 +346,7 @@ export function SuratFormWaliNikah({ surat, entryId, initialData, from, backUrl 
                     inputClassName={INPUT_BASE}
                   />
                 ),
+                lockedFields: ["mempelaiNama", "mempelaiTempatLahir", "mempelaiTanggalLahir", "mempelaiAgama", "mempelaiPekerjaan", "mempelaiAlamat"],
               },
             )}
 
@@ -342,6 +374,7 @@ export function SuratFormWaliNikah({ surat, entryId, initialData, from, backUrl 
                     inputClassName={INPUT_BASE}
                   />
                 ),
+                lockedFields: ["pasanganNama", "pasanganTempatLahir", "pasanganTanggalLahir", "pasanganAgama", "pasanganPekerjaan", "pasanganAlamat"],
               },
             )}
 
@@ -400,8 +433,8 @@ export function SuratFormWaliNikah({ surat, entryId, initialData, from, backUrl 
               <Button type="button" variant="outline" onClick={handleCancel} className="h-12 rounded-xl border border-slate-400 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-100">
                 Batal
               </Button>
-              <Button type="button" onClick={handlePreview} className="h-12 rounded-xl bg-slate-900 text-sm font-semibold text-white hover:bg-slate-800">
-                Preview Surat
+              <Button type="button" onClick={handlePreview} disabled={isGeneratingNumber} className="h-12 rounded-xl bg-slate-900 text-sm font-semibold text-white hover:bg-slate-800">
+                {isGeneratingNumber ? "Memproses..." : "Preview Surat"}
               </Button>
             </div>
           </form>

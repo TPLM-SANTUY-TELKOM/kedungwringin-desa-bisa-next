@@ -798,44 +798,42 @@ export default function PendudukPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-8 space-y-6">
+      <div className="p-4 space-y-4">
         <div className="space-y-6">
           <div>
-            <h1 className="text-4xl font-bold text-foreground">
+            <h1 className="text-3xl font-bold text-foreground mb-1">
               Data Penduduk
             </h1>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-muted-foreground text-sm">
               Kelola data penduduk Desa Kedungwringin
             </p>
           </div>
           <div className="flex flex-col gap-4 md:flex-row md:items-end">
             <div className="flex-1 space-y-2">
               <label
-                className="text-sm font-medium text-muted-foreground"
+                className=" font-medium text-muted-foreground"
                 htmlFor="search"
               >
-                Cari penduduk
+                Filter
               </label>
               <div className="relative">
                 <Input
                   id="search"
-                  placeholder="Cari berdasarkan nama atau NIK..."
+                  placeholder="Cari berdasarkan Nama atau NIK"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="h-14 rounded-full border-2 border-foreground/80 px-6 text-base shadow-sm"
+                  className="h-12 rounded-xl border  px-6 shadow-sm bg-white "
                 />
                 <Search className="absolute right-6 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
               </div>
             </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-muted-foreground">
-                  Status Perkawinan
-                </label>
+              <div className="flex flex-col gap-2 ">
                 <Select
                   value={rekapFilter}
                   onValueChange={(value) => setRekapFilter(value as RekapFilter)}
+          
                 >
-                  <SelectTrigger className="h-14 w-[260px] rounded-full border-2 border-foreground/80 px-6 text-base">
+                  <SelectTrigger className="h-12 w-[260px] rounded-xl border shadow-sm px-6 text-base">
                     <SelectValue placeholder="Pilih status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -862,22 +860,16 @@ export default function PendudukPage() {
               <div className="flex items-center gap-3">
                 <Button
                   onClick={handleExportToExcel}
-                  variant="outline"
-                  className="h-14 rounded-full px-6 text-base font-semibold gap-2 border-2 border-foreground/80"
+                  variant="ghost"
+                  className="h-12 rounded-xl px-6 text-base bg-green-600 font-semibold gap-2 border shadow-sm text-white"
                   disabled={loading || pendudukList.length === 0}
                 >
-                  <FileSpreadsheet className="h-5 w-5" />
+                  <FileSpreadsheet className="h-5 w-5 text-white" />
                   Export Excel
                 </Button>
               <Button
                 onClick={() => openForm()}
-                  className="h-14 rounded-full px-8 text-base font-semibold gap-2 border-0 text-white"
-                style={{
-                  background:
-                    "radial-gradient(50% 50% at 50% 50%, #FC5132 0%, #FC5132 100%)",
-                  boxShadow:
-                    "2.42px 2.42px 4.83px 0px #BDC2C7BF, 4.83px 4.83px 7.25px 0px #BDC2C740, -2.42px -2.42px 4.83px 0px #FFFFFFBF, -4.83px -4.83px 7.25px 0px #FFFFFF40, inset 2.42px 2.42px 4.83px 0px #FFFFFFBF, inset 4.83px 4.83px 7.25px 0px #FFFFFF40, inset -2.42px -2.42px 4.83px 0px #FC5132BF, inset -4.83px -4.83px 7.25px 0px #FC513240",
-                }}
+                  className="h-12 rounded-xl px-8 text-base font-semibold gap-2  text-white bg-black border-2"
               >
                 <Plus className="h-5 w-5 text-white" />
                 Tambah
@@ -890,7 +882,7 @@ export default function PendudukPage() {
         <Card className="p-6 shadow-card">
           {loading ? (
             <div className="text-center py-12">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4"></div>
+              <div className="h-8 w-8 animate-spin rounded-xl border-4 border-primary border-t-transparent mx-auto mb-4"></div>
               <p className="text-muted-foreground">Memuat data...</p>
             </div>
           ) : (
@@ -974,10 +966,10 @@ export default function PendudukPage() {
                     const rowNumber = (currentPage - 1) * actualItemsPerPage + index + 1;
                     return (
                     <tr key={penduduk.id} className="group hover:bg-muted/30">
-                      <td className="sticky left-0 z-20 bg-background p-4 text-center font-semibold align-top group-hover:bg-muted border-r border-border shadow-[2px_0_4px_rgba(0,0,0,0.1)] min-w-[60px] w-[60px]">
+                      <td className="sticky left-0 z-20 bg-gray-50 p-4 text-center font-semibold align-top group-hover:bg-muted border-r border-border shadow-[2px_0_4px_rgba(0,0,0,0.1)] min-w-[60px] w-[60px]">
                         {rowNumber}
                       </td>
-                      <td className="sticky left-[60px] z-20 bg-background p-4 font-mono text-xs uppercase tracking-wide align-top group-hover:bg-muted border-r border-border shadow-[2px_0_4px_rgba(0,0,0,0.1)] min-w-[140px]">
+                      <td className="sticky left-[60px] z-20 bg-gray-50 p-4 font-mono text-xs uppercase tracking-wide align-top group-hover:bg-muted border-r border-border shadow-[2px_0_4px_rgba(0,0,0,0.1)] min-w-[140px]">
                         {penduduk.nik}
                       </td>
                       <td className="p-4 align-top">
@@ -985,7 +977,7 @@ export default function PendudukPage() {
                           {penduduk.no_kk || "-"}
                         </span>
                       </td>
-                      <td className="sticky left-[200px] z-20 bg-background p-4 font-semibold align-top group-hover:bg-muted border-r border-border shadow-[2px_0_4px_rgba(0,0,0,0.1)] min-w-[180px]">
+                      <td className="sticky left-[200px] z-20 bg-gray-50 p-4 font-semibold align-top group-hover:bg-muted border-r border-border shadow-[2px_0_4px_rgba(0,0,0,0.1)] min-w-[180px]">
                         {penduduk.nama}
                       </td>
                       <td className="p-4 align-top">
@@ -1051,7 +1043,7 @@ export default function PendudukPage() {
                       </td>
                       <td className="p-4 align-top">
                         <span
-                          className={`inline-flex min-w-[6rem] justify-center rounded-full px-3 py-1 text-xs font-semibold ${
+                          className={`inline-flex min-w-[6rem] justify-center rounded-xl px-3 py-1 text-xs font-semibold ${
                             penduduk.status === "Aktif"
                               ? "bg-green-100 text-green-800"
                               : penduduk.status === "Pindah"
@@ -1062,7 +1054,7 @@ export default function PendudukPage() {
                           {penduduk.status}
                         </span>
                       </td>
-                      <td className="sticky right-0 z-20 bg-background p-4 group-hover:bg-muted border-l border-border min-w-[120px] w-[120px] shadow-[-2px_0_4px_rgba(0,0,0,0.1)]">
+                      <td className="sticky right-0 z-20 bg-gray-50 p-4 group-hover:bg-muted border-l border-border min-w-[120px] w-[120px] shadow-[-2px_0_4px_rgba(0,0,0,0.1)]">
                         <div className="flex items-center justify-center gap-2 flex-nowrap">
                           <Button
                             variant="ghost"
@@ -1328,7 +1320,7 @@ export default function PendudukPage() {
                             event.target.value
                           )
                         }
-                        className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        className="h-10 w-full rounded-md border border-input bg-gray-50 px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         required
                       >
                         <option value="">Pilih jenis kelamin</option>
@@ -1347,7 +1339,7 @@ export default function PendudukPage() {
                             event.target.value
                           )
                         }
-                        className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        className="h-10 w-full rounded-md border border-input bg-gray-50 px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       >
                         <option value="">Pilih golongan darah</option>
                         {GOLONGAN_DARAH_OPTIONS.map((option) => (
@@ -1368,7 +1360,7 @@ export default function PendudukPage() {
                         onChange={(event) =>
                           handleSelectChange("agama")(event.target.value)
                         }
-                        className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        className="h-10 w-full rounded-md border border-input bg-gray-50 px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         required
                       >
                         <option value="">Pilih agama</option>
@@ -1388,7 +1380,7 @@ export default function PendudukPage() {
                         onChange={(event) =>
                           handleSelectChange("kewarganegaraan")(event.target.value)
                         }
-                        className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        className="h-10 w-full rounded-md border border-input bg-gray-50 px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       >
                         <option value="WNI">WNI</option>
                         <option value="WNA">WNA</option>
@@ -1434,7 +1426,7 @@ export default function PendudukPage() {
                         onChange={(event) =>
                           handleSelectChange("status_kawin")(event.target.value)
                         }
-                        className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        className="h-10 w-full rounded-md border border-input bg-gray-50 px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         required
                       >
                         <option value="">Pilih status perkawinan</option>
@@ -1509,7 +1501,7 @@ export default function PendudukPage() {
                         onChange={(event) =>
                           handleSelectChange("status")(event.target.value)
                         }
-                        className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        className="h-10 w-full rounded-md border border-input bg-gray-50 px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         required
                       >
                         {STATUS_PENDUDUK_OPTIONS.map((option) => (

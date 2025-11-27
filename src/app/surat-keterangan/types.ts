@@ -25,7 +25,7 @@ export type SuratKeteranganUmumData = {
 
 export const createDefaultSuratKeteranganUmum = (): SuratKeteranganUmumData => ({
   nomorSurat: "",
-  tempatSurat: "Kedungwringin",
+  tempatSurat: "",
   tanggalSurat: new Date().toISOString().slice(0, 10),
   nama: "",
   nik: "",
@@ -44,7 +44,7 @@ export const createDefaultSuratKeteranganUmum = (): SuratKeteranganUmumData => (
   kabupaten: "Banyumas",
   keperluan: "",
   keteranganLain: "",
-  kepalaDesa: "Nama Kepala Desa",
+  kepalaDesa: "",
 });
 
 // ========== Surat Keterangan Belum Pernah Kawin ==========
@@ -71,15 +71,15 @@ export type SuratKeteranganBelumPernahKawinData = {
 export const createDefaultSuratKeteranganBelumPernahKawin = (): SuratKeteranganBelumPernahKawinData => ({
   nomorSurat: "",
   tanggalSurat: new Date().toISOString().slice(0, 10),
-  namaPenandatangan: "PARMINAH",
-  jabatanPenandatangan: "KEPALA DESA KEDUNGWRINGIN",
+  namaPenandatangan: "",
+  jabatanPenandatangan: "",
   nik: "",
   nama: "",
   tempatTanggalLahir: "",
-  jenisKelamin: "PEREMPUAN",
+  jenisKelamin: "LAKI-LAKI",
   agama: "Islam",
   kewarganegaraan: "INDONESIA",
-  pekerjaan: "PETANI/PEKEBUN",
+  pekerjaan: "",
   alamat: "",
   desaKel: "KEDUNGWRINGIN",
   kecamatan: "PATIKRAJA",
@@ -115,7 +115,7 @@ export type SuratKeteranganDomisiliTempatTinggalData = {
 
 export const createDefaultSuratKeteranganDomisiliTempatTinggal = (): SuratKeteranganDomisiliTempatTinggalData => ({
   nomorSurat: "",
-  tempatSurat: "Kedungwringin",
+  tempatSurat: "",
   tanggalSurat: new Date().toISOString().slice(0, 10),
   nama: "",
   nik: "",
@@ -134,7 +134,7 @@ export const createDefaultSuratKeteranganDomisiliTempatTinggal = (): SuratKetera
   kecamatan: "Patikraja",
   kabupaten: "Banyumas",
   keperluan: "",
-  kepalaDesa: "Nama Kepala Desa",
+  kepalaDesa: "",
 });
 
 // ========== Surat Keterangan Usaha ==========
@@ -161,11 +161,11 @@ export const createDefaultSuratKeteranganUsaha = (): SuratKeteranganUsahaData =>
   tempatTanggalLahir: "",
   kewarganegaraan: "INDONESIA",
   nik: "",
-  pekerjaan: "WIRASWASTA",
+  pekerjaan: "",
   alamat: "",
   jenisUsaha: "",
   keperluan: "",
-  kepalaDesa: "PARMINAH",
+  kepalaDesa: "",
 });
 
 // ========== Surat Keterangan Wali Hakim ==========
@@ -200,19 +200,19 @@ export const createDefaultSuratKeteranganWaliHakim = (): SuratKeteranganWaliHaki
   tanggalPernikahan: "",
   namaWali: "",
   bintiWali: "",
-  umurWali: "10",
+  umurWali: "",
   agamaWali: "Islam",
-  pekerjaanWali: "BELUM/TIDAK BEKERJA",
+  pekerjaanWali: "",
   tempatTinggalWali: "",
   namaCalon: "",
   bintiCalon: "",
-  umurCalon: "11",
+  umurCalon: "",
   agamaCalon: "Islam",
-  pekerjaanCalon: "BELUM/TIDAK BEKERJA",
+  pekerjaanCalon: "",
   tempatTinggalCalon: "",
   alasanWaliHakim: "kehabisan-wali",
   alasanWalinya: [],
-  kepalaDesa: "PARMINAH",
+  kepalaDesa: "",
 });
 
 // ========== Surat Keterangan Domisili Usaha ==========
@@ -248,18 +248,18 @@ export const createDefaultSuratKeteranganDomisiliUsaha = (): SuratKeteranganDomi
   tanggalLahir: "",
   kewarganegaraan: "INDONESIA",
   nik: "",
-  pekerjaan: "WIRASWASTA",
+  pekerjaan: "",
   alamat: "",
   namaPerusahaan: "",
   namaPemilik: "",
   alamatPerusahaan: "",
   jenisUsaha: "",
   statusPerusahaan: "",
-  jumlahKaryawan: "0 Orang",
+  jumlahKaryawan: "",
   luasTempatUsaha: "",
   waktuUsaha: "",
-  keperluan: "mengajukan Permohonan Surat Ijin Tempat Usaha/Ijin Undang-undang Gangguan dari Pemerintah Kabupaten Banyumas",
-  kepalaDesa: "( PARMINAH )",
+  keperluan: "",
+  kepalaDesa: "",
 });
 
 // ========== Surat Keterangan Tidak Mampu ==========
@@ -282,7 +282,7 @@ export type SuratKeteranganTidakMampuData = {
 
 export const createDefaultSuratKeteranganTidakMampu = (): SuratKeteranganTidakMampuData => ({
   nomorSurat: "",
-  tempatSurat: "Kedungwringin",
+  tempatSurat: "",
   tanggalSurat: new Date().toISOString().slice(0, 10),
   nama: "",
   jenisKelamin: "LAKI-LAKI",
@@ -293,6 +293,6 @@ export const createDefaultSuratKeteranganTidakMampu = (): SuratKeteranganTidakMa
   nik: "",
   pekerjaan: "",
   alamat: "",
-  keperluan: "fyufyifijfj",
-  kepalaDesa: "( PARMINAH )",
+  keperluan: "",
+  kepalaDesa: "",
 });
