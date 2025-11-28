@@ -11,7 +11,7 @@ echo.
 cd /d "%~dp0"
 
 :: Check if required files exist
-echo [1/7] Checking required files...
+echo [1/8] Checking required files...
 if not exist "package.json" (
     echo [ERROR] File package.json tidak ditemukan!
     echo Pastikan berada di folder project yang benar.
@@ -29,7 +29,7 @@ echo [OK] File penting ditemukan
 echo.
 
 :: Pull latest changes from git
-echo [2/7] Pulling latest changes from git...
+echo [2/8] Pulling latest changes from git...
 where git >nul 2>&1
 if %errorlevel% neq 0 (
     echo [WARNING] Git tidak ditemukan! Melewati git pull...
@@ -55,7 +55,7 @@ if %errorlevel% neq 0 (
 echo.
 
 :: Check if Node.js is installed
-echo [3/7] Checking Node.js...
+echo [3/8] Checking Node.js...
 where node >nul 2>&1
 if %errorlevel% neq 0 (
     echo [ERROR] Node.js tidak ditemukan!
@@ -68,7 +68,7 @@ echo [OK] Node.js terdeteksi
 echo.
 
 :: Check if Docker is installed and running
-echo [4/7] Checking Docker...
+echo [4/8] Checking Docker...
 where docker >nul 2>&1
 if %errorlevel% neq 0 (
     echo [ERROR] Docker tidak ditemukan!
@@ -138,7 +138,7 @@ goto DOCKER_RETRY
 echo.
 
 :: Check if node_modules exists, if not install dependencies
-echo [5/7] Checking dependencies...
+echo [5/8] Checking dependencies...
 if not exist "node_modules" (
     echo Dependencies belum terinstall, menginstall...
     call npm install
@@ -154,7 +154,7 @@ if not exist "node_modules" (
 echo.
 
 :: Start Docker container
-echo [6/7] Starting database...
+echo [6/8] Starting database...
 docker-compose up -d
 if %errorlevel% neq 0 (
     echo [ERROR] Gagal menjalankan database!
@@ -189,12 +189,26 @@ goto DB_RETRY
 :DB_CHECK_DONE
 echo.
 
-:: Start development server
-echo [7/7] Starting web application...
+:: Build application for production
+echo [7/8] Building application for production...
+echo Ini mungkin memakan waktu beberapa menit...
+call npm run build
+if %errorlevel% neq 0 (
+    echo [ERROR] Build gagal!
+    echo Periksa error di atas dan perbaiki sebelum melanjutkan.
+    pause
+    exit /b 1
+)
+echo [OK] Build berhasil!
+echo.
+
+:: Start production server
+echo [8/8] Starting production server...
 echo.
 echo ========================================
 echo   Web app akan berjalan di:
 echo   http://localhost:3000
+echo   Mode: PRODUCTION
 echo ========================================
 echo.
 echo Tekan Ctrl+C untuk menghentikan server
@@ -204,8 +218,8 @@ echo.
 timeout /t 5 /nobreak >nul
 start http://localhost:3000
 
-:: Run npm dev
-call npm run dev
+:: Run npm start (production mode)
+call npm run start
 
 :: If script exits, stop containers
 echo.
