@@ -206,12 +206,11 @@ export function SuratFormN4({ surat, entryId, initialData, from, backUrl = "/sur
         throw new Error("Gagal generate nomor surat");
       }
 
-      const { nomorSurat, tanggalSurat, id: reservedNumberId } = await response.json();
+      const { nomorSurat, id: reservedNumberId } = await response.json();
 
       const updatedForm = {
         ...form,
         nomorSurat,
-        tanggalSurat,
       };
 
       const params = new URLSearchParams();

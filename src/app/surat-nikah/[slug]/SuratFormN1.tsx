@@ -222,17 +222,16 @@ export function SuratFormN1({ surat, entryId, initialData, from, backUrl = "/sur
         throw new Error("Gagal generate nomor surat");
       }
 
-      const data = await response.json();
-      
+      const { id: reservedNumberId, nomorSurat } = await response.json();
+
       const updatedForm = {
         ...form,
-        nomorSurat: data.nomorSurat,
-        tanggalSurat: data.tanggalSurat,
+        nomorSurat,
       };
 
       const params = new URLSearchParams();
       params.set("data", JSON.stringify(updatedForm));
-      params.set("reservedNumberId", data.id);
+      params.set("reservedNumberId", reservedNumberId);
       if (entryId) {
         params.set("entryId", entryId);
       }

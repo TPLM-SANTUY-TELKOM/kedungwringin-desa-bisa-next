@@ -144,12 +144,11 @@ export function SuratFormN6({ surat, entryId, initialData, from, backUrl = "/sur
         throw new Error("Gagal generate nomor surat");
       }
 
-      const { nomorSurat, tanggalSurat, id: reservedNumberId } = await response.json();
+      const { nomorSurat, id: reservedNumberId } = await response.json();
 
       const updatedForm = {
         ...form,
         nomorSurat,
-        tanggalSurat,
       };
 
       const params = new URLSearchParams();
@@ -206,37 +205,33 @@ export function SuratFormN6({ surat, entryId, initialData, from, backUrl = "/sur
           </div>
 
           <form className="space-y-10">
-            <div className="space-y-4">
-              <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Informasi Kantor</p>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">Nomor Surat</Label>
-                  <Input value={form.nomorSurat} onChange={handleInputChange("nomorSurat")} placeholder="474.2/08/56/XI/2020" className={INPUT_BASE} />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">Kantor Desa/Kelurahan</Label>
-                  <Input value={form.kantorDesa} onChange={handleInputChange("kantorDesa")} placeholder="Kedungwringin" className={INPUT_BASE} />
-                </div>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-3">
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">Kecamatan</Label>
-                  <Input value={form.kecamatan} onChange={handleInputChange("kecamatan")} placeholder="Patikraja" className={INPUT_BASE} />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">Kabupaten</Label>
-                  <Input value={form.kabupaten} onChange={handleInputChange("kabupaten")} placeholder="Banyumas" className={INPUT_BASE} />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">Tanggal Surat</Label>
-                  <Input type="date" value={form.tanggalSurat} onChange={handleInputChange("tanggalSurat")} className={INPUT_BASE} />
-                </div>
+          <div className="space-y-4">
+            <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Informasi Kantor</p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-slate-700">Kantor Desa/Kelurahan</Label>
+                <Input value={form.kantorDesa} onChange={handleInputChange("kantorDesa")} placeholder="Kedungwringin" className={INPUT_BASE} />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-semibold text-slate-700">Tempat Surat</Label>
-                <Input value={form.tempatSurat} onChange={handleInputChange("tempatSurat")} placeholder="Kedungwringin" className={INPUT_BASE} />
+                <Label className="text-sm font-semibold text-slate-700">Tanggal Surat</Label>
+                <Input type="date" value={form.tanggalSurat} onChange={handleInputChange("tanggalSurat")} className={INPUT_BASE} />
               </div>
             </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-slate-700">Kecamatan</Label>
+                <Input value={form.kecamatan} onChange={handleInputChange("kecamatan")} placeholder="Patikraja" className={INPUT_BASE} />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-slate-700">Kabupaten</Label>
+                <Input value={form.kabupaten} onChange={handleInputChange("kabupaten")} placeholder="Banyumas" className={INPUT_BASE} />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold text-slate-700">Tempat Surat</Label>
+              <Input value={form.tempatSurat} onChange={handleInputChange("tempatSurat")} placeholder="Kedungwringin" className={INPUT_BASE} />
+            </div>
+          </div>
 
             <div className="space-y-4">
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Data Suami/Istri Yang Wafat</p>

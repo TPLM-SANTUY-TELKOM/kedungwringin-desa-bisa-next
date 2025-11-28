@@ -131,12 +131,11 @@ export function SuratFormPengantarNumpang({ surat, entryId, initialData, from, b
         throw new Error("Gagal generate nomor surat");
       }
 
-      const { nomorSurat, tanggalSurat, id: reservedNumberId } = await response.json();
+      const { nomorSurat, id: reservedNumberId } = await response.json();
 
       const updatedForm = {
         ...form,
         nomorSurat,
-        tanggalSurat,
       };
 
       const params = new URLSearchParams();
