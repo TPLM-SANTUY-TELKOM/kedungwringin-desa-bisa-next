@@ -74,10 +74,10 @@ export function PreviewPengantarNumpang({
 
     setIsPrinting(true);
     try {
-      const response = await fetch(`/api/surat-number?id=${reservedNumberId}`, {
+      const response = await fetch("/api/surat-number", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "confirmed" }),
+        body: JSON.stringify({ id: reservedNumberId }),
       });
 
       if (!response.ok) {

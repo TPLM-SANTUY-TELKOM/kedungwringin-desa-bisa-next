@@ -188,25 +188,19 @@ export function SuratFormN2({ surat, entryId, initialData, from, backUrl = "/sur
           <form className="space-y-10">
             <div className="space-y-4">
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Informasi Surat</p>
-              <div className="grid gap-4 sm:grid-cols-3">
-                <div className="space-y-2 sm:col-span-2">
-                  <Label className="text-sm font-semibold text-slate-700">Nomor Surat</Label>
-                  <Input value={form.nomorSurat} onChange={handleInputChange("nomorSurat")} placeholder="472.21/08/05/II/2025" className={INPUT_BASE} />
-                </div>
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Tanggal Surat</Label>
                   <Input type="date" value={form.tanggalSurat} onChange={handleInputChange("tanggalSurat")} className={INPUT_BASE} />
                 </div>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Tempat Surat</Label>
                   <Input value={form.tempatSurat} onChange={handleInputChange("tempatSurat")} placeholder="Kedungwringin" className={INPUT_BASE} />
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-slate-700">Perihal</Label>
-                  <Input value={form.perihal} onChange={handleInputChange("perihal")} className={INPUT_BASE} />
-                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-slate-700">Perihal</Label>
+                <Input value={form.perihal} onChange={handleInputChange("perihal")} className={INPUT_BASE} />
               </div>
             </div>
 

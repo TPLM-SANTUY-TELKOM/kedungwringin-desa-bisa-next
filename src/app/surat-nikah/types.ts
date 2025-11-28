@@ -167,7 +167,6 @@ export function buildFullAddress({
 }
 
 export type FormN2Data = {
-  nomorSurat: string;
   tempatSurat: string;
   tanggalSurat: string;
   perihal: string;
@@ -197,7 +196,6 @@ export type FormN2Data = {
 };
 
 export const createDefaultFormN2 = (): FormN2Data => ({
-  nomorSurat: "",
   tempatSurat: "Kedungwringin",
   tanggalSurat: new Date().toISOString().slice(0, 10),
   perihal: "Permohonan kehendak Perkawinan",
@@ -227,7 +225,6 @@ export const createDefaultFormN2 = (): FormN2Data => ({
 });
 
 export const REQUIRED_FIELDS_N2: Array<keyof FormN2Data> = [
-  "nomorSurat",
   "tempatSurat",
   "tanggalSurat",
   "tujuanInstansi",
@@ -238,6 +235,7 @@ export const REQUIRED_FIELDS_N2: Array<keyof FormN2Data> = [
   "waktuAkad",
   "tempatAkad",
   "pemohonNama",
+  "pemohonNik",
 ];
 
 export type FormN3Data = {
