@@ -322,13 +322,13 @@ export function SuratFormN1({ surat, entryId, initialData, from, backUrl = "/sur
               />
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">Nama Lengkap</Label>
-                <Input value={form.namaPemohon} onChange={handleInputChange("namaPemohon")} placeholder="Nama lengkap sesuai KTP" readOnly className="bg-slate-50 cursor-not-allowed" />
+                <Input value={form.namaPemohon} onChange={handleInputChange("namaPemohon")} placeholder="Nama lengkap sesuai KTP" className={INPUT_BASE} />
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Jenis Kelamin</Label>
-                  <Select value={form.jenisKelamin} onValueChange={handleSelectChange("jenisKelamin")} disabled>
-                    <SelectTrigger className="bg-slate-50 cursor-not-allowed">
+                  <Select value={form.jenisKelamin} onValueChange={handleSelectChange("jenisKelamin")}>
+                    <SelectTrigger className={INPUT_BASE}>
                       <SelectValue placeholder="Pilih jenis kelamin" />
                     </SelectTrigger>
                     <SelectContent>
@@ -339,21 +339,21 @@ export function SuratFormN1({ surat, entryId, initialData, from, backUrl = "/sur
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Pekerjaan</Label>
-                  <Input value={form.pekerjaan} onChange={handleInputChange("pekerjaan")} placeholder="Wiraswasta" readOnly className="bg-slate-50 cursor-not-allowed" />
+                  <Input value={form.pekerjaan} onChange={handleInputChange("pekerjaan")} placeholder="Wiraswasta" className={INPUT_BASE} />
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Tempat Lahir</Label>
-                  <Input value={form.tempatLahir} onChange={handleInputChange("tempatLahir")} placeholder="Banyumas" readOnly className="bg-slate-50 cursor-not-allowed" />
+                  <Input value={form.tempatLahir} onChange={handleInputChange("tempatLahir")} placeholder="Banyumas" className={INPUT_BASE} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Tanggal Lahir</Label>
-                  <Input type="date" value={form.tanggalLahir} onChange={handleInputChange("tanggalLahir")} readOnly className="bg-slate-50 cursor-not-allowed" />
+                  <Input type="date" value={form.tanggalLahir} onChange={handleInputChange("tanggalLahir")} className={INPUT_BASE} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Agama</Label>
-                  <Input value={form.agama} onChange={handleInputChange("agama")} placeholder="Islam" readOnly className="bg-slate-50 cursor-not-allowed" />
+                  <Input value={form.agama} onChange={handleInputChange("agama")} placeholder="Islam" className={INPUT_BASE} />
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -364,20 +364,20 @@ export function SuratFormN1({ surat, entryId, initialData, from, backUrl = "/sur
               </div>
             </div>
 
-            <div className="space-y-4">
+              <div className="space-y-4">
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Alamat Pemohon</p>
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">Alamat Jalan/Dusun</Label>
-                <Textarea value={form.alamatJalan} onChange={handleInputChange("alamatJalan")} placeholder="Contoh: Kedungwringin" readOnly className="bg-slate-50 cursor-not-allowed" />
+                <Textarea value={form.alamatJalan} onChange={handleInputChange("alamatJalan")} placeholder="Contoh: Kedungwringin" className={TEXTAREA_BASE} />
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">RT</Label>
-                  <Input value={form.alamatRt} onChange={handleInputChange("alamatRt")} placeholder="02" readOnly className="bg-slate-50 cursor-not-allowed" />
+                  <Input value={form.alamatRt} onChange={handleInputChange("alamatRt")} placeholder="02" className={INPUT_BASE} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">RW</Label>
-                  <Input value={form.alamatRw} onChange={handleInputChange("alamatRw")} placeholder="05" readOnly className="bg-slate-50 cursor-not-allowed" />
+                  <Input value={form.alamatRw} onChange={handleInputChange("alamatRw")} placeholder="05" className={INPUT_BASE} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Kelurahan/Desa</Label>
@@ -476,26 +476,26 @@ export function SuratFormN1({ surat, entryId, initialData, from, backUrl = "/sur
               />
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">Nama Lengkap dan Alias</Label>
-                <Input value={form.ayahNama} onChange={handleInputChange("ayahNama")} placeholder="Nama lengkap ayah" readOnly className="bg-slate-50 cursor-not-allowed" />
+                <Input value={form.ayahNama} onChange={handleInputChange("ayahNama")} placeholder="Nama lengkap ayah" className={INPUT_BASE} />
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Pekerjaan Ayah</Label>
-                  <Input value={form.ayahPekerjaan} onChange={handleInputChange("ayahPekerjaan")} placeholder="Wiraswasta" readOnly className="bg-slate-50 cursor-not-allowed" />
+                  <Input value={form.ayahPekerjaan} onChange={handleInputChange("ayahPekerjaan")} placeholder="Wiraswasta" className={INPUT_BASE} />
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Tempat Lahir Ayah</Label>
-                  <Input value={form.ayahTempatLahir} onChange={handleInputChange("ayahTempatLahir")} placeholder="Magelang" readOnly className="bg-slate-50 cursor-not-allowed" />
+                  <Input value={form.ayahTempatLahir} onChange={handleInputChange("ayahTempatLahir")} placeholder="Magelang" className={INPUT_BASE} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Tanggal Lahir Ayah</Label>
-                  <Input type="date" value={form.ayahTanggalLahir} onChange={handleInputChange("ayahTanggalLahir")} readOnly className="bg-slate-50 cursor-not-allowed" />
+                  <Input type="date" value={form.ayahTanggalLahir} onChange={handleInputChange("ayahTanggalLahir")} className={INPUT_BASE} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Agama Ayah</Label>
-                  <Input value={form.ayahAgama} onChange={handleInputChange("ayahAgama")} placeholder="Islam" readOnly className="bg-slate-50 cursor-not-allowed" />
+                  <Input value={form.ayahAgama} onChange={handleInputChange("ayahAgama")} placeholder="Islam" className={INPUT_BASE} />
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -506,7 +506,7 @@ export function SuratFormN1({ surat, entryId, initialData, from, backUrl = "/sur
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">Alamat Ayah</Label>
-                <Textarea value={form.ayahAlamat} onChange={handleInputChange("ayahAlamat")} placeholder="Alamat lengkap ayah" readOnly className="bg-slate-50 cursor-not-allowed" />
+                <Textarea value={form.ayahAlamat} onChange={handleInputChange("ayahAlamat")} placeholder="Alamat lengkap ayah" className={TEXTAREA_BASE} />
               </div>
             </div>
 
@@ -524,26 +524,26 @@ export function SuratFormN1({ surat, entryId, initialData, from, backUrl = "/sur
               />
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">Nama Lengkap dan Alias</Label>
-                <Input value={form.ibuNama} onChange={handleInputChange("ibuNama")} placeholder="Nama lengkap ibu" readOnly className="bg-slate-50 cursor-not-allowed" />
+                <Input value={form.ibuNama} onChange={handleInputChange("ibuNama")} placeholder="Nama lengkap ibu" className={INPUT_BASE} />
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Pekerjaan Ibu</Label>
-                  <Input value={form.ibuPekerjaan} onChange={handleInputChange("ibuPekerjaan")} placeholder="Ibu Rumah Tangga" readOnly className="bg-slate-50 cursor-not-allowed" />
+                  <Input value={form.ibuPekerjaan} onChange={handleInputChange("ibuPekerjaan")} placeholder="Ibu Rumah Tangga" className={INPUT_BASE} />
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Tempat Lahir Ibu</Label>
-                  <Input value={form.ibuTempatLahir} onChange={handleInputChange("ibuTempatLahir")} placeholder="Cilacap" readOnly className="bg-slate-50 cursor-not-allowed" />
+                  <Input value={form.ibuTempatLahir} onChange={handleInputChange("ibuTempatLahir")} placeholder="Cilacap" className={INPUT_BASE} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Tanggal Lahir Ibu</Label>
-                  <Input type="date" value={form.ibuTanggalLahir} onChange={handleInputChange("ibuTanggalLahir")} readOnly className="bg-slate-50 cursor-not-allowed" />
+                  <Input type="date" value={form.ibuTanggalLahir} onChange={handleInputChange("ibuTanggalLahir")} className={INPUT_BASE} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Agama Ibu</Label>
-                  <Input value={form.ibuAgama} onChange={handleInputChange("ibuAgama")} placeholder="Islam" readOnly className="bg-slate-50 cursor-not-allowed" />
+                  <Input value={form.ibuAgama} onChange={handleInputChange("ibuAgama")} placeholder="Islam" className={INPUT_BASE} />
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -554,7 +554,7 @@ export function SuratFormN1({ surat, entryId, initialData, from, backUrl = "/sur
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">Alamat Ibu</Label>
-                <Textarea value={form.ibuAlamat} onChange={handleInputChange("ibuAlamat")} placeholder="Alamat lengkap ibu" readOnly className="bg-slate-50 cursor-not-allowed" />
+                <Textarea value={form.ibuAlamat} onChange={handleInputChange("ibuAlamat")} placeholder="Alamat lengkap ibu" className={TEXTAREA_BASE} />
               </div>
             </div>
 

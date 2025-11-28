@@ -221,16 +221,15 @@ export function SuratFormWaliNikah({ surat, entryId, initialData, from, backUrl 
           if (customField) {
             return <div key={key as string}>{customField}</div>;
           }
-          const isLocked = options?.lockedFields?.includes(key);
           return (
             <div key={key as string} className="space-y-2">
               <Label className="text-sm font-semibold text-slate-700">{label}</Label>
               {key.toLowerCase().includes("alamat") ? (
-                <Textarea value={form[key] ?? ""} onChange={handleInputChange(key)} placeholder={placeholder} rows={3} readOnly={isLocked} className={isLocked ? "bg-slate-50 cursor-not-allowed" : TEXTAREA_BASE} />
+                <Textarea value={form[key] ?? ""} onChange={handleInputChange(key)} placeholder={placeholder} rows={3} className={TEXTAREA_BASE} />
               ) : key.toLowerCase().includes("tanggal") ? (
-                <Input type="date" value={form[key] ?? ""} onChange={handleInputChange(key)} readOnly={isLocked} className={isLocked ? "bg-slate-50 cursor-not-allowed" : INPUT_BASE} />
+                <Input type="date" value={form[key] ?? ""} onChange={handleInputChange(key)} className={INPUT_BASE} />
               ) : (
-                <Input value={form[key] ?? ""} onChange={handleInputChange(key)} placeholder={placeholder} readOnly={isLocked} className={isLocked ? "bg-slate-50 cursor-not-allowed" : INPUT_BASE} />
+                <Input value={form[key] ?? ""} onChange={handleInputChange(key)} placeholder={placeholder} className={INPUT_BASE} />
               )}
             </div>
           );
