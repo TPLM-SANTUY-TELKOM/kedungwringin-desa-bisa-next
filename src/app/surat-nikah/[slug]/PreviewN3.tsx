@@ -11,6 +11,7 @@ import { useBackNavigation } from "@/hooks/useBackNavigation";
 type PreviewN3Props = {
   surat: SuratNikahOption;
   data: FormN3Data;
+  reservedNumberId?: string;
 };
 
 const renderMultiline = (value: string) => {
@@ -37,7 +38,7 @@ const combineTempatTanggal = (tempat: string, tanggal: string) => {
   return `${tempat}, ${formattedDate}`;
 };
 
-export function PreviewN3({ surat, data }: PreviewN3Props) {
+export function PreviewN3({ surat, data, reservedNumberId }: PreviewN3Props) {
   const handleBack = useBackNavigation("/surat-nikah");
 
   const tanggalSurat = useMemo(

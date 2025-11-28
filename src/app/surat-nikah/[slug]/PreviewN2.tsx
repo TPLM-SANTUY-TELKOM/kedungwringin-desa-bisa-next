@@ -11,9 +11,10 @@ import { useBackNavigation } from "@/hooks/useBackNavigation";
 type PreviewN2Props = {
   surat: SuratNikahOption;
   data: FormN2Data;
+  reservedNumberId?: string;
 };
 
-export function PreviewN2({ surat, data }: PreviewN2Props) {
+export function PreviewN2({ surat, data, reservedNumberId }: PreviewN2Props) {
   const handleBack = useBackNavigation("/surat-nikah");
 
   const tanggalAkad = useMemo(

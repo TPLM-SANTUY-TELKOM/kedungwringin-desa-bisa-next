@@ -57,13 +57,15 @@ export async function GET() {
           }
         });
 
-        const forms = Array.from(dedupMap.values()).sort(
-          (a, b) =>
-            NIKAH_BUNDLE_CODES.indexOf(a.jenis.toUpperCase()) -
-            NIKAH_BUNDLE_CODES.indexOf(b.jenis.toUpperCase()),
-        );
+        const forms = Array.from(dedupMap.values())
+          .filter((form) => form.jenis !== null)
+          .sort(
+            (a, b) =>
+              NIKAH_BUNDLE_CODES.indexOf(a.jenis!.toUpperCase()) -
+              NIKAH_BUNDLE_CODES.indexOf(b.jenis!.toUpperCase()),
+          );
 
-        const completedSet = new Set(forms.map((form) => form.jenis.toUpperCase()));
+        const completedSet = new Set(forms.map((form) => form.jenis!.toUpperCase()));
         const missing = Array.from(REQUIRED_SET).filter((jenis) => !completedSet.has(jenis));
         return {
           bundleKey: row.bundle_key as string,

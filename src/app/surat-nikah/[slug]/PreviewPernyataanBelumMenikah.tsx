@@ -14,6 +14,7 @@ import { useBackNavigation } from "@/hooks/useBackNavigation";
 type PreviewPernyataanBelumMenikahProps = {
   surat: SuratNikahOption;
   data: PernyataanBelumMenikahData;
+  reservedNumberId?: string;
 };
 
 const renderMultiline = (value: string) => {
@@ -37,6 +38,7 @@ const getPernyataanText = (
 export function PreviewPernyataanBelumMenikah({
   surat,
   data,
+  reservedNumberId,
 }: PreviewPernyataanBelumMenikahProps) {
   const handleBack = useBackNavigation("/surat-nikah");
   const tanggalSurat = useMemo(

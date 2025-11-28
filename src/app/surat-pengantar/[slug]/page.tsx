@@ -18,7 +18,6 @@ type SuratPengantarFormPageProps = {
 
 export default async function SuratPengantarFormPage({ params, searchParams }: SuratPengantarFormPageProps) {
   const { slug } = await params;
-  const { from } = await searchParams;
   const decodedSlug = decodeURIComponent(slug);
   const surat = findSuratPengantarBySlug(decodedSlug);
 

@@ -482,15 +482,18 @@ export default function PendudukPage() {
       });
       const headerSubtitle = `Tanggal Export: ${exportDate}`;
       
-      // Create worksheet with data starting from row 4 (after header)
-      const worksheet = XLSX.utils.json_to_sheet(excelData, { origin: "A4" });
+      // Create empty worksheet
+      const worksheet = XLSX.utils.aoa_to_sheet([]);
       
-      // Add header rows
+      // Add header rows first
       XLSX.utils.sheet_add_aoa(worksheet, [
         [headerTitle],
         [headerSubtitle],
         [], // Empty row for spacing
       ], { origin: "A1" });
+      
+      // Add data starting from row 4 (after header)
+      XLSX.utils.sheet_add_json(worksheet, excelData, { origin: "A4", skipHeader: false });
       
       // Merge cells for title (span across all columns)
       const totalColumns = Object.keys(excelData[0] || {}).length;

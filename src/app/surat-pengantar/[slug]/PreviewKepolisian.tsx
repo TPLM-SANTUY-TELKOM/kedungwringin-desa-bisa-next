@@ -12,9 +12,10 @@ import { SuratPengantarHeader } from "./SuratPengantarHeader";
 type PreviewKepolisianProps = {
   surat: SuratPengantarOption;
   data: SuratPengantarKepolisianData;
+  reservedNumberId?: string;
 };
 
-export function PreviewKepolisian({ surat, data }: PreviewKepolisianProps) {
+export function PreviewKepolisian({ surat, data, reservedNumberId }: PreviewKepolisianProps) {
   const handleBack = useBackNavigation("/surat-pengantar");
 
   const alamatLengkap = [

@@ -23,7 +23,6 @@ type SuratNikahFormPageProps = {
 
 export default async function SuratNikahFormPage({ params, searchParams }: SuratNikahFormPageProps) {
   const { slug } = await params;
-  const { from } = await searchParams;
   const decodedSlug = decodeURIComponent(slug);
   const surat = findSuratNikahBySlug(decodedSlug);
 

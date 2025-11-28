@@ -22,7 +22,6 @@ type SuratKeteranganFormPageProps = {
 
 export default async function SuratKeteranganFormPage({ params, searchParams }: SuratKeteranganFormPageProps) {
   const { slug } = await params;
-  const { from } = await searchParams;
   const decodedSlug = decodeURIComponent(slug);
   const surat = findSuratKeteranganBySlug(decodedSlug);
 

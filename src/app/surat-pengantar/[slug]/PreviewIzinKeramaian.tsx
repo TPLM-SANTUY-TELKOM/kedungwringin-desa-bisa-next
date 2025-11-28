@@ -12,9 +12,10 @@ import { SuratPengantarHeader } from "./SuratPengantarHeader";
 type PreviewIzinKeramaianProps = {
   surat: SuratPengantarOption;
   data: SuratPengantarIzinKeramaianData;
+  reservedNumberId?: string;
 };
 
-export function PreviewIzinKeramaian({ surat, data }: PreviewIzinKeramaianProps) {
+export function PreviewIzinKeramaian({ surat, data, reservedNumberId }: PreviewIzinKeramaianProps) {
   const handleBack = useBackNavigation("/surat-pengantar");
 
   const alamatLengkap = [
