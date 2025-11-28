@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Printer } from "lucide-react";
+import { ArrowLeft, Printer, X, AlertCircle, CheckCircle2 } from "lucide-react";
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import logoDesa from "@/assets/ic_logo_banyumas.png";
 type PreviewWaliHakimProps = {
   surat: SuratKeteranganOption;
   data: SuratKeteranganWaliHakimData;
+  reservedNumberId?: string;
 };
 
 function formatDateIndonesian(dateString: string): string {
@@ -24,8 +26,49 @@ function formatDateIndonesian(dateString: string): string {
   return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
 }
 
-export function PreviewWaliHakim({ surat, data }: PreviewWaliHakimProps) {
+export function PreviewWaliHakim({ surat, data, reservedNumberId }: PreviewWaliHakimProps) {
   const router = useRouter();
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
+
+  const handlePrintClick = () => {
+    setShowConfirmDialog(true);
+  };
+
+  const handleConfirmPrint = async () => {
+    if (!reservedNumberId) {
+      window.print();
+      setShowConfirmDialog(false);
+      return;
+    }
+
+    setIsPrinting(true);
+    try {
+      const res = await fetch("/api/surat-number", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: reservedNumberId }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Gagal mengkonfirmasi nomor surat");
+      }
+
+      setShowConfirmDialog(false);
+      setTimeout(() => {
+        window.print();
+      }, 100);
+    } catch (error) {
+      console.error("Error confirming number:", error);
+      alert("Terjadi kesalahan saat mengkonfirmasi nomor surat. Silakan coba lagi.");
+    } finally {
+      setIsPrinting(false);
+    }
+  };
+
+  const handleCancelPrint = () => {
+    setShowConfirmDialog(false);
+  };
 
   return (
     <div className="mx-auto mt-12 flex w-full max-w-4xl flex-col gap-10 print:mt-0 print:px-0">
@@ -35,7 +78,7 @@ export function PreviewWaliHakim({ surat, data }: PreviewWaliHakimProps) {
             <ArrowLeft className="mr-2 h-4 w-4" />
             Kembali
           </Button>
-          <Button onClick={() => window.print()} className="rounded-full bg-slate-900 px-6 text-white hover:bg-slate-800">
+          <Button onClick={handlePrintClick} className="rounded-full bg-slate-900 px-6 text-white hover:bg-slate-800">
             <Printer className="mr-2 h-4 w-4" />
             Cetak
           </Button>
@@ -72,12 +115,12 @@ export function PreviewWaliHakim({ surat, data }: PreviewWaliHakimProps) {
           </div>
 
           {/* Content */}
-          <div className="mt-6 space-y-3 text-[14px] leading-relaxed">
+          <div className="mt-2 space-y-1 text-[14px] leading-relaxed">
             <p className="text-justify">Yang bertanda tangan di bawah ini Kepala Desa Kedungwringin Kecamatan Patikraja Kabupaten Banyumas Provinsi Jawa Tengah, menerangkan dengan sesungguhnya bahwa :</p>
           </div>
 
           {/* Data Wali */}
-          <div className="mt-4">
+          <div className="mt-2">
             <p className="text-[14px] font-semibold">I. Seorang perempuan bernama:</p>
             <table className="mt-2 w-full text-[14px] leading-relaxed">
               <tbody className="[&>tr>td]:py-1 [&>tr>td]:align-top">
@@ -121,15 +164,15 @@ export function PreviewWaliHakim({ surat, data }: PreviewWaliHakimProps) {
             </table>
           </div>
 
-          <div className="mt-4 text-[14px] leading-relaxed">
+          <div className="mt-2 text-[14px] leading-tight">
             <p className="text-justify">Akan melangsungkan pernikahan besok pada hari <strong>{formatDateIndonesian(data.tanggalPernikahan)}</strong> dengan seorang laki-laki:</p>
           </div>
 
           {/* Data Calon Pengantin */}
-          <div className="mt-4">
+          <div className="mt-2">
             <p className="text-[14px] font-semibold">II. Bernama:</p>
-            <table className="mt-2 w-full text-[14px] leading-relaxed">
-              <tbody className="[&>tr>td]:py-1 [&>tr>td]:align-top">
+            <table className="mt-1 w-full text-[14px] leading-tight">
+              <tbody className="[&>tr>td]:py-0 [&>tr>td]:align-top">
                 <tr>
                   <td className="w-[50px]">1.</td>
                   <td className="w-[200px]">Nama lengkap dan aliasnya</td>
@@ -171,7 +214,7 @@ export function PreviewWaliHakim({ surat, data }: PreviewWaliHakimProps) {
           </div>
 
           {/* Alasan Wali Hakim */}
-          <div className="mt-6 space-y-2 text-[14px] leading-relaxed">
+          <div className="mt-2 space-y-1 text-[14px] leading-tight">
             <p className="text-justify"><strong>Dengan wali hakim dikarenakan/disebabkan:</strong></p>
             
             {data.alasanWaliHakim === "kehabisan-wali" && (
@@ -198,21 +241,91 @@ export function PreviewWaliHakim({ surat, data }: PreviewWaliHakimProps) {
               </div>
             )}
             
-            <p className="mt-4 text-justify">Bahwa yang bersangkutan adalah benar memerlukan Wali Hakim untuk melangsungkan pernikahan dengan alasan tersebut di atas.</p>
+            <p className="mt-1 text-justify">Bahwa yang bersangkutan adalah benar memerlukan Wali Hakim untuk melangsungkan pernikahan dengan alasan tersebut di atas.</p>
             <p className="text-justify">Demikian Surat Keterangan ini dibuat dengan sebenarnya untuk dipergunakan sebagaimana mestinya.</p>
           </div>
 
           {/* Signature */}
-          <div className="mt-10 flex justify-end">
+          <div className="mt-4 flex justify-end">
             <div className="w-[280px] text-center">
               <p className="text-[14px]">Kedungwringin, {formatDateIndonesian(data.tanggalSurat)}</p>
               <p className="text-[14px] font-bold uppercase">Kepala Desa</p>
-              <div className="my-16"></div>
+              <div className="my-15"></div>
               <p className="text-[14px] font-bold uppercase underline">{data.kepalaDesa}</p>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Custom Confirmation Dialog */}
+      {showConfirmDialog && (
+        <div className="print-hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="relative w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-2xl">
+            {/* Close Button */}
+            <button
+              onClick={handleCancelPrint}
+              className="absolute right-4 top-4 rounded-full p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+              disabled={isPrinting}
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            {/* Icon */}
+            <div className="mb-4 flex justify-center">
+              <div className="rounded-full bg-amber-100 p-3">
+                <AlertCircle className="h-8 w-8 text-amber-600" />
+              </div>
+            </div>
+
+            {/* Title */}
+            <h3 className="mb-2 text-center text-xl font-semibold text-slate-900">
+              Konfirmasi Cetak Surat
+            </h3>
+
+            {/* Message */}
+            <div className="mb-6 space-y-2 text-center text-sm text-slate-600">
+              <p>
+                Anda akan mencetak surat dengan nomor:
+              </p>
+              <p className="rounded-lg bg-slate-50 px-3 py-2 font-mono text-base font-semibold text-slate-900">
+                {data.nomorSurat}
+              </p>
+              <p className="text-xs text-slate-500">
+                Nomor ini akan dikonfirmasi dan tidak dapat diubah.
+              </p>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <Button
+                onClick={handleCancelPrint}
+                variant="outline"
+                className="flex-1 rounded-full border-slate-300"
+                disabled={isPrinting}
+              >
+                Batal
+              </Button>
+              <Button
+                onClick={handleConfirmPrint}
+                className="flex-1 rounded-full bg-slate-900 hover:bg-slate-800"
+                disabled={isPrinting}
+              >
+                {isPrinting ? (
+                  <>
+                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    Memproses...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="mr-2 h-4 w-4" />
+                    Ya, Cetak
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -41,11 +41,18 @@ export function SuratFormTidakMampu({ surat, entryId, initialData, from, backUrl
   const [reservedNumberId, setReservedNumberId] = useState<string | null>(null);
 
   const handleApplyNikData = (data: PendudukLookupResult) => {
+    // Convert gender format from API ("Laki-laki"/"Perempuan") to expected format ("LAKI-LAKI"/"PEREMPUAN")
+    const convertGender = (gender: string): "LAKI-LAKI" | "PEREMPUAN" => {
+      if (gender === "Laki-laki") return "LAKI-LAKI";
+      if (gender === "Perempuan") return "PEREMPUAN";
+      return gender.toUpperCase() as "LAKI-LAKI" | "PEREMPUAN";
+    };
+    
     setForm((prev) => ({
       ...prev,
       nama: data.nama || prev.nama,
       nik: data.nik || prev.nik,
-      jenisKelamin: data.jenis_kelamin || prev.jenisKelamin,
+      jenisKelamin: data.jenis_kelamin ? convertGender(data.jenis_kelamin) : prev.jenisKelamin,
       tempatLahir: data.tempat_lahir || prev.tempatLahir,
       tanggalLahir: data.tanggal_lahir || prev.tanggalLahir,
       agama: data.agama || prev.agama,

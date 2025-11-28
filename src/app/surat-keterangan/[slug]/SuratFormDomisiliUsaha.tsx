@@ -291,7 +291,7 @@ export function SuratFormDomisiliUsaha({ surat, entryId, initialData, from, back
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Waktu Usaha</Label>
-                  <Input value={form.waktuUsaha} onChange={handleInputChange("waktuUsaha")} placeholder="Jam operasional" className={INPUT_BASE} />
+                  <Input value={form.waktuUsaha} onChange={handleInputChange("waktuUsaha")} placeholder="10.00 - 16.00" className={INPUT_BASE} />
                 </div>
               </div>
             </div>

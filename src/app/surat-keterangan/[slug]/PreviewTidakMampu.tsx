@@ -26,6 +26,13 @@ function formatDateIndonesian(dateString: string): string {
   return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
 }
 
+function formatGender(gender: string): string {
+  // Normalize gender display format
+  if (gender === "LAKI-LAKI" || gender === "Laki-laki") return "LAKI-LAKI";
+  if (gender === "PEREMPUAN" || gender === "Perempuan") return "PEREMPUAN";
+  return gender.toUpperCase();
+}
+
 export function PreviewTidakMampu({ surat, data, reservedNumberId }: PreviewTidakMampuProps) {
   const router = useRouter();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -131,7 +138,7 @@ export function PreviewTidakMampu({ surat, data, reservedNumberId }: PreviewTida
                 <td>2.</td>
                 <td>Jenis Kelamin</td>
                 <td className="pr-3">:</td>
-                <td>{data.jenisKelamin}</td>
+                <td>{formatGender(data.jenisKelamin)}</td>
               </tr>
               <tr>
                 <td>3.</td>

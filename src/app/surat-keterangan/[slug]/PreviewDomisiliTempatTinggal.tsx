@@ -186,9 +186,8 @@ export function PreviewDomisiliTempatTinggal({ surat, data, reservedNumberId }: 
           {/* Signature */}
           <div className="mt-10 flex justify-end">
             <div className="w-[280px] text-center">
-              <p className="text-[14px]">{data.tempatSurat}, {formatDateIndonesian(data.tanggalSurat)}</p>
-              <p className="text-[14px]">An.Kepala Desa</p>
-              <p className="text-[14px]">Sekretaris Desa</p>
+              <p className="text-[14px]">Kedungwringin, {formatDateIndonesian(data.tanggalSurat)}</p>
+              <p className="text-[14px] font-bold uppercase">Kepala Desa</p>
               <div className="my-16"></div>
               <p className="text-[14px] font-bold uppercase underline">{data.kepalaDesa}</p>
             </div>

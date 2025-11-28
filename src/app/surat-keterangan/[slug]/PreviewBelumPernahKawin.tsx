@@ -109,18 +109,18 @@ export function PreviewBelumPernahKawin({ surat, data, reservedNumberId }: Previ
           </div>
 
           {/* Title */}
-          <div className="mt-6 text-center">
+          <div className="mt-4 text-center">
             <p className="text-[16px] font-bold uppercase underline">Surat Keterangan Belum Pernah Kawin</p>
             <p className="text-[13px]">Nomor : {data.nomorSurat}</p>
           </div>
 
           {/* Content */}
-          <div className="mt-6 text-[14px] leading-relaxed">
+          <div className="mt-4 text-[14px] leading-tight">
             <p className="text-justify">Yang bertanda tangan di bawah ini :</p>
           </div>
 
-          <table className="mt-3 w-full text-[14px] leading-relaxed">
-            <tbody className="[&>tr>td]:py-1 [&>tr>td]:align-top">
+          <table className="mt-2 w-full text-[14px] leading-tight">
+            <tbody className="[&>tr>td]:py-0.5 [&>tr>td]:align-top">
               <tr>
                 <td className="w-[50px]">a.</td>
                 <td className="w-[120px]">Nama</td>
@@ -136,12 +136,12 @@ export function PreviewBelumPernahKawin({ surat, data, reservedNumberId }: Previ
             </tbody>
           </table>
 
-          <div className="mt-4 text-[14px] leading-relaxed">
+          <div className="mt-3 text-[14px] leading-tight">
             <p className="text-justify">dengan ini menerangkan bahwa :</p>
           </div>
 
-          <table className="mt-3 w-full text-[14px] leading-relaxed">
-            <tbody className="[&>tr>td]:py-1 [&>tr>td]:align-top">
+          <table className="mt-2 w-full text-[14px] leading-tight">
+            <tbody className="[&>tr>td]:py-0.5 [&>tr>td]:align-top">
               <tr>
                 <td className="w-[50px]">1.</td>
                 <td className="w-[200px]">N I K</td>
@@ -217,18 +217,18 @@ export function PreviewBelumPernahKawin({ surat, data, reservedNumberId }: Previ
             </tbody>
           </table>
 
-          <div className="mt-6 space-y-3 text-[14px] leading-relaxed">
+          <div className="mt-4 space-y-2 text-[14px] leading-tight">
             <p className="text-justify">Sepengetahuan kami, memang benar orang tersebut diatas belum pernah kawin/nikah baik secara adat maupun secara hukum, di {data.alamat}, Desa {data.desaKel}, Kecamatan {data.kecamatan}, Kabupaten {data.kabupaten}</p>
             <p className="text-justify">Surat Keterangan ini dibuat untuk keperluan <strong>{data.keperluan}</strong>.</p>
             <p className="text-justify">Demikian surat keterangan ini dibuat dengn sebenarnya untuk dapat dipergunakan sebagaimana mestinya.</p>
           </div>
 
           {/* Signature */}
-          <div className="mt-10 flex justify-end">
+          <div className="mt-6 flex justify-end">
             <div className="w-[280px] text-center">
               <p className="text-[14px]">Kedungwringin, {formatDateIndonesian(data.tanggalSurat)}</p>
               <p className="text-[14px] font-bold uppercase">Kepala Desa</p>
-              <div className="my-16"></div>
+              <div className="my-15"></div>
               <p className="text-[14px] font-bold uppercase underline">{data.namaPenandatangan}</p>
             </div>
           </div>
