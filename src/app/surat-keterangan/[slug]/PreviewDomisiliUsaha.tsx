@@ -228,7 +228,7 @@ export function PreviewDomisiliUsaha({ surat, data, reservedNumberId }: PreviewD
               <p className="text-[14px] mt-4">Mengetahui</p>
               <p className="text-[14px]">Camat Patikraja</p>
               <div className="my-12"></div>
-              <p className="text-[14px]">(</p>
+              <p className="text-[14px]">(_______________________)</p>
               <p className="text-[14px]">NIP.</p>
             </div>
             <div className="w-[280px] text-center">
