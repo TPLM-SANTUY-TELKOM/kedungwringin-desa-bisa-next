@@ -38,6 +38,8 @@ export function SuratFormWaliHakim({ surat, entryId, initialData, from, backUrl 
   });
   const [error, setError] = useState<string | null>(null);
   const [nikWali, setNikWali] = useState("");
+  const [isGeneratingNumber, setIsGeneratingNumber] = useState(false);
+  const [reservedNumberId, setReservedNumberId] = useState<string | null>(null);
 
   const handleApplyNikData = (data: PendudukLookupResult) => {
     setForm((prev) => ({
@@ -97,9 +99,8 @@ export function SuratFormWaliHakim({ surat, entryId, initialData, from, backUrl 
     if (error) setError(null);
   };
 
-  const handlePreview = () => {
+  const handlePreview = async () => {
     const requiredFields: Array<keyof SuratKeteranganWaliHakimData> = [
-      "nomorSurat",
       "tanggalSurat",
       "tanggalPernikahan",
       "namaWali",
@@ -123,15 +124,41 @@ export function SuratFormWaliHakim({ surat, entryId, initialData, from, backUrl 
       return;
     }
 
-    const params = new URLSearchParams();
-    params.set("data", JSON.stringify(form));
-    if (entryId) {
-      params.set("entryId", entryId);
+    setIsGeneratingNumber(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/surat-number", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jenisSurat: surat.slug }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Gagal menggenerate nomor surat");
+      }
+
+      const { nomorSurat, id } = await res.json();
+      setReservedNumberId(id);
+
+      const today = new Date().toISOString().split('T')[0];
+      const updatedForm = { ...form, nomorSurat, tanggalSurat: today };
+
+      const params = new URLSearchParams();
+      params.set("data", JSON.stringify(updatedForm));
+      params.set("reservedNumberId", id);
+      if (entryId) {
+        params.set("entryId", entryId);
+      }
+      if (from) {
+        params.set("from", from);
+      }
+      router.push(`/surat-keterangan/${surat.slug}/preview?${params.toString()}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Terjadi kesalahan saat menggenerate nomor surat");
+    } finally {
+      setIsGeneratingNumber(false);
     }
-    if (from) {
-      params.set("from", from);
-    }
-    router.push(`/surat-keterangan/${surat.slug}/preview?${params.toString()}`);
   };
 
   return (
@@ -172,10 +199,6 @@ export function SuratFormWaliHakim({ surat, entryId, initialData, from, backUrl 
           <form className="space-y-10">
             <div className="space-y-4">
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Informasi Surat</p>
-              <div className="space-y-2">
-                <Label className="text-sm font-semibold text-slate-700">Nomor Surat</Label>
-                <Input value={form.nomorSurat} onChange={handleInputChange("nomorSurat")} placeholder="Nomor:" className={INPUT_BASE} />
-              </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Tanggal Surat</Label>
@@ -343,8 +366,13 @@ export function SuratFormWaliHakim({ surat, entryId, initialData, from, backUrl 
               <Button type="button" onClick={handleCancel} variant="outline" className="h-12 rounded-full px-8">
                 Batal
               </Button>
-              <Button type="button" onClick={handlePreview} className="h-12 rounded-full bg-slate-900 px-8 hover:bg-slate-800">
-                Preview Surat
+              <Button 
+                type="button" 
+                onClick={handlePreview} 
+                disabled={isGeneratingNumber}
+                className="h-12 rounded-full bg-slate-900 px-8 hover:bg-slate-800"
+              >
+                {isGeneratingNumber ? "Memproses..." : "Preview Surat"}
               </Button>
             </div>
           </form>
