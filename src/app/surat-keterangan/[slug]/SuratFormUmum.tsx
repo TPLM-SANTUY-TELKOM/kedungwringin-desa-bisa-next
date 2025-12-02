@@ -309,8 +309,8 @@ export function SuratFormUmum({ surat, entryId, initialData, from, backUrl = "/s
                       <SelectValue placeholder="Pilih status perkawinan" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Belum Kawin">Belum Kawin</SelectItem>
-                      <SelectItem value="Kawin">Kawin</SelectItem>
+                      <SelectItem value="Kawin Tercatat">Kawin Tercatat</SelectItem>
+                      <SelectItem value="Kawin Tidak Tercatat">Kawin Tidak Tercatat</SelectItem>
                       <SelectItem value="Cerai Hidup">Cerai Hidup</SelectItem>
                       <SelectItem value="Cerai Mati">Cerai Mati</SelectItem>
                     </SelectContent>

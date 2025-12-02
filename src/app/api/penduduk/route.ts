@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db, query } from '@/lib/db';
 
 type JenisKelamin = 'Laki-laki' | 'Perempuan';
-type StatusKawin = 'Belum Kawin' | 'Kawin' | 'Cerai Hidup' | 'Cerai Mati';
+type StatusKawin =
+  | 'Kawin Tercatat'
+  | 'Kawin Tidak Tercatat'
+  | 'Cerai Hidup'
+  | 'Cerai Mati';
 type StatusPerkawinan = 'Belum menikah' | 'Menikah' | 'Duda' | 'Janda';
 
 type PendudukRow = {
@@ -57,9 +61,8 @@ const statusPerkawinanFromStatusKawin = (
   jenisKelamin: JenisKelamin,
 ): StatusPerkawinan => {
   switch (statusKawin) {
-    case 'Belum Kawin':
-      return 'Belum menikah';
-    case 'Kawin':
+    case 'Kawin Tercatat':
+    case 'Kawin Tidak Tercatat':
       return 'Menikah';
     case 'Cerai Hidup':
     case 'Cerai Mati':
@@ -72,15 +75,23 @@ const statusPerkawinanFromStatusKawin = (
 const statusKawinFromPerkawinan = (status?: string): StatusKawin | undefined => {
   if (!status) return undefined;
 
-  switch (status.toLowerCase()) {
-    case 'belum menikah':
-    case 'belum kawin':
-      return 'Belum Kawin';
+  const normalized = status.toLowerCase();
+
+  if (normalized.includes('tercatat')) {
+    return normalized.includes('tidak') ? 'Kawin Tidak Tercatat' : 'Kawin Tercatat';
+  }
+
+  switch (normalized) {
     case 'menikah':
     case 'kawin':
-      return 'Kawin';
+      return 'Kawin Tercatat';
+    case 'belum menikah':
+    case 'belum kawin':
+      return 'Kawin Tidak Tercatat';
+    case 'cerai mati':
+      return 'Cerai Mati';
+    case 'cerai hidup':
     case 'duda':
-      return 'Cerai Hidup';
     case 'janda':
       return 'Cerai Hidup';
     default:

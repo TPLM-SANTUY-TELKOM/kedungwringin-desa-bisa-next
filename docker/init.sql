@@ -3,7 +3,7 @@ CREATE TYPE agama AS ENUM ('Islam', 'Kristen', 'Katolik', 'Hindu', 'Buddha', 'Ko
 CREATE TYPE app_role AS ENUM ('admin', 'user');
 CREATE TYPE jenis_kelamin AS ENUM ('Laki-laki', 'Perempuan');
 CREATE TYPE jenis_surat AS ENUM ('SKTM', 'Domisili', 'Usaha', 'SKCK', 'N1', 'N2', 'N3', 'N4', 'N5');
-CREATE TYPE status_kawin AS ENUM ('Belum Kawin', 'Kawin', 'Cerai Hidup', 'Cerai Mati');
+CREATE TYPE status_kawin AS ENUM ('Kawin Tercatat', 'Kawin Tidak Tercatat', 'Cerai Hidup', 'Cerai Mati');
 CREATE TYPE status_penduduk AS ENUM ('Aktif', 'Pindah', 'Meninggal');
 CREATE TYPE golongan_darah AS ENUM ('A', 'B', 'AB', 'O', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-');
 CREATE TYPE status_perkawinan AS ENUM ('Belum menikah', 'Menikah', 'Duda', 'Janda');
@@ -44,8 +44,7 @@ CREATE TABLE IF NOT EXISTS penduduk (
     status_kawin status_kawin NOT NULL,
     status_perkawinan status_perkawinan GENERATED ALWAYS AS (
         CASE
-            WHEN status_kawin = 'Belum Kawin' THEN 'Belum menikah'::status_perkawinan
-            WHEN status_kawin = 'Kawin' THEN 'Menikah'::status_perkawinan
+            WHEN status_kawin IN ('Kawin Tercatat', 'Kawin Tidak Tercatat') THEN 'Menikah'::status_perkawinan
             WHEN status_kawin IN ('Cerai Hidup', 'Cerai Mati') AND jenis_kelamin = 'Perempuan' THEN 'Janda'::status_perkawinan
             WHEN status_kawin IN ('Cerai Hidup', 'Cerai Mati') THEN 'Duda'::status_perkawinan
             ELSE 'Menikah'::status_perkawinan
@@ -258,8 +257,8 @@ ON CONFLICT DO NOTHING;
 -- Insert sample data penduduk (optional)
 INSERT INTO penduduk (nik, no_kk, nama, tempat_lahir, tanggal_lahir, jenis_kelamin, golongan_darah, agama, status_kawin, pekerjaan, pendidikan, alamat, dusun, rt, rw, no_akta_lahir, umur)
 VALUES 
-    ('3301012001010001', '3301010101010001', 'Budi Santoso', 'Jakarta', '2001-01-01', 'Laki-laki', 'A', 'Islam', 'Belum Kawin', 'Pelajar/Mahasiswa', 'SMA', 'Jl. Raya Desa No. 1', 'Kedungwringin', '001', '001', '3301-LT-20010101-0001', 23),
-    ('3301012002020002', '3301010202020002', 'Siti Aminah', 'Bandung', '2002-02-02', 'Perempuan', 'O', 'Islam', 'Belum Kawin', 'Pelajar/Mahasiswa', 'SMA', 'Jl. Raya Desa No. 2', 'Kedungwringin', '002', '001', '3301-LT-20020202-0002', 22)
+    ('3301012001010001', '3301010101010001', 'Budi Santoso', 'Jakarta', '2001-01-01', 'Laki-laki', 'A', 'Islam', 'Kawin Tercatat', 'Pelajar/Mahasiswa', 'SMA', 'Jl. Raya Desa No. 1', 'Kedungwringin', '001', '001', '3301-LT-20010101-0001', 23),
+    ('3301012002020002', '3301010202020002', 'Siti Aminah', 'Bandung', '2002-02-02', 'Perempuan', 'O', 'Islam', 'Kawin Tidak Tercatat', 'Pelajar/Mahasiswa', 'SMA', 'Jl. Raya Desa No. 2', 'Kedungwringin', '002', '001', '3301-LT-20020202-0002', 22)
 ON CONFLICT (nik) DO NOTHING;
 
 COMMIT;

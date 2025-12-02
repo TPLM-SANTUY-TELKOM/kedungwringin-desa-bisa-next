@@ -27,15 +27,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-type StatusKawin = "Belum Kawin" | "Kawin" | "Cerai Hidup" | "Cerai Mati";
+type StatusKawin =
+  | "Kawin Tercatat"
+  | "Kawin Tidak Tercatat"
+  | "Cerai Hidup"
+  | "Cerai Mati";
 type StatusPerkawinan = "Belum menikah" | "Menikah" | "Duda" | "Janda";
 
 const STATUS_PERKAWINAN: Record<
   StatusKawin,
   Exclude<StatusPerkawinan, "Janda">
 > = {
-  "Belum Kawin": "Belum menikah",
-  Kawin: "Menikah",
+  "Kawin Tercatat": "Menikah",
+  "Kawin Tidak Tercatat": "Menikah",
   "Cerai Hidup": "Duda", // default, will be adjusted using jenis_kelamin
   "Cerai Mati": "Duda", // default, will be adjusted using jenis_kelamin
 };
@@ -155,8 +159,8 @@ const PENDIDIKAN_OPTIONS = [
 ];
 
 const STATUS_KAWIN_OPTIONS: StatusKawin[] = [
-  "Belum Kawin",
-  "Kawin",
+  "Kawin Tercatat",
+  "Kawin Tidak Tercatat",
   "Cerai Hidup",
   "Cerai Mati",
 ];

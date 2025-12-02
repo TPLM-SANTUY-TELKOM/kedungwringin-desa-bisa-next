@@ -267,7 +267,7 @@ export function SuratFormUmum({ surat, entryId, initialData, from, backUrl = "/s
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Status Perkawinan</Label>
-                  <Input value={form.statusPerkawinan} onChange={handleInputChange("statusPerkawinan")} placeholder="Kawin/Belum Kawin/Duda/Janda" className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`} readOnly />
+                  <Input value={form.statusPerkawinan} onChange={handleInputChange("statusPerkawinan")} placeholder="Kawin Tercatat/Kawin Tidak Tercatat/Duda/Janda" className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`} readOnly />
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
