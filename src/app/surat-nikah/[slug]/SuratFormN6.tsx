@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 
 import { NikLookupField } from "@/components/form/NikLookupField";
+import { KepalaDesaSelect } from "@/components/form/KepalaDesaSelect";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -109,6 +110,14 @@ export function SuratFormN6({ surat, entryId, initialData, from, backUrl = "/sur
       }));
       if (error) setError(null);
     };
+
+  const handleSelectChange = (field: keyof FormN6Data) => (value: string) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+    if (error) setError(null);
+  };
 
   const handleCancel = () => {
     if (from === "surat-masuk") {
@@ -357,7 +366,12 @@ export function SuratFormN6({ surat, entryId, initialData, from, backUrl = "/sur
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Penandatangan</p>
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">Nama Kepala Desa</Label>
-                <Input value={form.kepalaDesa} onChange={handleInputChange("kepalaDesa")} placeholder="Parminah" className={INPUT_BASE} />
+                <KepalaDesaSelect
+                  value={form.kepalaDesa}
+                  onValueChange={handleSelectChange("kepalaDesa")}
+                  placeholder="Pilih pejabat penandatangan"
+                  triggerClassName={INPUT_BASE}
+                />
               </div>
             </div>
 

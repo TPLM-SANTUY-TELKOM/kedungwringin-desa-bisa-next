@@ -1,3 +1,5 @@
+import { DEFAULT_KEPALA_DESA } from "@/data/pejabat-desa";
+
 export type SuratPengantarUmumData = {
   nomorSurat: string;
   tempatSurat: string;
@@ -51,7 +53,7 @@ export const createDefaultSuratPengantarUmum = (): SuratPengantarUmumData => ({
   berlakuDari: "",
   berlakuSampai: "",
   keteranganLain: "",
-  kepalaDesa: "Parminah",
+  kepalaDesa: DEFAULT_KEPALA_DESA,
   mengetahuiNama: "",
   mengetahuiJabatan: "Camat Patikraja",
 });
@@ -130,7 +132,7 @@ export const createDefaultSuratPengantarKepolisian = (): SuratPengantarKepolisia
   suratKeteranganRWTanggal: "",
   noReg: "",
   tanggalReg: "",
-  kepalaDesa: "Parminah",
+  kepalaDesa: DEFAULT_KEPALA_DESA,
   mengetahuiNama: "",
   mengetahuiJabatan: "Camat Patikraja",
 });
@@ -218,7 +220,7 @@ export const createDefaultSuratPengantarIzinKeramaian = (): SuratPengantarIzinKe
   suratPernyataanRTTanggal: "",
   noReg: "",
   tanggalReg: "",
-  kepalaDesa: "Parminah",
+  kepalaDesa: DEFAULT_KEPALA_DESA,
   mengetahuiNama: "",
   mengetahuiJabatan: "Camat Patikraja",
 });
@@ -253,4 +255,3 @@ export function formatDateIndonesian(date: string) {
     year: "numeric",
   });
 }
-
