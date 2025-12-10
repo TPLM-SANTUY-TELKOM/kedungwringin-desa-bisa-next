@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import type { SuratKeteranganOption } from "@/data/surat-keterangan-options";
 import type { SuratKeteranganUmumData } from "@/app/surat-keterangan/types";
 import logoDesa from "@/assets/ic_logo_banyumas.png";
+import { getPejabatByNama } from "@/lib/pejabat";
 
 type PreviewUmumProps = {
   surat: SuratKeteranganOption;
@@ -30,6 +31,7 @@ export function PreviewUmum({ surat, data, reservedNumberId }: PreviewUmumProps)
   const router = useRouter();
   const [isPrinting, setIsPrinting] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const pejabatPenandatangan = getPejabatByNama(data.kepalaDesa);
 
   const handlePrintClick = () => {
     setShowConfirmDialog(true);
@@ -265,10 +267,9 @@ export function PreviewUmum({ surat, data, reservedNumberId }: PreviewUmumProps)
             {/* Right Column - An.Kepala Desa */}
             <div className="text-center w-[280px]">
               <p className="text-[14px]">{data.tempatSurat}, {formatDateIndonesian(data.tanggalSurat)}</p>
-              <p className="text-[14px]">An.Kepala Desa</p>
-              <p className="text-[14px]">Sekretaris Desa</p>
+              <p className="text-[14px] font-semibold uppercase">{pejabatPenandatangan.jabatan}</p>
               <div className="my-20"></div>
-              <p className="text-[14px] font-bold uppercase underline">{data.kepalaDesa}</p>
+              <p className="text-[14px] font-bold uppercase underline">{pejabatPenandatangan.nama}</p>
             </div>
           </div>
         </div>

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import type { SuratKeteranganOption } from "@/data/surat-keterangan-options";
 import type { SuratKeteranganDomisiliTempatTinggalData } from "@/app/surat-keterangan/types";
 import logoDesa from "@/assets/ic_logo_banyumas.png";
+import { getPejabatByNama } from "@/lib/pejabat";
 
 type PreviewDomisiliTempatTinggalProps = {
   surat: SuratKeteranganOption;
@@ -30,6 +31,7 @@ export function PreviewDomisiliTempatTinggal({ surat, data, reservedNumberId }: 
   const router = useRouter();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
+  const pejabatPenandatangan = getPejabatByNama(data.kepalaDesa);
 
   const handlePrintClick = () => {
     setShowConfirmDialog(true);
@@ -187,9 +189,9 @@ export function PreviewDomisiliTempatTinggal({ surat, data, reservedNumberId }: 
           <div className="mt-10 flex justify-end">
             <div className="w-[280px] text-center">
               <p className="text-[14px]">Kedungwringin, {formatDateIndonesian(data.tanggalSurat)}</p>
-              <p className="text-[14px] font-bold uppercase">Kepala Desa</p>
+              <p className="text-[14px] font-bold uppercase">{pejabatPenandatangan.jabatan}</p>
               <div className="my-16"></div>
-              <p className="text-[14px] font-bold uppercase underline">{data.kepalaDesa}</p>
+              <p className="text-[14px] font-bold uppercase underline">{pejabatPenandatangan.nama}</p>
             </div>
           </div>
         </div>
