@@ -1,16 +1,32 @@
-import { Pool } from 'pg';
+import { Pool, PoolConfig } from 'pg';
 
 // PostgreSQL connection pool - SERVER SIDE ONLY
-const pool = new Pool({
-  user: process.env.POSTGRES_USER || 'postgres',
-  host: process.env.POSTGRES_HOST || 'localhost',
-  database: process.env.POSTGRES_DB || 'kedungwringin',
-  password: process.env.POSTGRES_PASSWORD || 'postgres',
-  port: parseInt(process.env.POSTGRES_PORT || '5432'),
-  max: 20,
+// Supports DATABASE_URL (common on hosted providers) and SSL for Vercel/Neon/Railway.
+const isProduction = process.env.NODE_ENV === 'production';
+const sslEnabled = process.env.PGSSLMODE === 'require' || process.env.POSTGRES_SSL === 'true';
+
+const baseConfig: PoolConfig = {
+  max: parseInt(process.env.POSTGRES_POOL_MAX || (isProduction ? '5' : '20'), 10),
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
-});
+  ssl: sslEnabled ? { rejectUnauthorized: false } : undefined,
+};
+
+const poolConfig: PoolConfig = process.env.DATABASE_URL
+  ? {
+      ...baseConfig,
+      connectionString: process.env.DATABASE_URL,
+    }
+  : {
+      ...baseConfig,
+      user: process.env.POSTGRES_USER || 'postgres',
+      host: process.env.POSTGRES_HOST || 'localhost',
+      database: process.env.POSTGRES_DB || 'kedungwringin',
+      password: process.env.POSTGRES_PASSWORD || 'postgres',
+      port: parseInt(process.env.POSTGRES_PORT || '5432', 10),
+    };
+
+const pool = new Pool(poolConfig);
 
 // Helper function to execute queries
 export const query = async (text: string, params?: any[]) => {
