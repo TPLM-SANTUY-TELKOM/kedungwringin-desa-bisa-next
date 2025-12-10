@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { AlertCircle } from "lucide-react";
 
+import { KepalaDesaSelect } from "@/components/form/KepalaDesaSelect";
 import type { SuratNikahOption } from "@/data/surat-nikah-options";
 import { createDefaultFormN1, REQUIRED_FIELDS_N1, type FormN1Data, type GenderOption } from "@/app/surat-nikah/types";
 import { useNikAutofillField, type PendudukLookupResult } from "@/hooks/useNikAutofillField";
@@ -562,7 +563,12 @@ export function SuratFormN1({ surat, entryId, initialData, from, backUrl = "/sur
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Pejabat Penandatangan</p>
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">Nama Kepala Desa</Label>
-                <Input value={form.kepalaDesa} onChange={handleInputChange("kepalaDesa")} placeholder="Parminah" className={INPUT_BASE} />
+                <KepalaDesaSelect
+                  value={form.kepalaDesa}
+                  onValueChange={handleSelectChange("kepalaDesa")}
+                  placeholder="Pilih pejabat penandatangan"
+                  triggerClassName={INPUT_BASE}
+                />
               </div>
             </div>
 

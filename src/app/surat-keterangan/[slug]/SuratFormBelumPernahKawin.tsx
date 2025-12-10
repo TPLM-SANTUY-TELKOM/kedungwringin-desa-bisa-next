@@ -10,7 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { AlertCircle } from "lucide-react";
 import { NikLookupField } from "@/components/form/NikLookupField";
+import { KepalaDesaSelect } from "@/components/form/KepalaDesaSelect";
 import { useNikAutofillField, type PendudukLookupResult } from "@/hooks/useNikAutofillField";
+import { PEJABAT_DESA_OPTIONS } from "@/data/pejabat-desa";
 
 import type { SuratKeteranganOption } from "@/data/surat-keterangan-options";
 import { createDefaultSuratKeteranganBelumPernahKawin, type SuratKeteranganBelumPernahKawinData } from "@/app/surat-keterangan/types";
@@ -76,6 +78,16 @@ export function SuratFormBelumPernahKawin({ surat, entryId, initialData, from, b
     setForm((prev) => ({
       ...prev,
       [field]: value,
+    }));
+    if (error) setError(null);
+  };
+
+  const handlePejabatChange = (value: string) => {
+    const selectedPejabat = PEJABAT_DESA_OPTIONS.find((option) => option.nama === value);
+    setForm((prev) => ({
+      ...prev,
+      namaPenandatangan: value,
+      jabatanPenandatangan: selectedPejabat?.jabatan || prev.jabatanPenandatangan,
     }));
     if (error) setError(null);
   };
@@ -188,20 +200,20 @@ export function SuratFormBelumPernahKawin({ surat, entryId, initialData, from, b
             <div className="space-y-4">
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Yang Bertanda Tangan Di Bawah Ini</p>
               <div className="space-y-2">
-                <Label className="text-sm font-semibold text-slate-700">a. Nama <span className="text-red-500">*</span></Label>
-                <Input 
-                  value={form.namaPenandatangan} 
-                  onChange={handleInputChange("namaPenandatangan")} 
-                  placeholder="Contoh: Parminah" 
-                  className={INPUT_BASE}
+                <Label className="text-sm font-semibold text-slate-700">Nama Kepala Desa <span className="text-red-500">*</span></Label>
+                <KepalaDesaSelect
+                  value={form.namaPenandatangan}
+                  onValueChange={handlePejabatChange}
+                  placeholder="Pilih pejabat penandatangan"
+                  triggerClassName={INPUT_BASE}
                 />
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-semibold text-slate-700">b. Jabatan <span className="text-red-500">*</span></Label>
+                <Label className="text-sm font-semibold text-slate-700">Jabatan <span className="text-red-500">*</span></Label>
                 <Input 
                   value={form.jabatanPenandatangan} 
                   onChange={handleInputChange("jabatanPenandatangan")} 
-                  placeholder="Contoh: Kepala Desa Kedungwringin" 
+                  placeholder="Otomatis mengikuti pilihan" 
                   className={INPUT_BASE}
                 />
               </div>

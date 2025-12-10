@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 
 import { NikLookupField } from "@/components/form/NikLookupField";
+import { KepalaDesaSelect } from "@/components/form/KepalaDesaSelect";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -230,7 +231,12 @@ export function SuratFormPernyataanBelumMenikah({ surat, entryId, initialData, f
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Pejabat Mengetahui</p>
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">Nama Kepala Desa</Label>
-                <Input value={form.kepalaDesa} onChange={handleInputChange("kepalaDesa")} placeholder="Parminah" className={INPUT_BASE} />
+                <KepalaDesaSelect
+                  value={form.kepalaDesa}
+                  onValueChange={handleSelectChange("kepalaDesa")}
+                  placeholder="Pilih pejabat penandatangan"
+                  triggerClassName={INPUT_BASE}
+                />
               </div>
             </div>
 

@@ -1,3 +1,5 @@
+import { DEFAULT_KEPALA_DESA } from "@/data/pejabat-desa";
+
 // ========== Surat Keterangan Umum ==========
 export type SuratKeteranganUmumData = {
   nomorSurat: string;
@@ -44,7 +46,7 @@ export const createDefaultSuratKeteranganUmum = (): SuratKeteranganUmumData => (
   kabupaten: "Banyumas",
   keperluan: "",
   keteranganLain: "",
-  kepalaDesa: "",
+  kepalaDesa: DEFAULT_KEPALA_DESA,
 });
 
 // ========== Surat Keterangan Belum Pernah Kawin ==========
@@ -134,7 +136,7 @@ export const createDefaultSuratKeteranganDomisiliTempatTinggal = (): SuratKetera
   kecamatan: "Patikraja",
   kabupaten: "Banyumas",
   keperluan: "",
-  kepalaDesa: "",
+  kepalaDesa: DEFAULT_KEPALA_DESA,
 });
 
 // ========== Surat Keterangan Usaha ==========
@@ -165,7 +167,7 @@ export const createDefaultSuratKeteranganUsaha = (): SuratKeteranganUsahaData =>
   alamat: "",
   jenisUsaha: "",
   keperluan: "",
-  kepalaDesa: "",
+  kepalaDesa: DEFAULT_KEPALA_DESA,
 });
 
 // ========== Surat Keterangan Wali Hakim ==========
@@ -212,7 +214,7 @@ export const createDefaultSuratKeteranganWaliHakim = (): SuratKeteranganWaliHaki
   tempatTinggalCalon: "",
   alasanWaliHakim: "kehabisan-wali",
   alasanWalinya: [],
-  kepalaDesa: "",
+  kepalaDesa: DEFAULT_KEPALA_DESA,
 });
 
 // ========== Surat Keterangan Domisili Usaha ==========
@@ -259,7 +261,7 @@ export const createDefaultSuratKeteranganDomisiliUsaha = (): SuratKeteranganDomi
   luasTempatUsaha: "",
   waktuUsaha: "",
   keperluan: "",
-  kepalaDesa: "",
+  kepalaDesa: DEFAULT_KEPALA_DESA,
 });
 
 // ========== Surat Keterangan Tidak Mampu ==========
@@ -294,5 +296,5 @@ export const createDefaultSuratKeteranganTidakMampu = (): SuratKeteranganTidakMa
   pekerjaan: "",
   alamat: "",
   keperluan: "",
-  kepalaDesa: "",
+  kepalaDesa: DEFAULT_KEPALA_DESA,
 });

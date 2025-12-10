@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { AlertCircle } from "lucide-react";
 import { NikLookupField } from "@/components/form/NikLookupField";
+import { KepalaDesaSelect } from "@/components/form/KepalaDesaSelect";
 import { useNikAutofillField, type PendudukLookupResult } from "@/hooks/useNikAutofillField";
 
 import type { SuratKeteranganOption } from "@/data/surat-keterangan-options";
@@ -410,11 +411,11 @@ export function SuratFormUmum({ surat, entryId, initialData, from, backUrl = "/s
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Penandatangan</p>
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">Nama Kepala Desa</Label>
-                <Input 
-                  value={form.kepalaDesa} 
-                  onChange={handleInputChange("kepalaDesa")} 
-                  placeholder="Nama Kepala Desa" 
-                  className={INPUT_BASE} 
+                <KepalaDesaSelect
+                  value={form.kepalaDesa}
+                  onValueChange={handleSelectChange("kepalaDesa")}
+                  placeholder="Pilih pejabat penandatangan"
+                  triggerClassName={INPUT_BASE}
                 />
               </div>
               <div className="space-y-2">

@@ -1,3 +1,5 @@
+import { DEFAULT_KEPALA_DESA } from "@/data/pejabat-desa";
+
 export type GenderOption = "Laki-laki" | "Perempuan";
 
 export type FormN1Data = {
@@ -91,7 +93,7 @@ export const createDefaultFormN1 = (): FormN1Data => ({
   ibuAgama: "Islam",
   ibuPekerjaan: "",
   ibuAlamat: "",
-  kepalaDesa: "Parminah",
+  kepalaDesa: DEFAULT_KEPALA_DESA,
 });
 
 export const REQUIRED_FIELDS_N1: Array<keyof FormN1Data> = [
@@ -471,7 +473,7 @@ export const createDefaultFormN6 = (): FormN6Data => ({
   pasanganAgama: "Islam",
   pasanganPekerjaan: "",
   pasanganAlamat: "",
-  kepalaDesa: "Parminah",
+  kepalaDesa: DEFAULT_KEPALA_DESA,
 });
 
 export const REQUIRED_FIELDS_N6: Array<keyof FormN6Data> = [
@@ -585,7 +587,7 @@ export const createDefaultWaliNikahData = (): WaliNikahData => ({
   tanggalNikah: "",
   sebab: "-",
   hubunganWali: "Ayah kandung",
-  kepalaDesa: "Parminah",
+  kepalaDesa: DEFAULT_KEPALA_DESA,
   kepalaKua: "",
 });
 
@@ -631,7 +633,7 @@ export const createDefaultPernyataanBelumMenikah = (): PernyataanBelumMenikahDat
   nik: "",
   agama: "Islam",
   alamat: "",
-  kepalaDesa: "Parminah",
+  kepalaDesa: DEFAULT_KEPALA_DESA,
 });
 
 export const REQUIRED_FIELDS_PERNYATAAN: Array<keyof PernyataanBelumMenikahData> = [
@@ -694,7 +696,7 @@ export const createDefaultPengantarNumpangData = (): PengantarNumpangNikahData =
   berlakuSampai: "",
   keteranganLain: "",
   namaPasangan: "",
-  kepalaDesa: "Parminah",
+  kepalaDesa: DEFAULT_KEPALA_DESA,
 });
 
 export const REQUIRED_FIELDS_PENGANTAR_NUMPANG: Array<keyof PengantarNumpangNikahData> = [

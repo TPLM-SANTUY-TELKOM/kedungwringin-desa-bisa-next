@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
+import { KepalaDesaSelect } from "@/components/form/KepalaDesaSelect";
 import type { SuratPengantarOption } from "@/data/surat-pengantar-options";
 import { createDefaultSuratPengantarKepolisian, REQUIRED_FIELDS_PENGANTAR_KEPOLISIAN, type SuratPengantarKepolisianData } from "@/app/surat-pengantar/types";
 import { usePendudukLookup, type PendudukLookupResult } from "@/app/surat-pengantar/usePendudukLookup";
@@ -325,7 +326,12 @@ export function SuratFormKepolisian({ surat, entryId, initialData, from, backUrl
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Pejabat Penandatangan</p>
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">Kepala Desa</Label>
-                <Input value={form.kepalaDesa} onChange={handleInputChange("kepalaDesa")} placeholder="Parminah" className={INPUT_BASE} />
+                <KepalaDesaSelect
+                  value={form.kepalaDesa}
+                  onValueChange={handleSelectChange("kepalaDesa")}
+                  placeholder="Pilih pejabat penandatangan"
+                  triggerClassName={INPUT_BASE}
+                />
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
