@@ -30,6 +30,7 @@ export function PreviewBelumPernahKawin({ surat, data, reservedNumberId }: Previ
   const router = useRouter();
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
+  const jabatanPenandatangan = data.jabatanPenandatangan || "KEPALA DESA";
 
   const handlePrintClick = () => {
     setShowConfirmDialog(true);
@@ -227,7 +228,7 @@ export function PreviewBelumPernahKawin({ surat, data, reservedNumberId }: Previ
           <div className="mt-6 flex justify-end">
             <div className="w-[280px] text-center">
               <p className="text-[14px]">Kedungwringin, {formatDateIndonesian(data.tanggalSurat)}</p>
-              <p className="text-[14px] font-bold uppercase">Kepala Desa</p>
+              <p className="text-[14px] font-bold uppercase">{jabatanPenandatangan}</p>
               <div className="my-15"></div>
               <p className="text-[14px] font-bold uppercase underline">{data.namaPenandatangan}</p>
             </div>
