@@ -4,6 +4,7 @@ export type GenderOption = "Laki-laki" | "Perempuan";
 
 export type FormN1Data = {
   nomorSurat: string;
+  nomorUrutManual: string;
   kantorDesa: string;
   kecamatanKantor: string;
   kabupatenKantor: string;
@@ -54,6 +55,7 @@ export type FormN1Data = {
 
 export const createDefaultFormN1 = (): FormN1Data => ({
   nomorSurat: "",
+  nomorUrutManual: "",
   kantorDesa: "Kedungwringin",
   kecamatanKantor: "Patikraja",
   kabupatenKantor: "Banyumas",
@@ -307,6 +309,7 @@ export const REQUIRED_FIELDS_N3: Array<keyof FormN3Data> = [
 
 export type FormN4Data = {
   nomorSurat: string;
+  nomorUrutManual: string;
   tempatSurat: string;
   tanggalSurat: string;
   ayahNama: string;
@@ -353,6 +356,7 @@ export type FormN4Data = {
 
 export const createDefaultFormN4 = (): FormN4Data => ({
   nomorSurat: "",
+  nomorUrutManual: "",
   tempatSurat: "Kedungwringin",
   tanggalSurat: new Date().toISOString().slice(0, 10),
   ayahNama: "",
@@ -414,6 +418,7 @@ export const REQUIRED_FIELDS_N4: Array<keyof FormN4Data> = [
 
 export type FormN6Data = {
   nomorSurat: string;
+  nomorUrutManual: string;
   kantorDesa: string;
   kecamatan: string;
   kabupaten: string;
@@ -446,6 +451,7 @@ export type FormN6Data = {
 
 export const createDefaultFormN6 = (): FormN6Data => ({
   nomorSurat: "",
+  nomorUrutManual: "",
   kantorDesa: "Kedungwringin",
   kecamatan: "Patikraja",
   kabupaten: "Banyumas",
@@ -519,6 +525,7 @@ export type WaliRelationOption = (typeof WALI_RELATION_OPTIONS)[number];
 
 export type WaliNikahData = {
   nomorSurat: string;
+  nomorUrutManual: string;
   tempatSurat: string;
   tanggalSurat: string;
   waliNama: string;
@@ -556,6 +563,7 @@ export type WaliNikahData = {
 
 export const createDefaultWaliNikahData = (): WaliNikahData => ({
   nomorSurat: "",
+  nomorUrutManual: "",
   tempatSurat: "Kedungwringin",
   tanggalSurat: new Date().toISOString().slice(0, 10),
   waliNama: "",
@@ -651,6 +659,7 @@ export const REQUIRED_FIELDS_PERNYATAAN: Array<keyof PernyataanBelumMenikahData>
 
 export type PengantarNumpangNikahData = {
   nomorSurat: string;
+  nomorUrutManual: string;
   tempatSurat: string;
   tanggalSurat: string;
   nama: string;
@@ -676,6 +685,7 @@ export type PengantarNumpangNikahData = {
 
 export const createDefaultPengantarNumpangData = (): PengantarNumpangNikahData => ({
   nomorSurat: "",
+  nomorUrutManual: "",
   tempatSurat: "Kedungwringin",
   tanggalSurat: new Date().toISOString().slice(0, 10),
   nama: "",
