@@ -235,8 +235,7 @@ export function SuratFormBelumPernahKawin({ surat, entryId, initialData, from, b
                   value={form.nama} 
                   onChange={handleInputChange("nama")} 
                   placeholder="Akan terisi otomatis dari NIK" 
-                  readOnly
-                  className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}
+                  className={INPUT_BASE}
                 />
               </div>
               <div className="space-y-2">
@@ -245,8 +244,7 @@ export function SuratFormBelumPernahKawin({ surat, entryId, initialData, from, b
                   value={form.tempatTanggalLahir} 
                   onChange={handleInputChange("tempatTanggalLahir")} 
                   placeholder="Akan terisi otomatis dari NIK" 
-                  readOnly
-                  className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}
+                  className={INPUT_BASE}
                 />
               </div>
               <div className="space-y-2">
@@ -254,9 +252,8 @@ export function SuratFormBelumPernahKawin({ surat, entryId, initialData, from, b
                 <Select 
                   value={form.jenisKelamin} 
                   onValueChange={handleSelectChange("jenisKelamin")}
-                  disabled
                 >
-                  <SelectTrigger className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}>
+                  <SelectTrigger className={INPUT_BASE}>
                     <SelectValue placeholder="Otomatis dari NIK" />
                   </SelectTrigger>
                   <SelectContent>
@@ -270,9 +267,8 @@ export function SuratFormBelumPernahKawin({ surat, entryId, initialData, from, b
                 <Select 
                   value={form.agama} 
                   onValueChange={handleSelectChange("agama")}
-                  disabled
                 >
-                  <SelectTrigger className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}>
+                  <SelectTrigger className={INPUT_BASE}>
                     <SelectValue placeholder="Otomatis dari NIK" />
                   </SelectTrigger>
                   <SelectContent>
@@ -300,8 +296,7 @@ export function SuratFormBelumPernahKawin({ surat, entryId, initialData, from, b
                   value={form.pekerjaan} 
                   onChange={handleInputChange("pekerjaan")} 
                   placeholder="Akan terisi otomatis dari NIK" 
-                  readOnly
-                  className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}
+                  className={INPUT_BASE}
                 />
               </div>
               <div className="space-y-2">
@@ -310,8 +305,7 @@ export function SuratFormBelumPernahKawin({ surat, entryId, initialData, from, b
                   value={form.alamat} 
                   onChange={handleInputChange("alamat")} 
                   placeholder="Akan terisi otomatis dari NIK" 
-                  readOnly
-                  className={`${TEXTAREA_BASE} bg-slate-50 cursor-not-allowed`}
+                  className={TEXTAREA_BASE}
                   rows={2}
                 />
               </div>

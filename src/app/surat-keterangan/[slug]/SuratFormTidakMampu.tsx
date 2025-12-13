@@ -211,8 +211,7 @@ export function SuratFormTidakMampu({ surat, entryId, initialData, from, backUrl
                   value={form.nama} 
                   onChange={handleInputChange("nama")} 
                   placeholder="Akan terisi otomatis dari NIK" 
-                  readOnly
-                  className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}
+                  className={INPUT_BASE}
                 />
               </div>
               <div className="space-y-2">
@@ -220,9 +219,8 @@ export function SuratFormTidakMampu({ surat, entryId, initialData, from, backUrl
                 <Select 
                   value={form.jenisKelamin} 
                   onValueChange={handleSelectChange("jenisKelamin")}
-                  disabled
                 >
-                  <SelectTrigger className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}>
+                  <SelectTrigger className={INPUT_BASE}>
                     <SelectValue placeholder="Otomatis dari NIK" />
                   </SelectTrigger>
                   <SelectContent>
@@ -238,8 +236,7 @@ export function SuratFormTidakMampu({ surat, entryId, initialData, from, backUrl
                     value={form.tempatLahir} 
                     onChange={handleInputChange("tempatLahir")} 
                     placeholder="Akan terisi otomatis dari NIK" 
-                    readOnly
-                    className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}
+                    className={INPUT_BASE}
                   />
                 </div>
                 <div className="space-y-2">
@@ -248,8 +245,7 @@ export function SuratFormTidakMampu({ surat, entryId, initialData, from, backUrl
                     type="date" 
                     value={form.tanggalLahir} 
                     onChange={handleInputChange("tanggalLahir")} 
-                    readOnly
-                    className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}
+                    className={INPUT_BASE}
                   />
                 </div>
               </div>
@@ -268,9 +264,8 @@ export function SuratFormTidakMampu({ surat, entryId, initialData, from, backUrl
                   <Select 
                     value={form.agama} 
                     onValueChange={handleSelectChange("agama")}
-                    disabled
                   >
-                    <SelectTrigger className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}>
+                    <SelectTrigger className={INPUT_BASE}>
                       <SelectValue placeholder="Otomatis dari NIK" />
                     </SelectTrigger>
                     <SelectContent>
@@ -290,8 +285,7 @@ export function SuratFormTidakMampu({ surat, entryId, initialData, from, backUrl
                   value={form.pekerjaan} 
                   onChange={handleInputChange("pekerjaan")} 
                   placeholder="Akan terisi otomatis dari NIK" 
-                  readOnly
-                  className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}
+                  className={INPUT_BASE}
                 />
               </div>
               <div className="space-y-2">
@@ -300,8 +294,7 @@ export function SuratFormTidakMampu({ surat, entryId, initialData, from, backUrl
                   value={form.alamat} 
                   onChange={handleInputChange("alamat")} 
                   placeholder="Akan terisi otomatis dari NIK" 
-                  readOnly
-                  className={`${TEXTAREA_BASE} bg-slate-50 cursor-not-allowed`}
+                  className={TEXTAREA_BASE}
                 />
               </div>
             </div>

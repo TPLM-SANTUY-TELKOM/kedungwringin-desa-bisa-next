@@ -195,14 +195,13 @@ export function SuratFormUsaha({ surat, entryId, initialData, from, backUrl = "/
                   value={form.nama} 
                   onChange={handleInputChange("nama")} 
                   placeholder="Akan terisi otomatis dari NIK" 
-                  className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}
-                  readOnly
+                  className={INPUT_BASE}
                 />
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">2. Jenis Kelamin</Label>
-                <Select value={form.jenisKelamin} onValueChange={handleSelectChange("jenisKelamin")} disabled>
-                  <SelectTrigger className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}>
+                <Select value={form.jenisKelamin} onValueChange={handleSelectChange("jenisKelamin")}>
+                  <SelectTrigger className={INPUT_BASE}>
                     <SelectValue placeholder="Otomatis dari NIK" />
                   </SelectTrigger>
                   <SelectContent>
@@ -217,8 +216,7 @@ export function SuratFormUsaha({ surat, entryId, initialData, from, backUrl = "/
                   value={form.tempatTanggalLahir} 
                   onChange={handleInputChange("tempatTanggalLahir")} 
                   placeholder="Akan terisi otomatis dari NIK" 
-                  className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}
-                  readOnly
+                  className={INPUT_BASE}
                 />
               </div>
               <div className="space-y-2">
@@ -231,8 +229,7 @@ export function SuratFormUsaha({ surat, entryId, initialData, from, backUrl = "/
                   value={form.pekerjaan} 
                   onChange={handleInputChange("pekerjaan")} 
                   placeholder="Akan terisi otomatis dari NIK" 
-                  className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}
-                  readOnly
+                  className={INPUT_BASE}
                 />
               </div>
               <div className="space-y-2">
@@ -241,8 +238,7 @@ export function SuratFormUsaha({ surat, entryId, initialData, from, backUrl = "/
                   value={form.alamat} 
                   onChange={handleInputChange("alamat")} 
                   placeholder="Akan terisi otomatis dari NIK" 
-                  className={`${TEXTAREA_BASE} bg-slate-50 cursor-not-allowed`}
-                  readOnly
+                  className={TEXTAREA_BASE}
                 />
               </div>
             </div>
