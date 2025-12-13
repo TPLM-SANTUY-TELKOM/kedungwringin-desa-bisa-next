@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     console.log("POST /api/surat-number - Request body:", body);
     
-    const { jenisSurat, nomorUrut } = body; // nomorUrut opsional untuk input manual
+    const { jenisSurat } = body;
 
     if (!jenisSurat) {
       console.error("Missing jenisSurat in request");
@@ -52,109 +52,53 @@ export async function POST(request: Request) {
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, "0");
 
-    let finalNomorUrut: number;
+    console.log("Fetching existing numbers for:", { prefix, year });
 
-    // Jika nomor urut manual diisi, gunakan itu
-    if (nomorUrut !== undefined && nomorUrut !== null && nomorUrut !== "") {
-      const parsedNomorUrut = parseInt(String(nomorUrut).trim(), 10);
-      
-      if (isNaN(parsedNomorUrut) || parsedNomorUrut < 1) {
-        return NextResponse.json(
-          { error: "Nomor urut harus berupa angka positif" },
-          { status: 400 }
-        );
-      }
+    // Get the highest nomor_urut for this prefix and year
+    const maxNumberResult = await query(
+      `SELECT MAX(nomor_urut) as max_nomor FROM surat_numbers WHERE prefix = $1 AND tahun = $2`,
+      [prefix, year]
+    );
 
-      // Validasi: Cek apakah nomor urut sudah digunakan (reserved atau confirmed)
-      const checkDuplicate = await query(
-        `SELECT id, status FROM surat_numbers 
-         WHERE prefix = $1 AND nomor_urut = $2 AND tahun = $3`,
-        [prefix, parsedNomorUrut, year]
-      );
+    console.log("Max number result:", maxNumberResult.rows);
 
-      if (checkDuplicate.rows.length > 0) {
-        const existing = checkDuplicate.rows[0];
-        const statusText = existing.status === "confirmed" ? "sudah dikonfirmasi" : "sedang di-reserve";
-        return NextResponse.json(
-          { 
-            error: `Nomor urut ${String(parsedNomorUrut).padStart(4, "0")} sudah digunakan (${statusText})`,
-            duplicate: true,
-            existingStatus: existing.status
-          },
-          { status: 409 } // 409 Conflict
-        );
-      }
+    const maxNomor = maxNumberResult.rows[0]?.max_nomor;
+    const nextNumber = maxNomor ? maxNomor + 1 : 1;
 
-      finalNomorUrut = parsedNomorUrut;
-      console.log("Using manual nomor urut:", finalNomorUrut);
-    } else {
-      // Auto-generate: Get the highest nomor_urut for this prefix and year
-      console.log("Fetching existing numbers for:", { prefix, year });
-      const maxNumberResult = await query(
-        `SELECT MAX(nomor_urut) as max_nomor FROM surat_numbers WHERE prefix = $1 AND tahun = $2`,
-        [prefix, year]
-      );
-
-      console.log("Max number result:", maxNumberResult.rows);
-
-      const maxNomor = maxNumberResult.rows[0]?.max_nomor;
-      finalNomorUrut = maxNomor ? maxNomor + 1 : 1;
-      console.log("Auto-generated next number:", finalNomorUrut);
-    }
+    console.log("Next number will be:", nextNumber);
 
     // Reserve the number (status: reserved)
-    // UNIQUE constraint akan memberikan proteksi tambahan di level database
-    try {
-      const insertResult = await query(
-        `INSERT INTO surat_numbers (prefix, nomor_urut, bulan, tahun, jenis_surat, status, reserved_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)
-         RETURNING *`,
-        [prefix, finalNomorUrut, month, year, jenisSurat, "reserved", new Date().toISOString()]
+    const insertResult = await query(
+      `INSERT INTO surat_numbers (prefix, nomor_urut, bulan, tahun, jenis_surat, status, reserved_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING *`,
+      [prefix, nextNumber, month, year, jenisSurat, "reserved", new Date().toISOString()]
+    );
+
+    if (!insertResult.rows || insertResult.rows.length === 0) {
+      console.error("No data returned from insert");
+      return NextResponse.json(
+        { error: "Gagal mereserve nomor surat" },
+        { status: 500 }
       );
-
-      if (!insertResult.rows || insertResult.rows.length === 0) {
-        console.error("No data returned from insert");
-        return NextResponse.json(
-          { error: "Gagal mereserve nomor surat" },
-          { status: 500 }
-        );
-      }
-
-      const reservedData = insertResult.rows[0];
-      console.log("Reserved data:", reservedData);
-
-      // Format nomor surat: 145/0001/11/2024
-      const nomorSurat = `${prefix}/${String(finalNomorUrut).padStart(4, "0")}/${month}/${year}`;
-
-      console.log("Generated nomor surat:", nomorSurat);
-
-      // Format tanggal surat (YYYY-MM-DD)
-      const tanggalSurat = `${year}-${month}-${String(now.getDate()).padStart(2, "0")}`;
-
-      return NextResponse.json({
-        id: reservedData.id,
-        nomorSurat,
-        prefix,
-        nomorUrut: finalNomorUrut,
-        bulan: month,
-        tahun: year,
-        tanggalSurat,
-        isManual: nomorUrut !== undefined && nomorUrut !== null && nomorUrut !== "",
-      });
-    } catch (dbError: any) {
-      // Handle PostgreSQL unique constraint violation (23505)
-      if (dbError.code === "23505") {
-        console.error("Duplicate nomor urut detected by database constraint");
-        return NextResponse.json(
-          { 
-            error: `Nomor urut ${String(finalNomorUrut).padStart(4, "0")} sudah digunakan`,
-            duplicate: true
-          },
-          { status: 409 }
-        );
-      }
-      throw dbError; // Re-throw other errors
     }
+
+    const reservedData = insertResult.rows[0];
+    console.log("Reserved data:", reservedData);
+
+    // Format nomor surat: 145/0001/11/2024
+    const nomorSurat = `${prefix}/${String(nextNumber).padStart(4, "0")}/${month}/${year}`;
+
+    console.log("Generated nomor surat:", nomorSurat);
+
+    return NextResponse.json({
+      id: reservedData.id,
+      nomorSurat,
+      prefix,
+      nomorUrut: nextNumber,
+      bulan: month,
+      tahun: year,
+    });
   } catch (error: any) {
     console.error("Error in POST /api/surat-number:", error);
     return NextResponse.json(
