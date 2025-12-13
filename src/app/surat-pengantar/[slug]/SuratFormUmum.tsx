@@ -15,6 +15,7 @@ import { createDefaultSuratPengantarUmum, REQUIRED_FIELDS_PENGANTAR_UMUM, type S
 import { usePendudukLookup, type PendudukLookupResult } from "@/app/surat-pengantar/usePendudukLookup";
 import { useToast } from "@/hooks/use-toast";
 import { usePrefillFormState } from "@/hooks/usePrefillFormState";
+import { useSuratNumbering } from "@/hooks/useSuratNumbering";
 
 const INPUT_BASE =
   "h-12 rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
@@ -38,7 +39,7 @@ export function SuratFormUmum({ surat, entryId, initialData, from, backUrl = "/s
   });
   const lastSuccessfulNikRef = useRef<string | null>(null);
   const { toast } = useToast();
-  const [isGeneratingNumber, setIsGeneratingNumber] = useState(false);
+  const { generateNumber, isGenerating } = useSuratNumbering();
 
   const applyPendudukData = useCallback(
     (data: PendudukLookupResult) => {
@@ -127,53 +128,25 @@ export function SuratFormUmum({ surat, entryId, initialData, from, backUrl = "/s
       return;
     }
 
-    // Generate nomor surat
-    setIsGeneratingNumber(true);
     try {
-      // Siapkan request body dengan nomor urut manual jika ada
-      const requestBody: { jenisSurat: string; nomorUrut?: string } = {
+      const result = await generateNumber({
         jenisSurat: surat.slug,
-      };
-
-      // Jika nomor urut manual diisi, kirim ke API
-      if (form.nomorUrutManual && form.nomorUrutManual.trim() !== "") {
-        requestBody.nomorUrut = form.nomorUrutManual.trim();
-      }
-
-      const response = await fetch("/api/surat-number", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody),
+        nomorUrutManual: form.nomorUrutManual,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
-        
-        // Handle duplicate error khusus
-        if (response.status === 409 && errorData.duplicate) {
-          toast({
-            variant: "destructive",
-            title: "Nomor urut sudah digunakan",
-            description: errorData.error || "Nomor urut yang Anda masukkan sudah digunakan. Silakan gunakan nomor lain atau kosongkan untuk auto-generate.",
-          });
-          return;
-        }
-        
-        throw new Error(errorData.error || "Gagal generate nomor surat");
+      if (!result) {
+        return;
       }
 
-      const data = await response.json();
-      
-      // Update form dengan nomor dan tanggal yang di-generate
       const updatedForm = {
         ...form,
-        nomorSurat: data.nomorSurat,
-        tanggalSurat: data.tanggalSurat || new Date().toISOString().slice(0, 10),
+        nomorSurat: result.nomorSurat,
+        tanggalSurat: result.tanggalSurat,
       };
 
       const params = new URLSearchParams();
       params.set("data", JSON.stringify(updatedForm));
-      params.set("reservedNumberId", data.id);
+      params.set("reservedNumberId", result.reservedNumberId);
       if (entryId) {
         params.set("entryId", entryId);
       }
@@ -186,10 +159,8 @@ export function SuratFormUmum({ surat, entryId, initialData, from, backUrl = "/s
       toast({
         variant: "destructive",
         title: "Gagal generate nomor surat",
-        description: error instanceof Error ? error.message : "Terjadi kesalahan saat membuat nomor surat. Silakan coba lagi.",
+        description: error instanceof Error ? error.message : "Silakan coba lagi.",
       });
-    } finally {
-      setIsGeneratingNumber(false);
     }
   };
 
@@ -430,9 +401,9 @@ export function SuratFormUmum({ surat, entryId, initialData, from, backUrl = "/s
                 type="button"
                 onClick={handlePreview}
                 className="flex-1 rounded-xl bg-[#ff6435] px-6 py-6 text-base font-semibold text-white hover:bg-[#e5552b] sm:flex-initial"
-                disabled={isGeneratingNumber}
+                disabled={isGenerating}
               >
-                {isGeneratingNumber ? "Memproses..." : "Preview Surat"}
+                {isGenerating ? "Memproses..." : "Preview Surat"}
               </Button>
             </div>
           </form>

@@ -97,7 +97,7 @@ export async function POST(request: Request) {
     // Reserve the number (status: reserved)
     const insertResult = await query(
       `INSERT INTO surat_numbers (prefix, nomor_urut, bulan, tahun, jenis_surat, status, reserved_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`,
       [prefix, finalNomorUrut, month, year, jenisSurat, "reserved", new Date().toISOString()]
     );
