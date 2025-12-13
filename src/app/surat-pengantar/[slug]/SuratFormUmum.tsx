@@ -130,14 +130,36 @@ export function SuratFormUmum({ surat, entryId, initialData, from, backUrl = "/s
     // Generate nomor surat
     setIsGeneratingNumber(true);
     try {
+      // Siapkan request body dengan nomor urut manual jika ada
+      const requestBody: { jenisSurat: string; nomorUrut?: string } = {
+        jenisSurat: surat.slug,
+      };
+
+      // Jika nomor urut manual diisi, kirim ke API
+      if (form.nomorUrutManual && form.nomorUrutManual.trim() !== "") {
+        requestBody.nomorUrut = form.nomorUrutManual.trim();
+      }
+
       const response = await fetch("/api/surat-number", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jenisSurat: surat.slug }),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
-        throw new Error("Gagal generate nomor surat");
+        const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
+        
+        // Handle duplicate error khusus
+        if (response.status === 409 && errorData.duplicate) {
+          toast({
+            variant: "destructive",
+            title: "Nomor urut sudah digunakan",
+            description: errorData.error || "Nomor urut yang Anda masukkan sudah digunakan. Silakan gunakan nomor lain atau kosongkan untuk auto-generate.",
+          });
+          return;
+        }
+        
+        throw new Error(errorData.error || "Gagal generate nomor surat");
       }
 
       const data = await response.json();
@@ -146,7 +168,7 @@ export function SuratFormUmum({ surat, entryId, initialData, from, backUrl = "/s
       const updatedForm = {
         ...form,
         nomorSurat: data.nomorSurat,
-        tanggalSurat: data.tanggalSurat,
+        tanggalSurat: data.tanggalSurat || new Date().toISOString().slice(0, 10),
       };
 
       const params = new URLSearchParams();
@@ -164,7 +186,7 @@ export function SuratFormUmum({ surat, entryId, initialData, from, backUrl = "/s
       toast({
         variant: "destructive",
         title: "Gagal generate nomor surat",
-        description: "Terjadi kesalahan saat membuat nomor surat. Silakan coba lagi.",
+        description: error instanceof Error ? error.message : "Terjadi kesalahan saat membuat nomor surat. Silakan coba lagi.",
       });
     } finally {
       setIsGeneratingNumber(false);
@@ -202,9 +224,28 @@ export function SuratFormUmum({ surat, entryId, initialData, from, backUrl = "/s
           <form className="space-y-10">
             <div className="space-y-4">
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Informasi Surat</p>
-              <div className="space-y-2">
-                <Label className="text-sm font-semibold text-slate-700">Tempat Surat</Label>
-                <Input value={form.tempatSurat} onChange={handleInputChange("tempatSurat")} placeholder="Kedungwringin" className={INPUT_BASE} />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-slate-700">Tempat Surat</Label>
+                  <Input value={form.tempatSurat} onChange={handleInputChange("tempatSurat")} placeholder="Kedungwringin" className={INPUT_BASE} />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-slate-700">
+                    Nomor Urut Surat (Opsional)
+                    <span className="ml-1 text-xs font-normal text-slate-500">Kosongkan untuk auto-generate</span>
+                  </Label>
+                  <Input 
+                    type="number"
+                    min="1"
+                    value={form.nomorUrutManual || ""} 
+                    onChange={handleInputChange("nomorUrutManual")} 
+                    placeholder="Contoh: 1, 2, 10"
+                    className={INPUT_BASE}
+                  />
+                  <p className="text-xs text-slate-500">
+                    Jika diisi, nomor urut akan menggunakan nilai ini. Sistem akan mencegah duplikasi.
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -247,13 +288,13 @@ export function SuratFormUmum({ surat, entryId, initialData, from, backUrl = "/s
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">Nama Lengkap</Label>
-                <Input value={form.nama} onChange={handleInputChange("nama")} placeholder="Nama lengkap sesuai KTP" className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`} readOnly />
+                <Input value={form.nama} onChange={handleInputChange("nama")} placeholder="Nama lengkap sesuai KTP" className={INPUT_BASE} />
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Jenis Kelamin</Label>
-                  <Select value={form.jenisKelamin} onValueChange={handleSelectChange("jenisKelamin")} disabled>
-                    <SelectTrigger className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}>
+                  <Select value={form.jenisKelamin} onValueChange={handleSelectChange("jenisKelamin")}>
+                    <SelectTrigger className={INPUT_BASE}>
                       <SelectValue placeholder="Pilih jenis kelamin" />
                     </SelectTrigger>
                     <SelectContent>
@@ -264,25 +305,25 @@ export function SuratFormUmum({ surat, entryId, initialData, from, backUrl = "/s
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Pekerjaan</Label>
-                  <Input value={form.pekerjaan} onChange={handleInputChange("pekerjaan")} placeholder="Wiraswasta" className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`} readOnly />
+                  <Input value={form.pekerjaan} onChange={handleInputChange("pekerjaan")} placeholder="Wiraswasta" className={INPUT_BASE} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Status Perkawinan</Label>
-                  <Input value={form.statusPerkawinan} onChange={handleInputChange("statusPerkawinan")} placeholder="Kawin Tercatat/Kawin Tidak Tercatat/Duda/Janda" className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`} readOnly />
+                  <Input value={form.statusPerkawinan} onChange={handleInputChange("statusPerkawinan")} placeholder="Kawin Tercatat/Kawin Tidak Tercatat/Duda/Janda" className={INPUT_BASE} />
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Tempat Lahir</Label>
-                  <Input value={form.tempatLahir} onChange={handleInputChange("tempatLahir")} placeholder="Banyumas" className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`} readOnly />
+                  <Input value={form.tempatLahir} onChange={handleInputChange("tempatLahir")} placeholder="Banyumas" className={INPUT_BASE} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Tanggal Lahir</Label>
-                  <Input type="date" value={form.tanggalLahir} onChange={handleInputChange("tanggalLahir")} className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`} readOnly />
+                  <Input type="date" value={form.tanggalLahir} onChange={handleInputChange("tanggalLahir")} className={INPUT_BASE} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Agama</Label>
-                  <Input value={form.agama} onChange={handleInputChange("agama")} placeholder="Islam" className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`} readOnly />
+                  <Input value={form.agama} onChange={handleInputChange("agama")} placeholder="Islam" className={INPUT_BASE} />
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
@@ -292,7 +333,7 @@ export function SuratFormUmum({ surat, entryId, initialData, from, backUrl = "/s
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Nomor KK</Label>
-                  <Input value={form.nkk} onChange={handleInputChange("nkk")} placeholder="Nomor Kartu Keluarga" className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`} readOnly />
+                  <Input value={form.nkk} onChange={handleInputChange("nkk")} placeholder="Nomor Kartu Keluarga" className={INPUT_BASE} />
                 </div>
               </div>
             </div>
@@ -301,16 +342,16 @@ export function SuratFormUmum({ surat, entryId, initialData, from, backUrl = "/s
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Alamat Pemohon</p>
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">Alamat Jalan/Dusun</Label>
-                <Textarea value={form.alamat} onChange={handleInputChange("alamat")} placeholder="Contoh: Kedungwringin" className={`${TEXTAREA_BASE} bg-slate-50 cursor-not-allowed`} readOnly />
+                <Textarea value={form.alamat} onChange={handleInputChange("alamat")} placeholder="Contoh: Kedungwringin" className={TEXTAREA_BASE} />
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">RT</Label>
-                  <Input value={form.rt} onChange={handleInputChange("rt")} placeholder="02" className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`} readOnly />
+                  <Input value={form.rt} onChange={handleInputChange("rt")} placeholder="02" className={INPUT_BASE} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">RW</Label>
-                  <Input value={form.rw} onChange={handleInputChange("rw")} placeholder="05" className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`} readOnly />
+                  <Input value={form.rw} onChange={handleInputChange("rw")} placeholder="05" className={INPUT_BASE} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Kelurahan/Desa</Label>
