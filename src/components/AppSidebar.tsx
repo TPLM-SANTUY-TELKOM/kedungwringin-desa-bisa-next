@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import logoDesa from "@/assets/ic_logo_banyumas.png";
+import { FooterLastUpdate } from "@/components/FooterLastUpdate";
 
 interface MenuItem {
   title: string;
@@ -120,6 +121,9 @@ export function AppSidebar() {
           <LogOut className="h-4 w-4 mr-2" />
           Logout
         </Button>
+        
+        {/* Footer Last Update */}
+        <FooterLastUpdate />
       </div>
     </div>
   );
