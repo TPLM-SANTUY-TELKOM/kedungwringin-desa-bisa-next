@@ -16,6 +16,7 @@ import type { SuratNikahOption } from "@/data/surat-nikah-options";
 import { createDefaultFormN6, REQUIRED_FIELDS_N6, type FormN6Data } from "@/app/surat-nikah/types";
 import { useNikAutofillField, type PendudukLookupResult } from "@/hooks/useNikAutofillField";
 import { usePrefillFormState } from "@/hooks/usePrefillFormState";
+import { useSuratNumbering } from "@/hooks/useSuratNumbering";
 
 const INPUT_BASE =
   "h-12 rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
@@ -38,7 +39,7 @@ export function SuratFormN6({ surat, entryId, initialData, from, backUrl = "/sur
     initialData: (initialData as Partial<FormN6Data>) ?? null,
   });
   const [error, setError] = useState<string | null>(null);
-  const [isGeneratingNumber, setIsGeneratingNumber] = useState(false);
+  const { generateNumber, isGenerating } = useSuratNumbering();
 
   const applyAlmarhumData = useCallback(
     (data: PendudukLookupResult) => {
@@ -141,28 +142,27 @@ export function SuratFormN6({ surat, entryId, initialData, from, backUrl = "/sur
       return;
     }
 
-    setIsGeneratingNumber(true);
     try {
-      const response = await fetch("/api/surat-number", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jenisSurat: surat.slug }),
+      setError(null);
+
+      const result = await generateNumber({
+        jenisSurat: surat.slug,
+        nomorUrutManual: form.nomorUrutManual,
       });
 
-      if (!response.ok) {
-        throw new Error("Gagal generate nomor surat");
+      if (!result) {
+        return;
       }
-
-      const { nomorSurat, id: reservedNumberId } = await response.json();
 
       const updatedForm = {
         ...form,
-        nomorSurat,
+        nomorSurat: result.nomorSurat,
+        tanggalSurat: result.tanggalSurat,
       };
 
       const params = new URLSearchParams();
       params.set("data", JSON.stringify(updatedForm));
-      params.set("reservedNumberId", reservedNumberId);
+      params.set("reservedNumberId", result.reservedNumberId);
       if (entryId) {
         params.set("entryId", entryId);
       }
@@ -172,9 +172,7 @@ export function SuratFormN6({ surat, entryId, initialData, from, backUrl = "/sur
       router.push(`/surat-nikah/${surat.slug}/preview?${params.toString()}`);
     } catch (error) {
       console.error("Error generating number:", error);
-      setError("Gagal generate nomor surat. Silakan coba lagi.");
-    } finally {
-      setIsGeneratingNumber(false);
+      setError(error instanceof Error ? error.message : "Gagal generate nomor surat. Silakan coba lagi.");
     }
   };
 
@@ -239,6 +237,21 @@ export function SuratFormN6({ surat, entryId, initialData, from, backUrl = "/sur
             <div className="space-y-2">
               <Label className="text-sm font-semibold text-slate-700">Tempat Surat</Label>
               <Input value={form.tempatSurat} onChange={handleInputChange("tempatSurat")} placeholder="Kedungwringin" className={INPUT_BASE} />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold text-slate-700">
+                Nomor Urut Surat (Opsional)
+                <span className="ml-1 text-xs font-normal text-slate-500">Kosongkan untuk auto-generate</span>
+              </Label>
+              <Input
+                type="number"
+                min="1"
+                value={form.nomorUrutManual || ""}
+                onChange={handleInputChange("nomorUrutManual")}
+                placeholder="Contoh: 1, 2, 10"
+                className={INPUT_BASE}
+              />
+              <p className="text-xs text-slate-500">Sistem akan mencegah nomor duplikat.</p>
             </div>
           </div>
 
@@ -379,8 +392,8 @@ export function SuratFormN6({ surat, entryId, initialData, from, backUrl = "/sur
               <Button type="button" variant="outline" onClick={handleCancel} className="h-12 rounded-xl border border-slate-400 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-100">
                 Batal
               </Button>
-              <Button type="button" onClick={handlePreview} disabled={isGeneratingNumber} className="h-12 rounded-xl bg-slate-900 text-sm font-semibold text-white hover:bg-slate-800">
-                {isGeneratingNumber ? "Memproses..." : "Preview Surat"}
+              <Button type="button" onClick={handlePreview} disabled={isGenerating} className="h-12 rounded-xl bg-slate-900 text-sm font-semibold text-white hover:bg-slate-800">
+                {isGenerating ? "Memproses..." : "Preview Surat"}
               </Button>
             </div>
           </form>

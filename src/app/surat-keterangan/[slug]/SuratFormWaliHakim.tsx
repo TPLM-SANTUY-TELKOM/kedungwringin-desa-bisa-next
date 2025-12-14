@@ -12,6 +12,7 @@ import { AlertCircle } from "lucide-react";
 import { NikLookupField } from "@/components/form/NikLookupField";
 import { KepalaDesaSelect } from "@/components/form/KepalaDesaSelect";
 import { useNikAutofillField, type PendudukLookupResult } from "@/hooks/useNikAutofillField";
+import { useToast } from "@/hooks/use-toast";
 
 import type { SuratKeteranganOption } from "@/data/surat-keterangan-options";
 import { createDefaultSuratKeteranganWaliHakim, type SuratKeteranganWaliHakimData } from "@/app/surat-keterangan/types";
@@ -41,6 +42,7 @@ export function SuratFormWaliHakim({ surat, entryId, initialData, from, backUrl 
   const [nikWali, setNikWali] = useState("");
   const [isGeneratingNumber, setIsGeneratingNumber] = useState(false);
   const [reservedNumberId, setReservedNumberId] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const handleApplyNikData = (data: PendudukLookupResult) => {
     setForm((prev) => ({
@@ -129,14 +131,36 @@ export function SuratFormWaliHakim({ surat, entryId, initialData, from, backUrl 
     setError(null);
 
     try {
+      // Siapkan request body dengan nomor urut manual jika ada
+      const requestBody: { jenisSurat: string; nomorUrutManual?: string } = {
+        jenisSurat: surat.slug,
+      };
+
+      // Jika nomor urut manual diisi, kirim ke API
+      if (form.nomorUrutManual && form.nomorUrutManual.trim() !== "") {
+        requestBody.nomorUrutManual = form.nomorUrutManual.trim();
+      }
+
       const res = await fetch("/api/surat-number", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jenisSurat: surat.slug }),
+        body: JSON.stringify(requestBody),
       });
 
       if (!res.ok) {
-        throw new Error("Gagal menggenerate nomor surat");
+        const errorData = await res.json().catch(() => ({ error: "Unknown error" }));
+        
+        // Handle duplicate error khusus
+        if (res.status === 409) {
+          toast({
+            variant: "destructive",
+            title: "Nomor urut sudah digunakan",
+            description: errorData.error || "Nomor urut yang Anda masukkan sudah digunakan. Silakan gunakan nomor lain atau kosongkan untuk auto-generate.",
+          });
+          return;
+        }
+        
+        throw new Error(errorData.error || "Gagal menggenerate nomor surat");
       }
 
       const { nomorSurat, id } = await res.json();
@@ -200,6 +224,23 @@ export function SuratFormWaliHakim({ surat, entryId, initialData, from, backUrl 
           <form className="space-y-10">
             <div className="space-y-4">
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Informasi Surat</p>
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-slate-700">
+                  Nomor Urut Surat (Opsional)
+                  <span className="ml-1 text-xs font-normal text-slate-500">Kosongkan untuk auto-generate</span>
+                </Label>
+                <Input 
+                  type="number"
+                  min="1"
+                  value={form.nomorUrutManual || ""} 
+                  onChange={handleInputChange("nomorUrutManual")} 
+                  placeholder="Contoh: 1, 2, 10"
+                  className={INPUT_BASE}
+                />
+                <p className="text-xs text-slate-500">
+                  Jika diisi, nomor urut akan menggunakan nilai ini. Sistem akan mencegah duplikasi.
+                </p>
+              </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Tanggal Surat</Label>
@@ -224,7 +265,7 @@ export function SuratFormWaliHakim({ surat, entryId, initialData, from, backUrl 
               />
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">1. Nama Lengkap dan Aliasnya</Label>
-                <Input value={form.namaWali} onChange={handleInputChange("namaWali")} placeholder="Akan terisi otomatis dari NIK" className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`} readOnly />
+                <Input value={form.namaWali} onChange={handleInputChange("namaWali")} placeholder="Akan terisi otomatis dari NIK" className={INPUT_BASE} />
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">2. Binti (Nama Ayah)</Label>
@@ -232,7 +273,7 @@ export function SuratFormWaliHakim({ surat, entryId, initialData, from, backUrl 
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">3. Umur</Label>
-                <Input value={form.umurWali} onChange={handleInputChange("umurWali")} placeholder="Akan terisi otomatis dari NIK" className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`} readOnly />
+                <Input value={form.umurWali} onChange={handleInputChange("umurWali")} placeholder="Akan terisi otomatis dari NIK" className={INPUT_BASE} />
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">4. Agama</Label>
@@ -252,11 +293,11 @@ export function SuratFormWaliHakim({ surat, entryId, initialData, from, backUrl 
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">5. Pekerjaan</Label>
-                <Input value={form.pekerjaanWali} onChange={handleInputChange("pekerjaanWali")} placeholder="Akan terisi otomatis dari NIK" className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`} readOnly />
+                <Input value={form.pekerjaanWali} onChange={handleInputChange("pekerjaanWali")} placeholder="Akan terisi otomatis dari NIK" className={INPUT_BASE} />
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">6. Tempat Tinggal</Label>
-                <Textarea value={form.tempatTinggalWali} onChange={handleInputChange("tempatTinggalWali")} placeholder="Akan terisi otomatis dari NIK" className={`${TEXTAREA_BASE} bg-slate-50 cursor-not-allowed`} readOnly />
+                <Textarea value={form.tempatTinggalWali} onChange={handleInputChange("tempatTinggalWali")} placeholder="Akan terisi otomatis dari NIK" className={TEXTAREA_BASE} />
               </div>
             </div>
 

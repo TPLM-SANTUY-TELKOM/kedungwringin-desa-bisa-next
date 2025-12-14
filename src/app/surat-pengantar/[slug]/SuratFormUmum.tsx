@@ -15,6 +15,7 @@ import { createDefaultSuratPengantarUmum, REQUIRED_FIELDS_PENGANTAR_UMUM, type S
 import { usePendudukLookup, type PendudukLookupResult } from "@/app/surat-pengantar/usePendudukLookup";
 import { useToast } from "@/hooks/use-toast";
 import { usePrefillFormState } from "@/hooks/usePrefillFormState";
+import { useSuratNumbering } from "@/hooks/useSuratNumbering";
 
 const INPUT_BASE =
   "h-12 rounded-xl border border-slate-300 bg-white/80 text-base text-slate-800 focus-visible:ring-2 focus-visible:ring-slate-400";
@@ -38,7 +39,7 @@ export function SuratFormUmum({ surat, entryId, initialData, from, backUrl = "/s
   });
   const lastSuccessfulNikRef = useRef<string | null>(null);
   const { toast } = useToast();
-  const [isGeneratingNumber, setIsGeneratingNumber] = useState(false);
+  const { generateNumber, isGenerating } = useSuratNumbering();
 
   const applyPendudukData = useCallback(
     (data: PendudukLookupResult) => {
@@ -127,31 +128,25 @@ export function SuratFormUmum({ surat, entryId, initialData, from, backUrl = "/s
       return;
     }
 
-    // Generate nomor surat
-    setIsGeneratingNumber(true);
     try {
-      const response = await fetch("/api/surat-number", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jenisSurat: surat.slug }),
+      const result = await generateNumber({
+        jenisSurat: surat.slug,
+        nomorUrutManual: form.nomorUrutManual,
       });
 
-      if (!response.ok) {
-        throw new Error("Gagal generate nomor surat");
+      if (!result) {
+        return;
       }
 
-      const data = await response.json();
-      
-      // Update form dengan nomor dan tanggal yang di-generate
       const updatedForm = {
         ...form,
-        nomorSurat: data.nomorSurat,
-        tanggalSurat: data.tanggalSurat,
+        nomorSurat: result.nomorSurat,
+        tanggalSurat: result.tanggalSurat,
       };
 
       const params = new URLSearchParams();
       params.set("data", JSON.stringify(updatedForm));
-      params.set("reservedNumberId", data.id);
+      params.set("reservedNumberId", result.reservedNumberId);
       if (entryId) {
         params.set("entryId", entryId);
       }
@@ -164,10 +159,8 @@ export function SuratFormUmum({ surat, entryId, initialData, from, backUrl = "/s
       toast({
         variant: "destructive",
         title: "Gagal generate nomor surat",
-        description: "Terjadi kesalahan saat membuat nomor surat. Silakan coba lagi.",
+        description: error instanceof Error ? error.message : "Silakan coba lagi.",
       });
-    } finally {
-      setIsGeneratingNumber(false);
     }
   };
 
@@ -202,9 +195,28 @@ export function SuratFormUmum({ surat, entryId, initialData, from, backUrl = "/s
           <form className="space-y-10">
             <div className="space-y-4">
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Informasi Surat</p>
-              <div className="space-y-2">
-                <Label className="text-sm font-semibold text-slate-700">Tempat Surat</Label>
-                <Input value={form.tempatSurat} onChange={handleInputChange("tempatSurat")} placeholder="Kedungwringin" className={INPUT_BASE} />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-slate-700">Tempat Surat</Label>
+                  <Input value={form.tempatSurat} onChange={handleInputChange("tempatSurat")} placeholder="Kedungwringin" className={INPUT_BASE} />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-slate-700">
+                    Nomor Urut Surat (Opsional)
+                    <span className="ml-1 text-xs font-normal text-slate-500">Kosongkan untuk auto-generate</span>
+                  </Label>
+                  <Input 
+                    type="number"
+                    min="1"
+                    value={form.nomorUrutManual || ""} 
+                    onChange={handleInputChange("nomorUrutManual")} 
+                    placeholder="Contoh: 1, 2, 10"
+                    className={INPUT_BASE}
+                  />
+                  <p className="text-xs text-slate-500">
+                    Jika diisi, nomor urut akan menggunakan nilai ini. Sistem akan mencegah duplikasi.
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -212,48 +224,50 @@ export function SuratFormUmum({ surat, entryId, initialData, from, backUrl = "/s
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Data Pemohon</p>
               <div className="space-y-1.5">
                 <Label className="text-sm font-semibold text-slate-700">NIK</Label>
-                <div className="flex gap-2">
-                  <Input
-                    value={form.nik}
-                    onChange={handleNikChange}
-                    placeholder="Nomor Induk Kependudukan"
-                    inputMode="numeric"
-                    maxLength={16}
-                    className={INPUT_BASE}
-                  />
-                  <Button
-                    type="button"
-                    onClick={handleNikLookup}
-                    disabled={isLookupLoading}
-                    className="rounded-xl bg-[#0f0f0f] px-6 text-white hover:bg-[#1f1f1f]"
-                  >
-                    {isLookupLoading ? "Mencari..." : "Cari"}
-                  </Button>
+                <div className="rounded-xl bg-slate-100 p-4">
+                  <div className="flex items-center gap-2">
+                    <Input
+                      value={form.nik}
+                      onChange={handleNikChange}
+                      placeholder="Nomor Induk Kependudukan"
+                      inputMode="numeric"
+                      maxLength={16}
+                      className={INPUT_BASE}
+                    />
+                    <Button
+                      type="button"
+                      onClick={handleNikLookup}
+                      disabled={isLookupLoading}
+                      className="h-12 rounded-xl bg-[#0f0f0f] px-6 text-white hover:bg-[#1f1f1f]"
+                    >
+                      {isLookupLoading ? "Mencari..." : "Cari"}
+                    </Button>
+                  </div>
+                  <p className="mt-2 text-xs text-slate-500">Pastikan sesuai KTP elektronik.</p>
+                  {lookupState.status !== "idle" && lookupState.message && (
+                    <p
+                      className={`mt-1 text-xs ${
+                        lookupState.status === "error"
+                          ? "text-red-600"
+                          : lookupState.status === "success"
+                            ? "text-emerald-600"
+                            : "text-slate-500"
+                      }`}
+                    >
+                      {lookupState.message}
+                    </p>
+                  )}
                 </div>
-                <p className="text-xs text-slate-500">Pastikan sesuai KTP elektronik.</p>
-                {lookupState.status !== "idle" && lookupState.message && (
-                  <p
-                    className={`text-xs ${
-                      lookupState.status === "error"
-                        ? "text-red-600"
-                        : lookupState.status === "success"
-                          ? "text-emerald-600"
-                          : "text-slate-500"
-                    }`}
-                  >
-                    {lookupState.message}
-                  </p>
-                )}
               </div>
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">Nama Lengkap</Label>
-                <Input value={form.nama} onChange={handleInputChange("nama")} placeholder="Nama lengkap sesuai KTP" className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`} readOnly />
+                <Input value={form.nama} onChange={handleInputChange("nama")} placeholder="Nama lengkap sesuai KTP" className={INPUT_BASE} />
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Jenis Kelamin</Label>
-                  <Select value={form.jenisKelamin} onValueChange={handleSelectChange("jenisKelamin")} disabled>
-                    <SelectTrigger className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}>
+                  <Select value={form.jenisKelamin} onValueChange={handleSelectChange("jenisKelamin")}>
+                    <SelectTrigger className={INPUT_BASE}>
                       <SelectValue placeholder="Pilih jenis kelamin" />
                     </SelectTrigger>
                     <SelectContent>
@@ -264,25 +278,25 @@ export function SuratFormUmum({ surat, entryId, initialData, from, backUrl = "/s
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Pekerjaan</Label>
-                  <Input value={form.pekerjaan} onChange={handleInputChange("pekerjaan")} placeholder="Wiraswasta" className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`} readOnly />
+                  <Input value={form.pekerjaan} onChange={handleInputChange("pekerjaan")} placeholder="Wiraswasta" className={INPUT_BASE} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Status Perkawinan</Label>
-                  <Input value={form.statusPerkawinan} onChange={handleInputChange("statusPerkawinan")} placeholder="Kawin Tercatat/Kawin Tidak Tercatat/Duda/Janda" className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`} readOnly />
+                  <Input value={form.statusPerkawinan} onChange={handleInputChange("statusPerkawinan")} placeholder="Kawin Tercatat/Kawin Tidak Tercatat/Duda/Janda" className={INPUT_BASE} />
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Tempat Lahir</Label>
-                  <Input value={form.tempatLahir} onChange={handleInputChange("tempatLahir")} placeholder="Banyumas" className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`} readOnly />
+                  <Input value={form.tempatLahir} onChange={handleInputChange("tempatLahir")} placeholder="Banyumas" className={INPUT_BASE} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Tanggal Lahir</Label>
-                  <Input type="date" value={form.tanggalLahir} onChange={handleInputChange("tanggalLahir")} className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`} readOnly />
+                  <Input type="date" value={form.tanggalLahir} onChange={handleInputChange("tanggalLahir")} className={INPUT_BASE} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Agama</Label>
-                  <Input value={form.agama} onChange={handleInputChange("agama")} placeholder="Islam" className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`} readOnly />
+                  <Input value={form.agama} onChange={handleInputChange("agama")} placeholder="Islam" className={INPUT_BASE} />
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
@@ -292,7 +306,7 @@ export function SuratFormUmum({ surat, entryId, initialData, from, backUrl = "/s
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Nomor KK</Label>
-                  <Input value={form.nkk} onChange={handleInputChange("nkk")} placeholder="Nomor Kartu Keluarga" className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`} readOnly />
+                  <Input value={form.nkk} onChange={handleInputChange("nkk")} placeholder="Nomor Kartu Keluarga" className={INPUT_BASE} />
                 </div>
               </div>
             </div>
@@ -301,16 +315,16 @@ export function SuratFormUmum({ surat, entryId, initialData, from, backUrl = "/s
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Alamat Pemohon</p>
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">Alamat Jalan/Dusun</Label>
-                <Textarea value={form.alamat} onChange={handleInputChange("alamat")} placeholder="Contoh: Kedungwringin" className={`${TEXTAREA_BASE} bg-slate-50 cursor-not-allowed`} readOnly />
+                <Textarea value={form.alamat} onChange={handleInputChange("alamat")} placeholder="Contoh: Kedungwringin" className={TEXTAREA_BASE} />
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">RT</Label>
-                  <Input value={form.rt} onChange={handleInputChange("rt")} placeholder="02" className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`} readOnly />
+                  <Input value={form.rt} onChange={handleInputChange("rt")} placeholder="02" className={INPUT_BASE} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">RW</Label>
-                  <Input value={form.rw} onChange={handleInputChange("rw")} placeholder="05" className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`} readOnly />
+                  <Input value={form.rw} onChange={handleInputChange("rw")} placeholder="05" className={INPUT_BASE} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">Kelurahan/Desa</Label>
@@ -387,9 +401,9 @@ export function SuratFormUmum({ surat, entryId, initialData, from, backUrl = "/s
                 type="button"
                 onClick={handlePreview}
                 className="flex-1 rounded-xl bg-[#ff6435] px-6 py-6 text-base font-semibold text-white hover:bg-[#e5552b] sm:flex-initial"
-                disabled={isGeneratingNumber}
+                disabled={isGenerating}
               >
-                {isGeneratingNumber ? "Memproses..." : "Preview Surat"}
+                {isGenerating ? "Memproses..." : "Preview Surat"}
               </Button>
             </div>
           </form>

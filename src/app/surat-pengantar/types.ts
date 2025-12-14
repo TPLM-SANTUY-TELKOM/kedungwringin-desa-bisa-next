@@ -2,6 +2,7 @@ import { DEFAULT_KEPALA_DESA } from "@/data/pejabat-desa";
 
 export type SuratPengantarUmumData = {
   nomorSurat: string;
+  nomorUrutManual?: string; // Nomor urut manual (opsional)
   tempatSurat: string;
   tanggalSurat: string;
   nama: string;
@@ -31,6 +32,7 @@ export type SuratPengantarUmumData = {
 
 export const createDefaultSuratPengantarUmum = (): SuratPengantarUmumData => ({
   nomorSurat: "",
+  nomorUrutManual: "",
   tempatSurat: "Kedungwringin",
   tanggalSurat: new Date().toISOString().slice(0, 10),
   nama: "",
@@ -79,6 +81,7 @@ export const REQUIRED_FIELDS_PENGANTAR_UMUM: Array<keyof SuratPengantarUmumData>
 
 export type SuratPengantarKepolisianData = {
   nomorSurat: string;
+  nomorUrutManual?: string; // Nomor urut manual (opsional)
   tempatSurat: string;
   tanggalSurat: string;
   nama: string;
@@ -109,6 +112,7 @@ export type SuratPengantarKepolisianData = {
 
 export const createDefaultSuratPengantarKepolisian = (): SuratPengantarKepolisianData => ({
   nomorSurat: "",
+  nomorUrutManual: "",
   tempatSurat: "Kedungwringin",
   tanggalSurat: new Date().toISOString().slice(0, 10),
   nama: "",
@@ -157,6 +161,7 @@ export const REQUIRED_FIELDS_PENGANTAR_KEPOLISIAN: Array<keyof SuratPengantarKep
 
 export type SuratPengantarIzinKeramaianData = {
   nomorSurat: string;
+  nomorUrutManual?: string; // Nomor urut manual (opsional)
   tempatSurat: string;
   tanggalSurat: string;
   nama: string;
@@ -192,6 +197,7 @@ export type SuratPengantarIzinKeramaianData = {
 
 export const createDefaultSuratPengantarIzinKeramaian = (): SuratPengantarIzinKeramaianData => ({
   nomorSurat: "",
+  nomorUrutManual: "",
   tempatSurat: "Kedungwringin",
   tanggalSurat: new Date().toISOString().slice(0, 10),
   nama: "",

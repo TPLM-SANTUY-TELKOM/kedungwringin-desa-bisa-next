@@ -1,11 +1,13 @@
 "use client";
 
-import { Home, Users, FileText, LogOut, Inbox, Globe } from "lucide-react";
+import { useState } from "react";
+import { Home, Users, FileText, LogOut, Inbox, Globe, AlertCircle, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import logoDesa from "@/assets/ic_logo_banyumas.png";
+import { FooterLastUpdate } from "@/components/FooterLastUpdate";
 
 interface MenuItem {
   title: string;
@@ -24,6 +26,7 @@ const menuItems: MenuItem[] = [
 export function AppSidebar() {
   const pathname = usePathname();
   const isAdmin = true; // Sementara hardcode sebagai admin
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const isActive = (path: string) => {
     if (!pathname) return false;
@@ -40,6 +43,10 @@ export function AppSidebar() {
       return "bg-sidebar-accent text-sidebar-accent-foreground bg-gray-200 font-semibold";
     }
     return " hover:bg-muted/60 hover:text-sidebar-foreground text-sidebar-foreground/70 border border-transparent hover:border-sidebar-border/50";
+  };
+
+  const handleLogout = () => {
+    window.location.href = "/admin";
   };
 
   return (
@@ -112,15 +119,67 @@ export function AppSidebar() {
         <Button
           variant="ghost"
           className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground "
-          onClick={() => {
-            // Handle logout
-            window.location.href = "/admin";
-          }}
+          onClick={() => setShowLogoutConfirm(true)}
         >
           <LogOut className="h-4 w-4 mr-2" />
           Logout
         </Button>
+        
+        {/* Footer Last Update */}
+        <FooterLastUpdate />
       </div>
+
+      {/* Logout Confirmation Dialog */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="relative mx-4 w-full max-w-md animate-in fade-in zoom-in-95 duration-200">
+            <div className="rounded-3xl border border-white/60 bg-white/95 shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-xl">
+              {/* Header */}
+              <div className="flex items-start justify-between border-b border-slate-200 p-6">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
+                    <AlertCircle className="h-6 w-6 text-amber-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900">Konfirmasi Logout</h3>
+                    <p className="text-xs text-slate-500">Pastikan Anda ingin keluar</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowLogoutConfirm(false)}
+                  className="rounded-full p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="p-6">
+                <p className="text-sm text-slate-600">
+                  Apakah Anda yakin ingin logout? Anda akan diarahkan ke halaman login.
+                </p>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 border-t border-slate-200 p-6">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowLogoutConfirm(false)}
+                  className="flex-1 rounded-xl"
+                >
+                  Batal
+                </Button>
+                <Button
+                  onClick={handleLogout}
+                  className="flex-1 rounded-xl bg-slate-900 hover:bg-slate-800"
+                >
+                  Ya, Logout
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

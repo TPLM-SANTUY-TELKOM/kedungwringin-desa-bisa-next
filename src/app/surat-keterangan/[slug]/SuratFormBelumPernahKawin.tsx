@@ -13,6 +13,7 @@ import { NikLookupField } from "@/components/form/NikLookupField";
 import { KepalaDesaSelect } from "@/components/form/KepalaDesaSelect";
 import { useNikAutofillField, type PendudukLookupResult } from "@/hooks/useNikAutofillField";
 import { PEJABAT_DESA_OPTIONS } from "@/data/pejabat-desa";
+import { useToast } from "@/hooks/use-toast";
 
 import type { SuratKeteranganOption } from "@/data/surat-keterangan-options";
 import { createDefaultSuratKeteranganBelumPernahKawin, type SuratKeteranganBelumPernahKawinData } from "@/app/surat-keterangan/types";
@@ -41,6 +42,7 @@ export function SuratFormBelumPernahKawin({ surat, entryId, initialData, from, b
   const [error, setError] = useState<string | null>(null);
   const [isGeneratingNumber, setIsGeneratingNumber] = useState(false);
   const [reservedNumberId, setReservedNumberId] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const handleApplyNikData = (data: PendudukLookupResult) => {
     setForm((prev) => ({
@@ -128,14 +130,36 @@ export function SuratFormBelumPernahKawin({ surat, entryId, initialData, from, b
     setError(null);
 
     try {
+      // Siapkan request body dengan nomor urut manual jika ada
+      const requestBody: { jenisSurat: string; nomorUrutManual?: string } = {
+        jenisSurat: surat.slug,
+      };
+
+      // Jika nomor urut manual diisi, kirim ke API
+      if (form.nomorUrutManual && form.nomorUrutManual.trim() !== "") {
+        requestBody.nomorUrutManual = form.nomorUrutManual.trim();
+      }
+
       const res = await fetch("/api/surat-number", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jenisSurat: surat.slug }),
+        body: JSON.stringify(requestBody),
       });
 
       if (!res.ok) {
-        throw new Error("Gagal menggenerate nomor surat");
+        const errorData = await res.json().catch(() => ({ error: "Unknown error" }));
+        
+        // Handle duplicate error khusus
+        if (res.status === 409) {
+          toast({
+            variant: "destructive",
+            title: "Nomor urut sudah digunakan",
+            description: errorData.error || "Nomor urut yang Anda masukkan sudah digunakan. Silakan gunakan nomor lain atau kosongkan untuk auto-generate.",
+          });
+          return;
+        }
+        
+        throw new Error(errorData.error || "Gagal menggenerate nomor surat");
       }
 
       const { nomorSurat, id } = await res.json();
@@ -198,6 +222,27 @@ export function SuratFormBelumPernahKawin({ surat, entryId, initialData, from, b
 
           <form className="space-y-10">
             <div className="space-y-4">
+              <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Informasi Surat</p>
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-slate-700">
+                  Nomor Urut Surat (Opsional)
+                  <span className="ml-1 text-xs font-normal text-slate-500">Kosongkan untuk auto-generate</span>
+                </Label>
+                <Input 
+                  type="number"
+                  min="1"
+                  value={form.nomorUrutManual || ""} 
+                  onChange={handleInputChange("nomorUrutManual")} 
+                  placeholder="Contoh: 1, 2, 10"
+                  className={INPUT_BASE}
+                />
+                <p className="text-xs text-slate-500">
+                  Jika diisi, nomor urut akan menggunakan nilai ini. Sistem akan mencegah duplikasi.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
               <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">Yang Bertanda Tangan Di Bawah Ini</p>
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">Nama Kepala Desa <span className="text-red-500">*</span></Label>
@@ -235,8 +280,7 @@ export function SuratFormBelumPernahKawin({ surat, entryId, initialData, from, b
                   value={form.nama} 
                   onChange={handleInputChange("nama")} 
                   placeholder="Akan terisi otomatis dari NIK" 
-                  readOnly
-                  className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}
+                  className={INPUT_BASE}
                 />
               </div>
               <div className="space-y-2">
@@ -245,8 +289,7 @@ export function SuratFormBelumPernahKawin({ surat, entryId, initialData, from, b
                   value={form.tempatTanggalLahir} 
                   onChange={handleInputChange("tempatTanggalLahir")} 
                   placeholder="Akan terisi otomatis dari NIK" 
-                  readOnly
-                  className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}
+                  className={INPUT_BASE}
                 />
               </div>
               <div className="space-y-2">
@@ -254,9 +297,8 @@ export function SuratFormBelumPernahKawin({ surat, entryId, initialData, from, b
                 <Select 
                   value={form.jenisKelamin} 
                   onValueChange={handleSelectChange("jenisKelamin")}
-                  disabled
                 >
-                  <SelectTrigger className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}>
+                  <SelectTrigger className={INPUT_BASE}>
                     <SelectValue placeholder="Otomatis dari NIK" />
                   </SelectTrigger>
                   <SelectContent>
@@ -270,9 +312,8 @@ export function SuratFormBelumPernahKawin({ surat, entryId, initialData, from, b
                 <Select 
                   value={form.agama} 
                   onValueChange={handleSelectChange("agama")}
-                  disabled
                 >
-                  <SelectTrigger className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}>
+                  <SelectTrigger className={INPUT_BASE}>
                     <SelectValue placeholder="Otomatis dari NIK" />
                   </SelectTrigger>
                   <SelectContent>
@@ -300,8 +341,7 @@ export function SuratFormBelumPernahKawin({ surat, entryId, initialData, from, b
                   value={form.pekerjaan} 
                   onChange={handleInputChange("pekerjaan")} 
                   placeholder="Akan terisi otomatis dari NIK" 
-                  readOnly
-                  className={`${INPUT_BASE} bg-slate-50 cursor-not-allowed`}
+                  className={INPUT_BASE}
                 />
               </div>
               <div className="space-y-2">
@@ -310,8 +350,7 @@ export function SuratFormBelumPernahKawin({ surat, entryId, initialData, from, b
                   value={form.alamat} 
                   onChange={handleInputChange("alamat")} 
                   placeholder="Akan terisi otomatis dari NIK" 
-                  readOnly
-                  className={`${TEXTAREA_BASE} bg-slate-50 cursor-not-allowed`}
+                  className={TEXTAREA_BASE}
                   rows={2}
                 />
               </div>

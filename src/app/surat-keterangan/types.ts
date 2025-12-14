@@ -5,6 +5,7 @@ export type SuratKeteranganUmumData = {
   nomorSurat: string;
   tempatSurat: string;
   tanggalSurat: string;
+  nomorUrutManual?: string; // Nomor urut manual (opsional)
   nama: string;
   nik: string;
   jenisKelamin: "Laki-laki" | "Perempuan";
@@ -29,6 +30,7 @@ export const createDefaultSuratKeteranganUmum = (): SuratKeteranganUmumData => (
   nomorSurat: "",
   tempatSurat: "",
   tanggalSurat: new Date().toISOString().slice(0, 10),
+  nomorUrutManual: "",
   nama: "",
   nik: "",
   jenisKelamin: "Laki-laki",
@@ -53,6 +55,7 @@ export const createDefaultSuratKeteranganUmum = (): SuratKeteranganUmumData => (
 export type SuratKeteranganBelumPernahKawinData = {
   nomorSurat: string;
   tanggalSurat: string;
+  nomorUrutManual?: string; // Nomor urut manual (opsional)
   namaPenandatangan: string;
   jabatanPenandatangan: string;
   nik: string;
@@ -73,6 +76,7 @@ export type SuratKeteranganBelumPernahKawinData = {
 export const createDefaultSuratKeteranganBelumPernahKawin = (): SuratKeteranganBelumPernahKawinData => ({
   nomorSurat: "",
   tanggalSurat: new Date().toISOString().slice(0, 10),
+  nomorUrutManual: "",
   namaPenandatangan: "",
   jabatanPenandatangan: "",
   nik: "",
@@ -95,6 +99,7 @@ export type SuratKeteranganDomisiliTempatTinggalData = {
   nomorSurat: string;
   tempatSurat: string;
   tanggalSurat: string;
+  nomorUrutManual?: string; // Nomor urut manual (opsional)
   nama: string;
   nik: string;
   jenisKelamin: "Laki-laki" | "Perempuan";
@@ -119,6 +124,7 @@ export const createDefaultSuratKeteranganDomisiliTempatTinggal = (): SuratKetera
   nomorSurat: "",
   tempatSurat: "",
   tanggalSurat: new Date().toISOString().slice(0, 10),
+  nomorUrutManual: "",
   nama: "",
   nik: "",
   jenisKelamin: "Laki-laki",
@@ -143,6 +149,7 @@ export const createDefaultSuratKeteranganDomisiliTempatTinggal = (): SuratKetera
 export type SuratKeteranganUsahaData = {
   nomorSurat: string;
   tanggalSurat: string;
+  nomorUrutManual?: string; // Nomor urut manual (opsional)
   nama: string;
   jenisKelamin: "LAKI-LAKI" | "PEREMPUAN";
   tempatTanggalLahir: string;
@@ -158,6 +165,7 @@ export type SuratKeteranganUsahaData = {
 export const createDefaultSuratKeteranganUsaha = (): SuratKeteranganUsahaData => ({
   nomorSurat: "",
   tanggalSurat: new Date().toISOString().slice(0, 10),
+  nomorUrutManual: "",
   nama: "",
   jenisKelamin: "LAKI-LAKI",
   tempatTanggalLahir: "",
@@ -174,6 +182,7 @@ export const createDefaultSuratKeteranganUsaha = (): SuratKeteranganUsahaData =>
 export type SuratKeteranganWaliHakimData = {
   nomorSurat: string;
   tanggalSurat: string;
+  nomorUrutManual?: string; // Nomor urut manual (opsional)
   tanggalPernikahan: string;
   // Data Wali (I)
   namaWali: string;
@@ -199,6 +208,7 @@ export type SuratKeteranganWaliHakimData = {
 export const createDefaultSuratKeteranganWaliHakim = (): SuratKeteranganWaliHakimData => ({
   nomorSurat: "",
   tanggalSurat: new Date().toISOString().slice(0, 10),
+  nomorUrutManual: "",
   tanggalPernikahan: "",
   namaWali: "",
   bintiWali: "",
@@ -221,6 +231,7 @@ export const createDefaultSuratKeteranganWaliHakim = (): SuratKeteranganWaliHaki
 export type SuratKeteranganDomisiliUsahaData = {
   nomorSurat: string;
   tanggalSurat: string;
+  nomorUrutManual?: string; // Nomor urut manual (opsional)
   nama: string;
   jenisKelamin: "LAKI-LAKI" | "PEREMPUAN";
   tempatLahir: string;
@@ -244,6 +255,7 @@ export type SuratKeteranganDomisiliUsahaData = {
 export const createDefaultSuratKeteranganDomisiliUsaha = (): SuratKeteranganDomisiliUsahaData => ({
   nomorSurat: "",
   tanggalSurat: new Date().toISOString().slice(0, 10),
+  nomorUrutManual: "",
   nama: "",
   jenisKelamin: "LAKI-LAKI",
   tempatLahir: "",
@@ -269,6 +281,7 @@ export type SuratKeteranganTidakMampuData = {
   nomorSurat: string;
   tempatSurat: string;
   tanggalSurat: string;
+  nomorUrutManual?: string; // Nomor urut manual (opsional)
   nama: string;
   jenisKelamin: "Laki-laki" | "Perempuan" | "LAKI-LAKI" | "PEREMPUAN";
   tempatLahir: string;
@@ -286,6 +299,7 @@ export const createDefaultSuratKeteranganTidakMampu = (): SuratKeteranganTidakMa
   nomorSurat: "",
   tempatSurat: "",
   tanggalSurat: new Date().toISOString().slice(0, 10),
+  nomorUrutManual: "",
   nama: "",
   jenisKelamin: "LAKI-LAKI",
   tempatLahir: "",
